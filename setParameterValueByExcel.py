@@ -1,4 +1,5 @@
 """Copyright by: vudinhduybm@gmail.com"""
+##########################################
 import clr 
 
 clr.AddReference("RevitServices")
@@ -65,4 +66,5 @@ for row in excelData:
         t.Commit()
         outcomesList.append(outcomes)
 
-OUT = outcomesList
+OUT = outcomesList,outcomes
+print ("sSs")
