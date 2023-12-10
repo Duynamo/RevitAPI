@@ -66,5 +66,4 @@ for row in excelData:
         t.Commit()
         outcomesList.append(outcomes)
 
-OUT = outcomesList,outcomes
-print ("sSs")
+OUT = outcomesList
