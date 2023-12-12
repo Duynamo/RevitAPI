@@ -2402,6 +2402,38 @@
       ],
       "Replication": "Disabled",
       "Description": "Allows for DesignScript code to be authored directly"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nimport System\r\nimport math \r\nfrom System.Collections.Generic import *\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference('RevitAPIUI')\r\nfrom Autodesk.Revit.UI import*\r\nfrom  Autodesk.Revit.UI.Selection import*\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nview = doc.ActiveView\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\ndef pickObjects():\r\n    edges = []\r\n    elements = []\r\n    refs = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Edge, \"Please select the Desired Edges\")\r\n    #GeoObs = doc.GetElement(refs).GetGeometryObjectFromReference(refs)\r\n    for i in range(len(refs)):\r\n        ele = doc.GetElement(refs[i].ElementId)\r\n        edge = ele.GetGeometryObjectFromReference(refs[i])\r\n        edges.append(edge.AsCurve().ToProtoType())\r\n        \r\n    return  edges, ele\r\n\r\nOUT = pickObjects()",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "9ee3f209e7a14d2db174fb35f88c1ffd",
+      "Inputs": [
+        {
+          "Id": "d81b1abf6f674617862628b44f6d8037",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "059042930c1245c5ac1b84cba62ba8a5",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
     }
   ],
   "Connectors": [
@@ -2609,6 +2641,11 @@
       "Start": "4d4d0950b2044afe9f7d0227ef3964e2",
       "End": "97cfe43641fd457b8192154cade48e2f",
       "Id": "64da5658615b4c3cb6d1f1dcff033692"
+    },
+    {
+      "Start": "4d4d0950b2044afe9f7d0227ef3964e2",
+      "End": "d81b1abf6f674617862628b44f6d8037",
+      "Id": "ad4d7c8de609456db0115d5badff621d"
     },
     {
       "Start": "d5efbd75c0c2487eb406d7b3fcc0ed44",
@@ -3339,9 +3376,9 @@
         "Id": "b5ce158c22564739bac666565635e7a4",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": true,
-        "X": 774.57637746619469,
-        "Y": -1532.76863929727
+        "Excluded": false,
+        "X": 663.69554206182283,
+        "Y": -1529.5547020391723
       },
       {
         "ShowGeometry": true,
@@ -3349,7 +3386,7 @@
         "Id": "7a7d7e6c63334257af4270ca96ed21f3",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": false,
+        "Excluded": true,
         "X": 957.98172485740474,
         "Y": -1524.3422278845753
       },
@@ -3359,7 +3396,7 @@
         "Id": "318cf03255d04545bc7a9c7f2b205346",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": false,
+        "Excluded": true,
         "X": 1623.4328788816592,
         "Y": -1505.4557347441823
       },
@@ -3370,8 +3407,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 1360.7124033875541,
-        "Y": -1497.420228718353
+        "X": 1292.5592671571974,
+        "Y": -1504.9927994106149
       },
       {
         "ShowGeometry": true,
@@ -3389,7 +3426,7 @@
         "Id": "4cb90705004a49bf8c11263c19a6a31f",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": false,
+        "Excluded": true,
         "X": 1560.6549031830741,
         "Y": -1349.4781344190351
       },
@@ -3482,6 +3519,16 @@
         "Excluded": false,
         "X": 1441.0786296910355,
         "Y": -1701.4841651471527
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "pickEdges1",
+        "Id": "9ee3f209e7a14d2db174fb35f88c1ffd",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 925.88567635536344,
+        "Y": -1374.2981107207231
       }
     ],
     "Annotations": [
@@ -3720,8 +3767,8 @@
         "Background": "#FF848484"
       }
     ],
-    "X": -500.08650898797424,
-    "Y": 1014.2972684448699,
-    "Zoom": 0.39865035616491157
+    "X": -929.35757919298715,
+    "Y": 1940.0391454587211,
+    "Zoom": 1.1954682665367162
   }
 }
