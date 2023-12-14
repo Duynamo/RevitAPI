@@ -31,3 +31,21 @@ def flattenArrayByOptionals(objects, level = 1):
             result.append(item)
     return result
 
+##selectionFilter
+class selectionFilter(ISelectionFilter):
+    def __init__(self, category1, category2,category3, category4):
+        self.category1 = category1
+        self.category2 = category2
+        self.category3 = category3
+        self.category4 = category4
+    
+    def AllowElement(self, element):
+        if element.Category.Name == self.category1 or element.Category.Name == self.category2 or element.Category.Name == self.category3 or element.Category.Name == self.category4:
+            return True
+        else:
+            return False
+    def AllowReference(reference, point):
+        return False
+    
+ele = selectionFilter('Structural Columns', 'Structural Framing', 'Pipes','Pipe Fittings')
+ele.copy()

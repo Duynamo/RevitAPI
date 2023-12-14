@@ -2148,7 +2148,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nimport System\r\nimport math \r\nfrom System.Collections.Generic import *\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference('RevitAPIUI')\r\nfrom Autodesk.Revit.UI import*\r\nfrom  Autodesk.Revit.UI.Selection import*\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nview = doc.ActiveView\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\ndef pickObjects():\r\n    faces = []\r\n    elements = []\r\n    refs = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Face, \"Please select the Desired Faces\")\r\n    #GeoObs = doc.GetElement(refs).GetGeometryObjectFromReference(refs)\r\n    for i in refs:\r\n        ele = doc.GetElement(i.ElementId)\r\n        elements.append(ele)\r\n        face = ele.GetGeometryObjectFromReference(i)\r\n        faces.append(face)\r\n        \r\n    return  faces, elements\r\n\r\nOUT = pickObjects()",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nimport System\r\nimport math \r\nfrom System.Collections.Generic import *\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference('RevitAPIUI')\r\nfrom Autodesk.Revit.UI import*\r\nfrom  Autodesk.Revit.UI.Selection import*\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nview = doc.ActiveView\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\ndef pickObjects():\r\n    faces = []\r\n    elements = []\r\n    refs = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Face, \"Please select the Desired Faces\")\r\n    #GeoObs = doc.GetElement(refs).GetGeometryObjectFromReference(refs)\r\n    for i in refs:\r\n        ele = doc.GetElement(i.ElementId)\r\n        elements.append(ele)\r\n        face = ele.GetGeometryObjectFromReference(i)\r\n        faces.append(face.ToProtoType())\r\n        \r\n    return  faces, elements\r\n\r\nOUT = pickObjects()",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "9a0078f1c8404baba886a59371bc4842",
@@ -2406,7 +2406,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nimport System\r\nimport math \r\nfrom System.Collections.Generic import *\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference('RevitAPIUI')\r\nfrom Autodesk.Revit.UI import*\r\nfrom  Autodesk.Revit.UI.Selection import*\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nview = doc.ActiveView\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\ndef pickObjects():\r\n    edges = []\r\n    elements = []\r\n    refs = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Edge, \"Please select the Desired Edges\")\r\n    #GeoObs = doc.GetElement(refs).GetGeometryObjectFromReference(refs)\r\n    for i in range(len(refs)):\r\n        ele = doc.GetElement(refs[i].ElementId)\r\n        edge = ele.GetGeometryObjectFromReference(refs[i])\r\n        edges.append(edge.AsCurve().ToProtoType())\r\n        \r\n    return  edges, ele\r\n\r\nOUT = pickObjects()",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nimport System\r\nimport math \r\nfrom System.Collections.Generic import *\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference('RevitAPIUI')\r\nfrom Autodesk.Revit.UI import*\r\nfrom  Autodesk.Revit.UI.Selection import*\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nview = doc.ActiveView\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\ndef pickObjects():\r\n    edges = []\r\n    elements = []\r\n    refs = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Edge, \"Please select the Desired Edges\")\r\n    #GeoObs = doc.GetElement(refs).GetGeometryObjectFromReference(refs)\r\n    for i in range(len(refs)):\r\n        ele = doc.GetElement(refs[i].ElementId)\r\n        elements.append(ele)\r\n        edge = ele.GetGeometryObjectFromReference(refs[i])\r\n        edges.append(edge.AsCurve().ToProtoType())\r\n        \r\n    return  edges, elements\r\n\r\nOUT = pickObjects()",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "9ee3f209e7a14d2db174fb35f88c1ffd",
@@ -2739,15 +2739,15 @@
     },
     "Camera": {
       "Name": "Background Preview",
-      "EyeX": 2158.347050545397,
-      "EyeY": 23864.68473790897,
-      "EyeZ": 13563.59094750756,
-      "LookX": 6955.402949454603,
-      "LookY": -19364.68473790897,
-      "LookZ": -26159.84094750756,
-      "UpX": 0.10122442245483398,
-      "UpY": 0.91913551092147827,
-      "UpZ": -0.38071471452713013
+      "EyeX": -5577.8994140625,
+      "EyeY": 16387.255859375,
+      "EyeZ": 14983.033203125,
+      "LookX": 15218.921875,
+      "LookY": -21561.82421875,
+      "LookZ": -20277.5234375,
+      "UpX": 0.28181025385856628,
+      "UpY": 0.88294774293899536,
+      "UpZ": -0.37548148632049561
     },
     "NodeViews": [
       {
@@ -3376,7 +3376,7 @@
         "Id": "b5ce158c22564739bac666565635e7a4",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": false,
+        "Excluded": true,
         "X": 663.69554206182283,
         "Y": -1529.5547020391723
       },
@@ -3436,7 +3436,7 @@
         "Id": "b703f5642ba845ccac55e387ccf8953e",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": true,
+        "Excluded": false,
         "X": 867.20190754997384,
         "Y": -1065.6122403779159
       },
@@ -3467,8 +3467,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 1837.6927347947028,
-        "Y": -849.38186271582833
+        "X": 1582.982628704963,
+        "Y": -845.2289805513218
       },
       {
         "ShowGeometry": true,
@@ -3527,8 +3527,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 925.88567635536344,
-        "Y": -1374.2981107207231
+        "X": 884.73297368369936,
+        "Y": -1335.3698784637436
       }
     ],
     "Annotations": [
@@ -3767,8 +3767,8 @@
         "Background": "#FF848484"
       }
     ],
-    "X": -929.35757919298715,
-    "Y": 1940.0391454587211,
-    "Zoom": 1.1954682665367162
+    "X": -574.56672076117911,
+    "Y": 1134.9527665057681,
+    "Zoom": 0.78244409924614755
   }
 }
