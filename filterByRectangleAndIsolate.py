@@ -38,7 +38,6 @@ class selectionFilter(ISelectionFilter):
         self.category1 = category1
         self.category2 = category2
 
-    
     def AllowElement(self, element):
         if element.Category.Name == self.category1 or element.Category.Name == self.category2 :
             return True

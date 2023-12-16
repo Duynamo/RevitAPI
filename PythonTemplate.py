@@ -1,30 +1,29 @@
 """Copyright by: vudinhduybm@gmail.com"""
 import clr 
-
-import System
-from System import Array
-from System.Collections.Generic import *
-
+import sys 
+import System   
 clr.AddReference("ProtoGeometry")
 from Autodesk.DesignScript.Geometry import *
 
-clr.AddReference("RevitNodes")
-import Revit
-clr.ImportExtensions(Revit.Elements)
-clr.ImportExtensions(Revit.GeometryConversion)
+clr.AddReference('RevitAPI') 
+from Autodesk.Revit.DB import*
+from Autodesk.Revit.DB.Structure import*
 
-clr.AddReference("RevitServices")
+clr.AddReference('RevitAPIUI') 
+from Autodesk.Revit.UI import*
+
+clr.AddReference('System') 
+from System.Collections.Generic import List
+
+clr.AddReference('RevitNodes') 
+import Revit 
+clr.ImportExtensions('Revit.GeometryConversions') 
+clr.ImportExtensions('Revit.Elements') 
+clr.AddReference('RevitService') 
+
 import RevitServices
 from RevitServices.Persistence import DocumentManager
 from RevitServices.Transactions import TransactionManager
-
-clr.AddReference('RevitAPI')
-clr.AddReference('RevitAPIUI')
-
-import Autodesk
-from Autodesk.Revit.DB import *
-from Autodesk.Revit.UI import*
-from Autodesk.Revit.UI.Selection import*
 
 #Current doc/app/ui
 doc = DocumentManager.Instance.CurrentDBDocument
@@ -54,9 +53,4 @@ TransactionManager.Instance.EnsureInTransaction(doc)
 
 TransactionManager.Instance.TransactionTaskDone()
 
-# Output and Changing element to Dynamo for export
-# <element>.ToDSType(True), #Not created in script, mark as Revit-owned
-# <element>.ToDSType(False) #Created in script, mark as non-Revit-owned
-
-# Output to Dynamo
 OUT = element
