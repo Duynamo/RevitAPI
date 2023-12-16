@@ -15,10 +15,10 @@ from Autodesk.Revit.UI import*
 clr.AddReference('System') 
 from System.Collections.Generic import List
 
-clr.AddReference('RevitNodes') 
-import Revit 
-clr.ImportExtensions('Revit.GeometryConversions') 
-clr.ImportExtensions('Revit.Elements') 
+clr.AddReference("RevitNodes")
+import Revit
+clr.ImportExtensions(Revit.Elements)
+clr.ImportExtensions(Revit.GeometryConversion)
 clr.AddReference('RevitService') 
 
 import RevitServices

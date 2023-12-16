@@ -20,11 +20,10 @@ clr.AddReference('System')
 from System.Collections.Generic import List
 #Revit's API sometimes wants hard-types 'generic' lists, called IList
 
-clr.AddReference('RevitNodes') #Dynamo nodes for revit
-
-import Revit #Loads in the Revit namespace in  Revit nodes
-clr.ImportExtensions('Revit.GeometryConversions') #You'll only need if you're interacting with geometries 
-clr.ImportExtensions('Revit.Elements') #More loading of Dynamo's Revit libraries
+clr.AddReference("RevitNodes")#Dynamo nodes for revit
+import Revit#Loads in the Revit namespace in  Revit nodes
+clr.ImportExtensions(Revit.Elements) #More loading of Dynamo's Revit libraries
+clr.ImportExtensions(Revit.GeometryConversion)#You'll only need if you're interacting with geometries 
 clr.AddReference('RevitService') #Dynamo's classes for handling Revit documents
 
 import RevitServices
