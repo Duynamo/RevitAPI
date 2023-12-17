@@ -56,7 +56,7 @@ flat_categoriesFilter = [item for sublist in categoriesFilter for item in sublis
 # 		filteredFams.append(fam)
 
 filteredFams = []
-filteredFams.append([[doc.GetElement(item.Symbol.Family.Id)] for sublist in categoriesFilter for item in sublist])
+filteredFams.append([[doc.GetElement(item.Symbol.Family.Id) for item in sublist] for sublist in categoriesFilter])
 
 IDS = List[ElementId]()
 for i in flat_categoriesFilter:
