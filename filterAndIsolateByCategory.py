@@ -1,4 +1,5 @@
 """Copyright by: vudinhduybm@gmail.com"""
+
 import clr 
 import sys 
 import System   
@@ -32,7 +33,6 @@ app = uiapp.Application
 uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
 
-
 def getBuiltInCategoryOTS(nameCategory): # Get Name of BuiltInCategory
     return [i for i in System.Enum.GetValues(BuiltInCategory) if i.ToString() == "OST_"+nameCategory or i.ToString() == nameCategory ]
 
@@ -45,18 +45,25 @@ for i in categoriesIn:
 	categories.append(cat)
 flat_categories = [item for sublist in categories for item in sublist]
 
-categoriesFilter.append([FilteredElementCollector(doc).OfCategory(BuitltInCategory.c).WhereElementIsNotElementType() for c in flat_categories])
+for c in flat_categories:
+	collector = FilteredElementCollector(doc).OfCategory(c).WhereElementIsNotElementType()
+	categoriesFilter.append(collector)
+flat_categoriesFilter = [item for sublist in categoriesFilter for item in sublist]
+# for sublist in categoriesFilter:
+# 	for item in sublist:
+# 		filteredFams = []
+# 		fam = doc.GetElement(item.Symbol.Family.Id)
+# 		filteredFams.append(fam)
 
-desEle = categoriesFilter.ToElements()
+filteredFams = []
+filteredFams.append([[doc.GetElement(item.Symbol.Family.Id)] for sublist in categoriesFilter for item in sublist])
 
-IDS = List[Autodesk.Revit.DB.ElementId]()
-for i in desEle:
+IDS = List[ElementId]()
+for i in flat_categoriesFilter:
 	IDS.Add(i.Id)
 
 TransactionManager.Instance.EnsureInTransaction(doc)
-isolateEles = view.IsolateElementsTemporary(IDS)
+isolatedEles = view.IsolateElementsTemporary(IDS)
 TransactionManager.Instance.TransactionTaskDone()
 
-OUT = desEle
-
-OUT = categories
+OUT = filteredFams
