@@ -49,3 +49,47 @@ class selectionFilter(ISelectionFilter):
     
 ele = selectionFilter('Structural Columns', 'Structural Framing', 'Pipes','Pipe Fittings')
 ele.copy()
+
+##pickObjects
+def pickObjects():
+    from Autodesk.Revit.UI.Selection import ObjectType
+    refs = uidoc.Selection.PickObjects(ObjectType.Element)
+    return  [doc.GetElement(i.ElementId) for i in refs], [ref for ref in refs]
+
+
+
+def pickObjects():
+    from Autodesk.Revit.UI.Selection import ObjectType
+    refs = uidoc.Selection.PickObjects(ObjectType.Element)
+    return  [doc.GetElement(i.ElementId) for i in refs]
+
+lstPipes = pickObjects()
+flat_lstPipes = [pipe for pipe in lstPipes]
+
+pipe1 = flat_lstPipes[0]
+pipe2 = flat_lstPipes[1]
+
+# Tạo một biến lưu khoảng cách gần nhất
+closest_distance = float('inf')  # Gán giá trị lớn nhất cho khoảng cách ban đầu
+closest_connector_pipe2 = None
+closest_connector_pipe1 = None
+
+# Lặp qua connectors của ống thứ nhất
+for connector1 in pipe1.ConnectorManager.Connectors:
+    for connector2 in pipe2.ConnectorManager.Connectors:
+        distance = connector1.Origin.DistanceTo(connector2.Origin)
+        if distance < closest_distance:
+            closest_distance = distance
+            closest_connector_pipe1 = connector1
+            closest_connector_pipe2 = connector2
+            
+if closest_connector_pipe1 and closest_connector_pipe2:
+	cor_ConnectPipe1 = closest_connector_pipe1.Origin.ToPoint()
+	cor_ConnectPipe2 = closest_connector_pipe2.Origin.ToPoint()
+
+TransactionManager.Instance.EnsureInTransaction(doc)
+pipeJoin = doc.Create.NewPipe(closest_connector_pipe1, closest_connector_pipe2)
+TransactionManager.Instance.TransactionTaskDone()
+
+
+OUT = cor_ConnectPipe1, cor_ConnectPipe2
