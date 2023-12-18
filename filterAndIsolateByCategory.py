@@ -56,7 +56,9 @@ flat_categoriesFilter = [item for sublist in categoriesFilter for item in sublis
 # 		filteredFams.append(fam)
 
 filteredFams = []
-filteredFams.append([[doc.GetElement(item.Symbol.Family.Id) for item in sublist] for sublist in categoriesFilter])
+# filteredFams.append([[doc.GetElement(item.Symbol.Family.Id) for item in sublist] for sublist in categoriesFilter])
+#for the  revit system family, they don't have symbols like a family instance. so it's not work.
+filteredFams.append([[doc.GetElement(item.GetTypeId()) for item in sublist] for sublist in categoriesFilter])
 
 IDS = List[ElementId]()
 for i in flat_categoriesFilter:
