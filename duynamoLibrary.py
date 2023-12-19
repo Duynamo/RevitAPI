@@ -69,12 +69,12 @@ flat_lstPipes = [pipe for pipe in lstPipes]
 pipe1 = flat_lstPipes[0]
 pipe2 = flat_lstPipes[1]
 
-# Tạo một biến lưu khoảng cách gần nhất
-closest_distance = float('inf')  # Gán giá trị lớn nhất cho khoảng cách ban đầu
+
+closest_distance = float('inf')  
 closest_connector_pipe2 = None
 closest_connector_pipe1 = None
 
-# Lặp qua connectors của ống thứ nhất
+
 for connector1 in pipe1.ConnectorManager.Connectors:
     for connector2 in pipe2.ConnectorManager.Connectors:
         distance = connector1.Origin.DistanceTo(connector2.Origin)
