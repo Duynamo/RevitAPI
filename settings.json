@@ -1,0 +1,11 @@
+{
+"python.linting.pylintEnabled" : true,
+"python.linting.pep8Enabled" : false,
+"python.pythonPath" : "C:\\Users\\95053\\AppData\\Local\\Microsoft\\WindowsApps\\python3.exe",
+"python.autoComplete.extraPaths":
+[
+"C:\\Users\\95053\\.vscode\\ironpython-stubs-master\\release\\stubs.min"
+],
+"python.jediEnabled":false,
+	
+}
