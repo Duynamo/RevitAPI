@@ -94,3 +94,8 @@ filteredFams.append([[doc.GetElement(item.GetTypeId()) for item in sublist] for 
 
 
 OUT = filteredFams(doc)
+
+
+eles = [FilteredElementCollector(doc , view.id).OfClass(FamilyInstance).OfCategory(BuiltInCategory.OST_StructuralColumns).WhereElementIsNotElementType().ToElement()]
+
+OUT = eles
