@@ -99,3 +99,116 @@ OUT = filteredFams(doc)
 eles = [FilteredElementCollector(doc , view.id).OfClass(FamilyInstance).OfCategory(BuiltInCategory.OST_StructuralColumns).WhereElementIsNotElementType().ToElement()]
 
 OUT = eles
+
+
+###############
+"""Copyright by: vudinhduybm@gmail.com"""
+import clr 
+import sys 
+import System   
+clr.AddReference("ProtoGeometry")
+from Autodesk.DesignScript.Geometry import *
+
+clr.AddReference("RevitAPI") 
+from Autodesk.Revit.DB import*
+from Autodesk.Revit.DB.Structure import*
+
+clr.AddReference("RevitAPIUI") 
+from Autodesk.Revit.UI import*
+
+clr.AddReference("System") 
+from System.Collections.Generic import List
+
+clr.AddReference("RevitNodes")
+import Revit
+clr.ImportExtensions(Revit.Elements)
+clr.ImportExtensions(Revit.GeometryConversion)
+
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+from RevitServices.Transactions import TransactionManager
+
+#Current doc/app/ui
+doc = DocumentManager.Instance.CurrentDBDocument
+uiapp = DocumentManager.Instance.CurrentUIApplication
+app = uiapp.Application
+uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
+view = doc.ActiveView
+
+#retrieve all piping system in avtive view
+def getAllPipingSystemsInActiveView(doc):
+	collector = FilteredElementCollector(doc, doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipingSystem)
+	pipingSystems = collector.ToElements()
+	pipingSystemsName = []
+	
+	for system in pipingSystems:
+		systemName = system.get_Parameter(BuiltInParameter.RBS_SYSTEM_NAME_PARAM).AsString()
+		pipingSystemsName.append(systemName)
+	return pipingSystemsName
+
+allPipingSystemsInActiveView = getAllPipingSystemsInActiveView(doc)
+
+#retrieve all pipe and pipe fittings in active view	
+def getBuiltInCategoryOST(nameCategory): # Get Name of BuiltInCategory
+    return [i for i in System.Enum.GetValues(BuiltInCategory) if i.ToString() == "OST_"+ str(nameCategory) or i.ToString() == (nameCategory) ]
+
+categoriesIN = ["OST_PipeCurves", "OST_PipeFitting"]
+categories = [getBuiltInCategoryOST(category) for category in categoriesIN]
+flat_categories = [item for sublist in categories for item in sublist]
+
+categoriesFilter = []
+for c in flat_categories:
+    collector = FilteredElementCollector(doc).OfCategory(c).WhereElementIsNotElementType()
+    categoriesFilter.append(collector)
+flat_categoriesFilter = [[item for item in sublist] for sublist in categoriesFilter]
+
+
+
+#filter pipe by Input Piping system Name and Diameter
+##retrieve piping system name by input name
+diameterIN = IN[1]
+pipingSystemName = IN[2]
+
+collector1 = FilteredElementCollector(doc).OfClass(ElementId)
+pipingSystemId = None
+for i in collector1:
+	if i.Name == pipingSystemName and i.Category.Name == pipingSystemName:
+		pipingSystemId = i.Id
+		break
+
+if pipingSystemId:
+	paramId = ElementId(BuiltInParameter.RBS_PIPE_SYSTEM_TYPE_PARAM)
+	rule = FilterStringRule(paramId, FilterStringContains(), pipingSystemId.ToString())
+	paramFilter2 = ParameterFilterElement.Create(doc, "Piping System Filter", [rule])
+	catFilter1 = ElementCategoryFilter(BuiltInCategory.OST_PipeCurves)
+	paramFilter1 = ParameterValueProvider(ElementId(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM))
+	reason1 = FilterNumericGreater()
+	i_Check = IN[1]/304.8
+	fRule1 = FilterDoubleRule(paramFilter1,reason1,i_Check,0.02)
+	Logical_And_Filter = LogicalAndFilter(catFilter1, paramFilter1, paramFilter2 )
+	pipes = FilteredElementCollector(doc).WherePasses(Logical_And_Filter).ToElements()
+
+OUT = pipes
+
+
+
+# ###filter all pipe by Diameter 
+# paramFilter1 = ParameterValueProvider(ElementId(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM))
+# reason1 = FilterNumericGreater()
+# i_Check = IN[1]/304.8
+# fRule1 = FilterDoubleRule(paramFilter1,reason1,i_Check,0.02)
+# filter4 = ElementParameterFilter(fRule1)
+# elems4 = FilteredElementCollector(doc).WherePasses(filter4).WhereElementIsNotElementType().ToElements()
+
+# IDS = List[ElementId]()
+# for i in elems4:
+# 	IDS.Add(i.Id)
+
+# OUT = collector
+
+
+
+# OUT = flat_categoriesFilter
+
+
