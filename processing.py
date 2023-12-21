@@ -170,10 +170,10 @@ flat_categoriesFilter = [[item for item in sublist] for sublist in categoriesFil
 diameterIN = IN[1]
 pipingSystemName = IN[2]
 
-collector1 = FilteredElementCollector(doc).OfClass(ElementId)
+collector1 = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipingSystem)
 pipingSystemId = None
 for i in collector1:
-	if i.Name == pipingSystemName and i.Category.Name == pipingSystemName:
+	if i.Category.Name == pipingSystemName:
 		pipingSystemId = i.Id
 		break
 
@@ -186,10 +186,10 @@ if pipingSystemId:
 	reason1 = FilterNumericGreater()
 	i_Check = IN[1]/304.8
 	fRule1 = FilterDoubleRule(paramFilter1,reason1,i_Check,0.02)
-	Logical_And_Filter = LogicalAndFilter(catFilter1, paramFilter1, paramFilter2 )
+	Logical_And_Filter = LogicalAndFilter(catFilter1, fRule1, paramFilter2 )
 	pipes = FilteredElementCollector(doc).WherePasses(Logical_And_Filter).ToElements()
 
-OUT = pipes
+	OUT = pipes
 
 
 
@@ -210,5 +210,8 @@ OUT = pipes
 
 
 # OUT = flat_categoriesFilter
+
+
+
 
 
