@@ -75,7 +75,6 @@ fRule = FilterDoubleRule(paramFilter1,reason1,i_Check,0.02)
 filter4 = ElementParameterFilter(fRule)
 elems4 = FilteredElementCollector(doc).WherePasses(filter4).WhereElementIsNotElementType().ToElements()
 
-
 IDS = List[ElementId]()
 for i in elems4:
 	IDS.Add(i.Id)

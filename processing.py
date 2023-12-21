@@ -168,26 +168,66 @@ flat_categoriesFilter = [[item for item in sublist] for sublist in categoriesFil
 #filter pipe by Input Piping system Name and Diameter
 ##retrieve piping system name by input name
 diameterIN = IN[1]
-pipingSystemName = IN[2]
+inSystemName = IN[2]
 
-collector1 = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipingSystem)
-pipingSystemId = None
-for i in collector1:
-	if i.Category.Name == pipingSystemName:
-		pipingSystemId = i.Id
-		break
+def getAllPipingSystemsInActiveView(doc):
+	collector = FilteredElementCollector(doc, doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipingSystem)
+	pipingSystems = collector.ToElements()
+	pipingSystemsName = []
+	
+	for system in pipingSystems:
+		systemName = system.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsString()
+		pipingSystemsName.append(systemName)
+	return pipingSystemsName, pipingSystems
 
-if pipingSystemId:
-	paramId = ElementId(BuiltInParameter.RBS_PIPE_SYSTEM_TYPE_PARAM)
-	rule = FilterStringRule(paramId, FilterStringContains(), pipingSystemId.ToString())
-	paramFilter2 = ParameterFilterElement.Create(doc, "Piping System Filter", [rule])
-	catFilter1 = ElementCategoryFilter(BuiltInCategory.OST_PipeCurves)
-	paramFilter1 = ParameterValueProvider(ElementId(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM))
-	reason1 = FilterNumericGreater()
-	i_Check = IN[1]/304.8
-	fRule1 = FilterDoubleRule(paramFilter1,reason1,i_Check,0.02)
-	Logical_And_Filter = LogicalAndFilter(catFilter1, fRule1, paramFilter2 )
-	pipes = FilteredElementCollector(doc).WherePasses(Logical_And_Filter).ToElements()
+allPipingSystemsInActiveView = getAllPipingSystemsInActiveView(doc)
+allPipingSystemName = allPipingSystemsInActiveView[0]
+allPipingSystem = allPipingSystemsInActiveView[1]
+idOfInSystem = allPipingSystemName.index(inSystemName)
+desPipingSystem = allPipingSystem[idOfInSystem]
+
+categories = [BuiltInCategory.OST_PipeCurves]
+categoriesFilter = []
+for c in categories:
+    collector = FilteredElementCollector(doc).OfCategory(c).WhereElementIsNotElementType()
+    categoriesFilter.append(collector)
+flat_categoriesFilter = [[item for item in sublist] for sublist in categoriesFilter]
+
+IDS = List[ElementId]()
+for i in flat_categoriesFilter:
+	IDS.Add(i.Id)
+
+
+paramFilter1 = ParameterValueProvider(ElementId(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM))
+reason1 = FilterNumericGreater()
+i_Check = IN[1]/304.8
+fRule1 = FilterDoubleRule(paramFilter1,reason1,i_Check,0.02)
+filter1 = ElementParameterFilter(fRule1)
+elems1 = FilteredElementCollector(doc).WherePasses(fRule1).WhereElementIsNotElementType().ToElements()
+
+combineFilter = LogicalAndFilter(desPipingSystem , fRule1)
+collectorDesPipes = FilteredElementCollector(doc, IDS).WherePasses(combineFilter).ToElements()
+
+
+
+
+# OUT = [desPipingSystem],[ inSystemName]
+OUT = collectorDesPipes
+
+
+
+
+# if pipingSystemId:
+# 	paramId = ElementId(BuiltInParameter.RBS_PIPE_SYSTEM_TYPE_PARAM)
+# 	rule = FilterStringRule(paramId, FilterStringContains(), pipingSystemId.ToString())
+# 	paramFilter2 = ParameterFilterElement.Create(doc, "Piping System Filter", [rule])
+# 	catFilter1 = ElementCategoryFilter(BuiltInCategory.OST_PipeCurves)
+# 	paramFilter1 = ParameterValueProvider(ElementId(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM))
+# 	reason1 = FilterNumericGreater()
+# 	i_Check = IN[1]/304.8
+# 	fRule1 = FilterDoubleRule(paramFilter1,reason1,i_Check,0.02)
+# 	Logical_And_Filter = LogicalAndFilter(catFilter1, fRule1, paramFilter2 )
+# 	pipes = FilteredElementCollector(doc).WherePasses(Logical_And_Filter).ToElements()
 
 	OUT = pipes
 
