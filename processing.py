@@ -104,20 +104,20 @@ OUT = eles
 ###############
 """Copyright by: vudinhduybm@gmail.com"""
 import clr 
-import sys 
-import System   
+import System
+import math 
+from System.Collections.Generic import *
+
 clr.AddReference("ProtoGeometry")
 from Autodesk.DesignScript.Geometry import *
 
-clr.AddReference("RevitAPI") 
-from Autodesk.Revit.DB import*
-from Autodesk.Revit.DB.Structure import*
+clr.AddReference('RevitAPI')
+import Autodesk
+from Autodesk.Revit.DB import *
 
-clr.AddReference("RevitAPIUI") 
+clr.AddReference('RevitAPIUI')
 from Autodesk.Revit.UI import*
-
-clr.AddReference("System") 
-from System.Collections.Generic import List
+from  Autodesk.Revit.UI.Selection import*
 
 clr.AddReference("RevitNodes")
 import Revit
@@ -129,44 +129,10 @@ import RevitServices
 from RevitServices.Persistence import DocumentManager
 from RevitServices.Transactions import TransactionManager
 
-#Current doc/app/ui
 doc = DocumentManager.Instance.CurrentDBDocument
-uiapp = DocumentManager.Instance.CurrentUIApplication
-app = uiapp.Application
-uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
+uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 
-#retrieve all piping system in avtive view
-def getAllPipingSystemsInActiveView(doc):
-	collector = FilteredElementCollector(doc, doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipingSystem)
-	pipingSystems = collector.ToElements()
-	pipingSystemsName = []
-	
-	for system in pipingSystems:
-		systemName = system.get_Parameter(BuiltInParameter.RBS_SYSTEM_NAME_PARAM).AsString()
-		pipingSystemsName.append(systemName)
-	return pipingSystemsName
-
-allPipingSystemsInActiveView = getAllPipingSystemsInActiveView(doc)
-
-#retrieve all pipe and pipe fittings in active view	
-def getBuiltInCategoryOST(nameCategory): # Get Name of BuiltInCategory
-    return [i for i in System.Enum.GetValues(BuiltInCategory) if i.ToString() == "OST_"+ str(nameCategory) or i.ToString() == (nameCategory) ]
-
-categoriesIN = ["OST_PipeCurves", "OST_PipeFitting"]
-categories = [getBuiltInCategoryOST(category) for category in categoriesIN]
-flat_categories = [item for sublist in categories for item in sublist]
-
-categoriesFilter = []
-for c in flat_categories:
-    collector = FilteredElementCollector(doc).OfCategory(c).WhereElementIsNotElementType()
-    categoriesFilter.append(collector)
-flat_categoriesFilter = [[item for item in sublist] for sublist in categoriesFilter]
-
-
-
-#filter pipe by Input Piping system Name and Diameter
-##retrieve piping system name by input name
 diameterIN = IN[1]
 inSystemName = IN[2]
 
@@ -191,27 +157,21 @@ categoriesFilter = []
 for c in categories:
     collector = FilteredElementCollector(doc).OfCategory(c).WhereElementIsNotElementType()
     categoriesFilter.append(collector)
-flat_categoriesFilter = [[item for item in sublist] for sublist in categoriesFilter]
+flat_categoriesFilter = [item for sublist in categoriesFilter for item in sublist]
 
 IDS = List[ElementId]()
 for i in flat_categoriesFilter:
 	IDS.Add(i.Id)
-
 
 paramFilter1 = ParameterValueProvider(ElementId(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM))
 reason1 = FilterNumericGreater()
 i_Check = IN[1]/304.8
 fRule1 = FilterDoubleRule(paramFilter1,reason1,i_Check,0.02)
 filter1 = ElementParameterFilter(fRule1)
-elems1 = FilteredElementCollector(doc).WherePasses(fRule1).WhereElementIsNotElementType().ToElements()
+elems1 = FilteredElementCollector(doc).WherePasses(filter1).WhereElementIsNotElementType().ToElements()
 
 combineFilter = LogicalAndFilter(desPipingSystem , fRule1)
 collectorDesPipes = FilteredElementCollector(doc, IDS).WherePasses(combineFilter).ToElements()
 
-
-
-
 # OUT = [desPipingSystem],[ inSystemName]
 OUT = collectorDesPipes
-
-
