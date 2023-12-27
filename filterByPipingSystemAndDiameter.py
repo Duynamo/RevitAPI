@@ -41,11 +41,9 @@ for c in categories:
     collector = FilteredElementCollector(doc).OfCategory(c).WhereElementIsNotElementType()
     categoriesFilter.append(collector)
 flat_categoriesFilter = [item for sublist in categoriesFilter for item in sublist]
-
 IDS = List[ElementId]()
 for i in flat_categoriesFilter:
 	IDS.Add(i.Id)
-
 
 desPipes = []
 
