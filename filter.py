@@ -55,11 +55,17 @@ for c in categories:
     categoriesFilter.append(collector)
 flat_categoriesFilter = [[item for item in sublist] for sublist in categoriesFilter]
 
+####filterMultiFamilySymbols
+cateList = List[BuiltInCategory]()
 
-####filterElements has Structural type
-# filter1 = ElementStructuralTypeFilter(StructuralType.Column)
-# filter22 = ElementStructuralTypeFilter(StructuralType.Beam)
-# filteredEles1 = FilteredElementCollector(doc).WherePasses(filter1).WhereElementIsNotElementType().ToElements()
+cateList.Add(BuiltInCategory.OST_StructuralColumns)
+cateList.Add(BuiltInCategory.OST_StructuralFraming)
+
+_filter = ElementMulticategoryFilter(cateList)
+elems = FilteredElementCollector(doc).WherePasses(_filter).WhereElementIsNotElementType().ToElements()
+
+OUT = elems
+
 
 ####filterCurveElements
 filter3 = CurveElementFilter(CurveElementType.ModelCurve)
