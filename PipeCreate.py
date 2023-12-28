@@ -27,11 +27,12 @@ from RevitServices.Transactions import TransactionManager
 clr.AddReference("System.Windows.Forms")
 clr.AddReference("System.Drawing")
 clr.AddReference("System.Windows.Forms.DataVisualization")
+
 import System.Windows.Forms 
 from System.Windows.Forms import *
 import System.Drawing
 from System.Drawing import *
-from System.Collections.Generic import*
+
 
 doc = DocumentManager.Instance.CurrentDBDocument
 uiapp = DocumentManager.Instance.CurrentUIApplication
@@ -41,16 +42,16 @@ view = doc.ActiveView
 
 
 
-def getAllPipingSystemsInActiveView(doc):
+def getAllPipingSystems(doc):
 	collector = FilteredElementCollector(doc, doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipingSystem)
 	pipingSystems = collector.ToElements()
 	pipingSystemsName = []
 	for system in pipingSystems:
-		systemName = system.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsValueString()
+		systemName = system.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsString()
 		pipingSystemsName.append(systemName)
 	return pipingSystemsName
 
-pipingSystemsCollector = getAllPipingSystemsInActiveView(doc)
+pipingSystemsCollector = getAllPipingSystems(doc)
 
 def getAllPipeTypes(doc):
 	collector1 = FilteredElementCollector(doc, view.Id).OfCategory(BuiltInCategory.OST_PipeCurves)
@@ -63,14 +64,11 @@ def getAllPipeTypes(doc):
 
 pipeTypesCollector = getAllPipeTypes(doc)
 
-
 levelsCollector = FilteredElementCollector(doc).OfClass(Level).ToElements()
 levelsNameCollector = []
 for level in levelsCollector:
 	levelName = level.Name
 	levelsNameCollector.append(levelName)
-
-lss = ["s","ssss","aasdadasdas"]
 
 class MainForm(Form):
 	def __init__(self):
@@ -93,6 +91,7 @@ class MainForm(Form):
 		self._textBox1 = System.Windows.Forms.TextBox()
 		self._button3 = System.Windows.Forms.Button()
 		self._button4 = System.Windows.Forms.Button()
+		self._label5 = System.Windows.Forms.Label()
 		self._groupBox1.SuspendLayout()
 		self._groupBox2.SuspendLayout()
 		self._groupBox3.SuspendLayout()
@@ -124,6 +123,7 @@ class MainForm(Form):
 		# button2
 		# 
 		self._button2.BackColor = System.Drawing.SystemColors.Info
+		self._button2.Cursor = System.Windows.Forms.Cursors.AppStarting
 		self._button2.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, 128, True)
 		self._button2.ForeColor = System.Drawing.Color.Red
 		self._button2.Location = System.Drawing.Point(279, 28)
@@ -144,7 +144,6 @@ class MainForm(Form):
 		self._comboBox1.TabIndex = 3
 		self._comboBox1.SelectedIndexChanged += self.ComboBox1_SelectedIndexChanged
 		self._comboBox1.Items.AddRange(System.Array[System.Object](pipingSystemsCollector))
-
 
 		# 
 		# label1
@@ -192,7 +191,7 @@ class MainForm(Form):
 		self._comboBox2.Size = System.Drawing.Size(263, 23)
 		self._comboBox2.TabIndex = 3
 		self._comboBox2.SelectedIndexChanged += self.ComboBox2_SelectedIndexChanged
-		self._comboBox2.Items.AddRange(System.Array[System.Object](lss))
+		self._comboBox2.Items.AddRange(System.Array[System.Object](pipeTypesCollector))		
 		# 
 		# groupBox3
 		# 
@@ -217,7 +216,7 @@ class MainForm(Form):
 		self._label3.Text = "RefLevel"
 		# 
 		# comboBox3
-		# 	
+		# 
 		self._comboBox3.AllowDrop = True
 		self._comboBox3.Cursor = System.Windows.Forms.Cursors.AppStarting
 		self._comboBox3.FormattingEnabled = True
@@ -226,7 +225,7 @@ class MainForm(Form):
 		self._comboBox3.Size = System.Drawing.Size(263, 23)
 		self._comboBox3.TabIndex = 3
 		self._comboBox3.SelectedIndexChanged += self.ComboBox3_SelectedIndexChanged
-		self._comboBox1.Items.AddRange(System.Array[System.Object](levelsNameCollector))				
+		self._comboBox3.Items.AddRange(System.Array[System.Object](levelsNameCollector))			
 		# 
 		# groupBox4
 		# 
@@ -263,7 +262,7 @@ class MainForm(Form):
 		self._button3.Cursor = System.Windows.Forms.Cursors.WaitCursor
 		self._button3.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
 		self._button3.ForeColor = System.Drawing.Color.Red
-		self._button3.Location = System.Drawing.Point(329, 395)
+		self._button3.Location = System.Drawing.Point(317, 395)
 		self._button3.Name = "button3"
 		self._button3.Size = System.Drawing.Size(49, 30)
 		self._button3.TabIndex = 8
@@ -276,16 +275,25 @@ class MainForm(Form):
 		self._button4.Cursor = System.Windows.Forms.Cursors.WaitCursor
 		self._button4.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
 		self._button4.ForeColor = System.Drawing.Color.Red
-		self._button4.Location = System.Drawing.Point(384, 395)
+		self._button4.Location = System.Drawing.Point(372, 395)
 		self._button4.Name = "button4"
 		self._button4.Size = System.Drawing.Size(89, 30)
 		self._button4.TabIndex = 8
 		self._button4.Text = "CANCLE"
 		self._button4.UseVisualStyleBackColor = False
 		# 
+		# label5
+		# 
+		self._label5.Location = System.Drawing.Point(1, 434)
+		self._label5.Name = "label5"
+		self._label5.Size = System.Drawing.Size(53, 19)
+		self._label5.TabIndex = 9
+		self._label5.Text = "@FVC"
+		# 
 		# MainForm
 		# 
 		self.ClientSize = System.Drawing.Size(482, 453)
+		self.Controls.Add(self._label5)
 		self.Controls.Add(self._button4)
 		self.Controls.Add(self._button3)
 		self.Controls.Add(self._groupBox4)
@@ -315,14 +323,14 @@ class MainForm(Form):
 
 		TransactionManager.Instance.TransactionTaskDone()
 		pass
-
+	
 	def ComboBox2_SelectedIndexChanged(self, sender, e):
 		TransactionManager.Instance.EnsureInTransaction(doc)
 
 
 
 		TransactionManager.Instance.TransactionTaskDone()
-		pass
+		pass	
 
 	def ComboBox3_SelectedIndexChanged(self, sender, e):
 		TransactionManager.Instance.EnsureInTransaction(doc)
@@ -331,6 +339,8 @@ class MainForm(Form):
 
 		TransactionManager.Instance.TransactionTaskDone()
 		pass
+
+
 
 f = MainForm()
 Application.Run(f)

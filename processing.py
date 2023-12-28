@@ -66,3 +66,15 @@ desPipes = FilteredElementCollector(doc, IDS).WherePasses(filter2).WhereElementI
 OUT = desPipes
 
 
+
+
+def getAllPipeType(doc):
+	collector = FilteredElementCollector(doc, doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves)
+	pipeTypes = collector.ToElements()
+	pipeTypesName = []
+	for system in pipeTypes:
+		systemName = system.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsString()
+		pipeTypesName.append(systemName)
+	return pipeTypesName
+
+pipingSystemsCollector = getAllPipeType(doc)
