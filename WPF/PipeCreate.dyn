@@ -12,7 +12,7 @@
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
       "NodeType": "BooleanInputNode",
-      "InputValue": false,
+      "InputValue": true,
       "Id": "a098ecc85f074eae8c4c4f9f42f83ef0",
       "Inputs": [],
       "Outputs": [
@@ -31,8 +31,8 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "No file selected.",
-      "InputValue": "No file selected.",
+      "HintPath": "C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\WPF\\MainForm1.py",
+      "InputValue": ".\\MainForm1.py",
       "NodeType": "ExtensionNode",
       "Id": "f0278b7ebf9b41b1aff0657701e0ff32",
       "Inputs": [],
@@ -53,7 +53,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nimport sys \r\nimport System   \r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nfrom Autodesk.Revit.DB import*\r\nfrom Autodesk.Revit.DB.Structure import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\n\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\n#Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n\r\n#Preparing input from dynamo to revit\r\nelement = UnwrapElement(IN[0])\r\n\r\n#Do some action in a Transaction\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\n\"\"\"Now, You Can Code \"\"\"\r\n\r\n\r\n\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = element",
+      "Code": "re  = open(r\"C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\WPF\\\\MainForm1.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "dbbdb86afed54eee80211a9bdfee35eb",
@@ -90,6 +90,281 @@
       ],
       "Replication": "Disabled",
       "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "NodeType": "ExtensionNode",
+      "Id": "ff7f9c69eee941919f7339f855fd2cce",
+      "Inputs": [
+        {
+          "Id": "82ef6b15c875448c93ee5dbed503a00e",
+          "Name": "script",
+          "Description": "Python script to run.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "9cbdcd4336d64e979d38ba4137c3e330",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "704a86784a584798a2012765f601cafb",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs a Python script from a string."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": true,
+      "Id": "2253b97433ea4d92b40543356278bfa8",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "893e3c45f2e2432b8414a530b774fdcc",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "re  = open(r\"C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\\\clickButton.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "e8359736decb482589fdfcd4a27d7ba1",
+      "Inputs": [
+        {
+          "Id": "165d551033234f3291e8f242d6525850",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "698e7121dd214440aadc5a4ae420ecf2",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "c14f82ea816d4c26a4aa1a8383e649cf",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
+      "HintPath": "C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\clickButton.py",
+      "InputValue": "..\\clickButton.py",
+      "NodeType": "ExtensionNode",
+      "Id": "0d7401ad42664c7bafee710fa2892b56",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "745534ee769143e78395c82c67eb2886",
+          "Name": "",
+          "Description": "Filename",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows you to select a file on the system to get its filename"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "NodeType": "ExtensionNode",
+      "Id": "3b4ca6e25ea3428ba33380bcdff794d3",
+      "Inputs": [
+        {
+          "Id": "3be963ec8d8f4b7ea9ca024643f859d0",
+          "Name": "script",
+          "Description": "Python script to run.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "f87e58fc90c84976a8d3fe166e709453",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "be529f547c564d6e875b3d3b941a5a17",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs a Python script from a string."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nimport sys \r\nimport System   \r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nfrom Autodesk.Revit.DB import*\r\nfrom Autodesk.Revit.DB.Structure import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\n\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference(\"System.Windows.Forms\")\r\nclr.AddReference(\"System.Drawing\")\r\nclr.AddReference(\"System.Windows.Forms.DataVisualization\")\r\n\r\nimport System.Windows.Forms \r\nfrom System.Windows.Forms import *\r\nimport System.Drawing\r\nfrom System.Drawing import *\r\n\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n\r\n\r\n\r\ndef getAllPipingSystems(doc):\r\n\tcollector = FilteredElementCollector(doc, view.Id).OfCategory(BuiltInCategory.OST_PipingSystem)\r\n\tpipingSystems = collector.ToElements()\r\n\tpipingSystemsName = []\r\n\tfor system in pipingSystems:\r\n\t\tsystemName = system.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsString()\r\n\t\tpipingSystemsName.append(systemName)\r\n\treturn pipingSystemsName\r\n\r\npipingSystemsCollector = getAllPipingSystems(doc)\r\n\r\ndef getAllPipeTypes(doc):\r\n\tcollector1 = FilteredElementCollector(doc, view.Id).OfCategory(BuiltInCategory.OST_PipeCurves)\r\n\tpipeTypes = collector1.ToElements()\r\n\tpipeTypesName = []\r\n\tfor pipeType in pipeTypes:\r\n\t\tpipeTypeName = pipeType.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsString()\r\n\t\tpipeTypesName.append(pipeTypeName)\r\n\treturn pipeTypesName\r\n\r\npipeTypesCollector = getAllPipeTypes(doc)\r\n\r\nlevelsCollector = FilteredElementCollector(doc).OfClass(Level).ToElements()\r\nlevelsNameCollector = []\r\nfor level in levelsCollector:\r\n\tlevelName = level.Name\r\n\tlevelsNameCollector.append(levelName)\r\n\r\nclass MainForm(Form):\r\n\tdef __init__(self):\r\n\t\tself.InitializeComponent()\r\n\t\r\n\tdef InitializeComponent(self):\r\n\t\tself._groupBox1 = System.Windows.Forms.GroupBox()\r\n\t\tself._button1 = System.Windows.Forms.Button()\r\n\t\tself._button2 = System.Windows.Forms.Button()\r\n\t\tself._comboBox1 = System.Windows.Forms.ComboBox()\r\n\t\tself._label1 = System.Windows.Forms.Label()\r\n\t\tself._groupBox2 = System.Windows.Forms.GroupBox()\r\n\t\tself._label2 = System.Windows.Forms.Label()\r\n\t\tself._comboBox2 = System.Windows.Forms.ComboBox()\r\n\t\tself._groupBox3 = System.Windows.Forms.GroupBox()\r\n\t\tself._label3 = System.Windows.Forms.Label()\r\n\t\tself._comboBox3 = System.Windows.Forms.ComboBox()\r\n\t\tself._groupBox4 = System.Windows.Forms.GroupBox()\r\n\t\tself._label4 = System.Windows.Forms.Label()\r\n\t\tself._textBox1 = System.Windows.Forms.TextBox()\r\n\t\tself._button3 = System.Windows.Forms.Button()\r\n\t\tself._button4 = System.Windows.Forms.Button()\r\n\t\tself._label5 = System.Windows.Forms.Label()\r\n\t\tself._groupBox1.SuspendLayout()\r\n\t\tself._groupBox2.SuspendLayout()\r\n\t\tself._groupBox3.SuspendLayout()\r\n\t\tself._groupBox4.SuspendLayout()\r\n\t\tself.SuspendLayout()\r\n\t\t# \r\n\t\t# groupBox1\r\n\t\t# \r\n\t\tself._groupBox1.Controls.Add(self._label1)\r\n\t\tself._groupBox1.Controls.Add(self._comboBox1)\r\n\t\tself._groupBox1.Location = System.Drawing.Point(12, 159)\r\n\t\tself._groupBox1.Name = \"groupBox1\"\r\n\t\tself._groupBox1.Size = System.Drawing.Size(449, 47)\r\n\t\tself._groupBox1.TabIndex = 0\r\n\t\tself._groupBox1.TabStop = False\r\n\t\t# \r\n\t\t# button1\r\n\t\t# \r\n\t\tself._button1.BackColor = System.Drawing.SystemColors.Info\r\n\t\tself._button1.Font = System.Drawing.Font(\"MS UI Gothic\", 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, 128, True)\r\n\t\tself._button1.ForeColor = System.Drawing.Color.Red\r\n\t\tself._button1.Location = System.Drawing.Point(52, 28)\r\n\t\tself._button1.Name = \"button1\"\r\n\t\tself._button1.Size = System.Drawing.Size(140, 58)\r\n\t\tself._button1.TabIndex = 1\r\n\t\tself._button1.Text = \"get X,Y value\"\r\n\t\tself._button1.UseVisualStyleBackColor = False\r\n\t\t# \r\n\t\t# button2\r\n\t\t# \r\n\t\tself._button2.BackColor = System.Drawing.SystemColors.Info\r\n\t\tself._button2.Cursor = System.Windows.Forms.Cursors.AppStarting\r\n\t\tself._button2.Font = System.Drawing.Font(\"MS UI Gothic\", 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, 128, True)\r\n\t\tself._button2.ForeColor = System.Drawing.Color.Red\r\n\t\tself._button2.Location = System.Drawing.Point(279, 28)\r\n\t\tself._button2.Name = \"button2\"\r\n\t\tself._button2.Size = System.Drawing.Size(140, 58)\r\n\t\tself._button2.TabIndex = 2\r\n\t\tself._button2.Text = \"get Z value\"\r\n\t\tself._button2.UseVisualStyleBackColor = False\r\n\t\t# \r\n\t\t# comboBox1\r\n\t\t# \r\n\t\tself._comboBox1.AllowDrop = True\r\n\t\tself._comboBox1.Cursor = System.Windows.Forms.Cursors.AppStarting\r\n\t\tself._comboBox1.FormattingEnabled = True\r\n\t\tself._comboBox1.Location = System.Drawing.Point(180, 12)\r\n\t\tself._comboBox1.Name = \"comboBox1\"\r\n\t\tself._comboBox1.Size = System.Drawing.Size(263, 23)\r\n\t\tself._comboBox1.TabIndex = 3\r\n\t\tself._comboBox1.SelectedIndexChanged += self.ComboBox1_SelectedIndexChanged\r\n\t\tself._comboBox1.Items.AddRange(System.Array[System.Object](pipingSystemsCollector))\r\n\r\n\t\t# \r\n\t\t# label1\r\n\t\t# \r\n\t\tself._label1.BackColor = System.Drawing.SystemColors.Info\r\n\t\tself._label1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D\r\n\t\tself._label1.Font = System.Drawing.Font(\"MS UI Gothic\", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)\r\n\t\tself._label1.ForeColor = System.Drawing.Color.Blue\r\n\t\tself._label1.Location = System.Drawing.Point(19, 12)\r\n\t\tself._label1.Name = \"label1\"\r\n\t\tself._label1.Size = System.Drawing.Size(142, 23)\r\n\t\tself._label1.TabIndex = 4\r\n\t\tself._label1.Text = \"PipingSystemType\"\r\n\t\t# \r\n\t\t# groupBox2\r\n\t\t# \r\n\t\tself._groupBox2.Controls.Add(self._label2)\r\n\t\tself._groupBox2.Controls.Add(self._comboBox2)\r\n\t\tself._groupBox2.Location = System.Drawing.Point(12, 212)\r\n\t\tself._groupBox2.Name = \"groupBox2\"\r\n\t\tself._groupBox2.Size = System.Drawing.Size(449, 47)\r\n\t\tself._groupBox2.TabIndex = 5\r\n\t\tself._groupBox2.TabStop = False\r\n\t\t# \r\n\t\t# label2\r\n\t\t# \r\n\t\tself._label2.BackColor = System.Drawing.SystemColors.Info\r\n\t\tself._label2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D\r\n\t\tself._label2.Font = System.Drawing.Font(\"MS UI Gothic\", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)\r\n\t\tself._label2.ForeColor = System.Drawing.Color.Blue\r\n\t\tself._label2.Location = System.Drawing.Point(19, 12)\r\n\t\tself._label2.Name = \"label2\"\r\n\t\tself._label2.Size = System.Drawing.Size(142, 23)\r\n\t\tself._label2.TabIndex = 4\r\n\t\tself._label2.Text = \"PipeType\"\r\n\t\tself._label2.Click += self.Label2Click\r\n\t\t# \r\n\t\t# comboBox2\r\n\t\t# \r\n\t\tself._comboBox2.AllowDrop = True\r\n\t\tself._comboBox2.Cursor = System.Windows.Forms.Cursors.AppStarting\r\n\t\tself._comboBox2.FormattingEnabled = True\r\n\t\tself._comboBox2.Location = System.Drawing.Point(180, 12)\r\n\t\tself._comboBox2.Name = \"comboBox2\"\r\n\t\tself._comboBox2.Size = System.Drawing.Size(263, 23)\r\n\t\tself._comboBox2.TabIndex = 3\r\n\t\tself._comboBox2.SelectedIndexChanged += self.ComboBox2_SelectedIndexChanged\r\n\t\tself._comboBox2.Items.AddRange(System.Array[System.Object](pipeTypesCollector))\t\t\r\n\t\t# \r\n\t\t# groupBox3\r\n\t\t# \r\n\t\tself._groupBox3.Controls.Add(self._label3)\r\n\t\tself._groupBox3.Controls.Add(self._comboBox3)\r\n\t\tself._groupBox3.Location = System.Drawing.Point(12, 265)\r\n\t\tself._groupBox3.Name = \"groupBox3\"\r\n\t\tself._groupBox3.Size = System.Drawing.Size(449, 47)\r\n\t\tself._groupBox3.TabIndex = 6\r\n\t\tself._groupBox3.TabStop = False\r\n\t\t# \r\n\t\t# label3\r\n\t\t# \r\n\t\tself._label3.BackColor = System.Drawing.SystemColors.Info\r\n\t\tself._label3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D\r\n\t\tself._label3.Font = System.Drawing.Font(\"MS UI Gothic\", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)\r\n\t\tself._label3.ForeColor = System.Drawing.Color.Blue\r\n\t\tself._label3.Location = System.Drawing.Point(19, 12)\r\n\t\tself._label3.Name = \"label3\"\r\n\t\tself._label3.Size = System.Drawing.Size(142, 23)\r\n\t\tself._label3.TabIndex = 4\r\n\t\tself._label3.Text = \"RefLevel\"\r\n\t\t# \r\n\t\t# comboBox3\r\n\t\t# \r\n\t\tself._comboBox3.AllowDrop = True\r\n\t\tself._comboBox3.Cursor = System.Windows.Forms.Cursors.AppStarting\r\n\t\tself._comboBox3.FormattingEnabled = True\r\n\t\tself._comboBox3.Location = System.Drawing.Point(180, 12)\r\n\t\tself._comboBox3.Name = \"comboBox3\"\r\n\t\tself._comboBox3.Size = System.Drawing.Size(263, 23)\r\n\t\tself._comboBox3.TabIndex = 3\r\n\t\tself._comboBox3.SelectedIndexChanged += self.ComboBox3_SelectedIndexChanged\r\n\t\tself._comboBox3.Items.AddRange(System.Array[System.Object](levelsNameCollector))\t\t\t\r\n\t\t# \r\n\t\t# groupBox4\r\n\t\t# \r\n\t\tself._groupBox4.Controls.Add(self._textBox1)\r\n\t\tself._groupBox4.Controls.Add(self._label4)\r\n\t\tself._groupBox4.Location = System.Drawing.Point(12, 318)\r\n\t\tself._groupBox4.Name = \"groupBox4\"\r\n\t\tself._groupBox4.Size = System.Drawing.Size(449, 47)\r\n\t\tself._groupBox4.TabIndex = 7\r\n\t\tself._groupBox4.TabStop = False\r\n\t\t# \r\n\t\t# label4\r\n\t\t# \r\n\t\tself._label4.BackColor = System.Drawing.SystemColors.Info\r\n\t\tself._label4.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D\r\n\t\tself._label4.Font = System.Drawing.Font(\"MS UI Gothic\", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)\r\n\t\tself._label4.ForeColor = System.Drawing.Color.Blue\r\n\t\tself._label4.Location = System.Drawing.Point(19, 12)\r\n\t\tself._label4.Name = \"label4\"\r\n\t\tself._label4.Size = System.Drawing.Size(142, 23)\r\n\t\tself._label4.TabIndex = 4\r\n\t\tself._label4.Text = \"Diameter\"\r\n\t\t# \r\n\t\t# textBox1\r\n\t\t# \r\n\t\tself._textBox1.Location = System.Drawing.Point(180, 12)\r\n\t\tself._textBox1.Name = \"textBox1\"\r\n\t\tself._textBox1.Size = System.Drawing.Size(263, 22)\r\n\t\tself._textBox1.TabIndex = 5\r\n\t\t# \r\n\t\t# button3\r\n\t\t# \r\n\t\tself._button3.BackColor = System.Drawing.SystemColors.ScrollBar\r\n\t\tself._button3.Cursor = System.Windows.Forms.Cursors.WaitCursor\r\n\t\tself._button3.Font = System.Drawing.Font(\"MS UI Gothic\", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)\r\n\t\tself._button3.ForeColor = System.Drawing.Color.Red\r\n\t\tself._button3.Location = System.Drawing.Point(317, 395)\r\n\t\tself._button3.Name = \"button3\"\r\n\t\tself._button3.Size = System.Drawing.Size(49, 30)\r\n\t\tself._button3.TabIndex = 8\r\n\t\tself._button3.Text = \"OK\"\r\n\t\tself._button3.UseVisualStyleBackColor = False\r\n\t\t# \r\n\t\t# button4\r\n\t\t# \r\n\t\tself._button4.BackColor = System.Drawing.SystemColors.ScrollBar\r\n\t\tself._button4.Cursor = System.Windows.Forms.Cursors.WaitCursor\r\n\t\tself._button4.Font = System.Drawing.Font(\"MS UI Gothic\", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)\r\n\t\tself._button4.ForeColor = System.Drawing.Color.Red\r\n\t\tself._button4.Location = System.Drawing.Point(372, 395)\r\n\t\tself._button4.Name = \"button4\"\r\n\t\tself._button4.Size = System.Drawing.Size(89, 30)\r\n\t\tself._button4.TabIndex = 8\r\n\t\tself._button4.Text = \"CANCLE\"\r\n\t\tself._button4.UseVisualStyleBackColor = False\r\n\t\t# \r\n\t\t# label5\r\n\t\t# \r\n\t\tself._label5.Location = System.Drawing.Point(1, 434)\r\n\t\tself._label5.Name = \"label5\"\r\n\t\tself._label5.Size = System.Drawing.Size(53, 19)\r\n\t\tself._label5.TabIndex = 9\r\n\t\tself._label5.Text = \"@FVC\"\r\n\t\t# \r\n\t\t# MainForm\r\n\t\t# \r\n\t\tself.ClientSize = System.Drawing.Size(482, 453)\r\n\t\tself.Controls.Add(self._label5)\r\n\t\tself.Controls.Add(self._button4)\r\n\t\tself.Controls.Add(self._button3)\r\n\t\tself.Controls.Add(self._groupBox4)\r\n\t\tself.Controls.Add(self._groupBox3)\r\n\t\tself.Controls.Add(self._groupBox2)\r\n\t\tself.Controls.Add(self._button2)\r\n\t\tself.Controls.Add(self._button1)\r\n\t\tself.Controls.Add(self._groupBox1)\r\n\t\tself.Name = \"MainForm\"\r\n\t\tself.Text = \"PipeCreate\"\r\n\t\tself._groupBox1.ResumeLayout(False)\r\n\t\tself._groupBox2.ResumeLayout(False)\r\n\t\tself._groupBox3.ResumeLayout(False)\r\n\t\tself._groupBox4.ResumeLayout(False)\r\n\t\tself._groupBox4.PerformLayout()\r\n\t\tself.ResumeLayout(False)\r\n\r\n\r\n\tdef Label2Click(self, sender, e):\r\n\t\tpass\r\n\r\n\r\n\tdef ComboBox1_SelectedIndexChanged(self, sender, e):\r\n\t\tTransactionManager.Instance.EnsureInTransaction(doc)\r\n\r\n\r\n\r\n\t\tTransactionManager.Instance.TransactionTaskDone()\r\n\t\tpass\r\n\t\r\n\tdef ComboBox2_SelectedIndexChanged(self, sender, e):\r\n\t\tTransactionManager.Instance.EnsureInTransaction(doc)\r\n\r\n\r\n\r\n\t\tTransactionManager.Instance.TransactionTaskDone()\r\n\t\tpass\t\r\n\r\n\tdef ComboBox3_SelectedIndexChanged(self, sender, e):\r\n\t\tTransactionManager.Instance.EnsureInTransaction(doc)\r\n\r\n\r\n\r\n\t\tTransactionManager.Instance.TransactionTaskDone()\r\n\t\tpass\r\n\r\n\r\nf = MainForm()\r\nApplication.Run(f)\r\n\r\n\r\n\r\n",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "33ee53b26e854d289c2760a43ac5626a",
+      "Inputs": [
+        {
+          "Id": "49b70a6933d049a59797b5e50856367b",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "26ad1dac43f846eaa2c998b0babd64c4",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Function, DynamoCore",
+      "FunctionSignature": "6eaab507-a7b2-41c9-b398-99ccd3293c89",
+      "FunctionType": "Graph",
+      "NodeType": "FunctionNode",
+      "Id": "ac9e4f1015a94a8993d6c2edb2f3c2e8",
+      "Inputs": [
+        {
+          "Id": "9ac08314fa904673b788f7a5eed50b4b",
+          "Name": "Reset",
+          "Description": "bool\nDefault value : false",
+          "UsingDefaultValue": true,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "5db820d8ec06407da54b15041aab18ad",
+          "Name": "DynamoXYZ",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "547589f1f09e4994967365668defedc0",
+          "Name": "revitPointsInMillimeterUnit",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "from Duynamo.\r\npick Point in current Workplane and retrive Revit Points in Millimeter unit"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\nimport clr \nfrom System.Collections.Generic import *\n\nclr.AddReference(\"ProtoGeometry\")\nfrom Autodesk.DesignScript.Geometry import *\n\nclr.AddReference('RevitAPI')\nfrom Autodesk.Revit.DB.Events import*\n\nclr.AddReference('RevitAPIUI')\nfrom Autodesk.Revit.UI import TaskDialog\n\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\n\ndoc = DocumentManager.Instance.CurrentDBDocument\nview = doc.ActiveView\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\n\nx=True\ndypoint = []\nrpointM = []\nrpointI = []\ncounter=0\nmsg = 'Pick Points on current Workplane in order, hit ESC when finished.'\n\nTaskDialog.Show(\"Duynamo\", msg)\n\nwhile x == True:\n\ttry:\n\t\tpt=uidoc.Selection.PickPoint(UnwrapElement(IN[0]))\n\t\trpM=Point.ByCoordinates(pt.X*304.8,pt.Y*304.8,pt.Z*304.8)# don vi do mac dinh trong revitAPI la Inch, 1in=304.8mm\n\t\trpI=Point.ByCoordinates(pt.X,pt.Y,pt.Z)\n\t\tcounter=+1\n\t\tdypoint.append(pt)\n\t\trpointM.append(rpM)\n\t\trpointI.append(rpI)\n\texcept:\n\t\tx=False\n\nOUT=(dypoint,rpointM,rpointI)\n\n",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "865165a938f142eca5676de03662bc30",
+      "Inputs": [
+        {
+          "Id": "f16b8f25918241a49bdff9668fd109e4",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "db80dd1c2575405db9fda7f581df3d3a",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "932e504bdc8841ee8906500f2dd6db9c",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
     }
   ],
   "Connectors": [
@@ -102,10 +377,41 @@
       "Start": "19c421f3baad4da2b01e903df8878565",
       "End": "468ad618e9424a0fa2a4b16e59fcc31d",
       "Id": "8d2477d8002548b49502ebcb475dbfbe"
+    },
+    {
+      "Start": "7e40f29bbb2e4574bbadc0f793b00816",
+      "End": "82ef6b15c875448c93ee5dbed503a00e",
+      "Id": "2e0b5662f38240a19b81b32f9a9a2682"
+    },
+    {
+      "Start": "893e3c45f2e2432b8414a530b774fdcc",
+      "End": "165d551033234f3291e8f242d6525850",
+      "Id": "cc5e5d55bf2f4e158d3486f7f0b0d8cc"
+    },
+    {
+      "Start": "c14f82ea816d4c26a4aa1a8383e649cf",
+      "End": "3be963ec8d8f4b7ea9ca024643f859d0",
+      "Id": "5ab57787d41d403284acb51b2aae246b"
+    },
+    {
+      "Start": "745534ee769143e78395c82c67eb2886",
+      "End": "698e7121dd214440aadc5a4ae420ecf2",
+      "Id": "539d41e840cc42b695853ca58ba3debc"
     }
   ],
-  "Dependencies": [],
-  "NodeLibraryDependencies": [],
+  "Dependencies": [
+    "6eaab507-a7b2-41c9-b398-99ccd3293c89"
+  ],
+  "NodeLibraryDependencies": [
+    {
+      "Name": "Duynamo",
+      "Version": "2022.12.24",
+      "ReferenceType": "Package",
+      "Nodes": [
+        "ac9e4f1015a94a8993d6c2edb2f3c2e8"
+      ]
+    }
+  ],
   "Bindings": [],
   "View": {
     "Dynamo": {
@@ -113,7 +419,7 @@
       "HasRunWithoutCrash": true,
       "IsVisibleInDynamoLibrary": true,
       "Version": "2.10.1.3976",
-      "RunType": "Automatic",
+      "RunType": "Manual",
       "RunPeriod": "1000"
     },
     "Camera": {
@@ -130,39 +436,119 @@
     },
     "NodeViews": [
       {
+        "ShowGeometry": true,
+        "Name": "Boolean",
         "Id": "a098ecc85f074eae8c4c4f9f42f83ef0",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "Boolean",
-        "ShowGeometry": true,
-        "Excluded": false,
+        "Excluded": true,
         "X": 298.4,
         "Y": 112.0
       },
       {
+        "ShowGeometry": true,
+        "Name": "File Path",
         "Id": "f0278b7ebf9b41b1aff0657701e0ff32",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "File Path",
-        "ShowGeometry": true,
         "Excluded": false,
         "X": 330.4,
         "Y": 227.20000000000002
       },
       {
+        "ShowGeometry": true,
+        "Name": "Python Script",
         "Id": "dbbdb86afed54eee80211a9bdfee35eb",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "Python Script",
-        "ShowGeometry": true,
         "Excluded": false,
-        "X": 611.19999999999993,
-        "Y": 146.40000000000003
+        "X": 684.62234616165244,
+        "Y": 122.67893431700452
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script From String",
+        "Id": "ff7f9c69eee941919f7339f855fd2cce",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1047.7490979023707,
+        "Y": 127.69736347148711
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Boolean",
+        "Id": "2253b97433ea4d92b40543356278bfa8",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 235.12856194322285,
+        "Y": 678.2827690490451
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "e8359736decb482589fdfcd4a27d7ba1",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 621.35090810487486,
+        "Y": 688.96170336605019
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "File Path",
+        "Id": "0d7401ad42664c7bafee710fa2892b56",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 267.12856194322285,
+        "Y": 793.48276904904515
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script From String",
+        "Id": "3b4ca6e25ea3428ba33380bcdff794d3",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 984.47765984559283,
+        "Y": 693.98013252053215
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "33ee53b26e854d289c2760a43ac5626a",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": 886.07308007009283,
+        "Y": 962.45008613858818
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "pickPoints",
+        "Id": "ac9e4f1015a94a8993d6c2edb2f3c2e8",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": 407.37784463994507,
+        "Y": 481.144641782483
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "865165a938f142eca5676de03662bc30",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 854.21259645628277,
+        "Y": 516.23097333388137
       }
     ],
     "Annotations": [],
-    "X": 0.0,
-    "Y": 0.0,
-    "Zoom": 1.0
+    "X": 28.188204230633062,
+    "Y": -257.798078676651,
+    "Zoom": 0.77523066098131233
   }
 }

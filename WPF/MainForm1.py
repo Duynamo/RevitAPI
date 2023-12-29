@@ -312,6 +312,9 @@ class MainForm(Form):
 		self.ResumeLayout(False)
 
 
+	def Label2Click(self, sender, e):
+		pass
+
 
 	def ComboBox1_SelectedIndexChanged(self, sender, e):
 		TransactionManager.Instance.EnsureInTransaction(doc)
