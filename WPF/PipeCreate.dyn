@@ -1,0 +1,168 @@
+{
+  "Uuid": "31e9bd7e-87f3-466f-ac3e-432fa9028d5e",
+  "IsCustomNode": false,
+  "Description": null,
+  "Name": "PipeCreate",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": false,
+      "Id": "a098ecc85f074eae8c4c4f9f42f83ef0",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "18ddae1bc1ea4239a6f3cd56e53d5810",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
+      "HintPath": "No file selected.",
+      "InputValue": "No file selected.",
+      "NodeType": "ExtensionNode",
+      "Id": "f0278b7ebf9b41b1aff0657701e0ff32",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "19c421f3baad4da2b01e903df8878565",
+          "Name": "",
+          "Description": "Filename",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows you to select a file on the system to get its filename"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nimport sys \r\nimport System   \r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nfrom Autodesk.Revit.DB import*\r\nfrom Autodesk.Revit.DB.Structure import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\n\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\n#Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n\r\n#Preparing input from dynamo to revit\r\nelement = UnwrapElement(IN[0])\r\n\r\n#Do some action in a Transaction\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\n\"\"\"Now, You Can Code \"\"\"\r\n\r\n\r\n\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = element",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "dbbdb86afed54eee80211a9bdfee35eb",
+      "Inputs": [
+        {
+          "Id": "54f3591181af4fd9be796e31d72f7a54",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "468ad618e9424a0fa2a4b16e59fcc31d",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "7e40f29bbb2e4574bbadc0f793b00816",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "18ddae1bc1ea4239a6f3cd56e53d5810",
+      "End": "54f3591181af4fd9be796e31d72f7a54",
+      "Id": "0cbfe5182c8e4a62a7623ed7c543d7e0"
+    },
+    {
+      "Start": "19c421f3baad4da2b01e903df8878565",
+      "End": "468ad618e9424a0fa2a4b16e59fcc31d",
+      "Id": "8d2477d8002548b49502ebcb475dbfbe"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": true,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.10.1.3976",
+      "RunType": "Automatic",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Background Preview",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "Id": "a098ecc85f074eae8c4c4f9f42f83ef0",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Boolean",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 298.4,
+        "Y": 112.0
+      },
+      {
+        "Id": "f0278b7ebf9b41b1aff0657701e0ff32",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "File Path",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 330.4,
+        "Y": 227.20000000000002
+      },
+      {
+        "Id": "dbbdb86afed54eee80211a9bdfee35eb",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 611.19999999999993,
+        "Y": 146.40000000000003
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}
