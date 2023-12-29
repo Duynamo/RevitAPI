@@ -13,7 +13,7 @@ class MainForm(Form):
 		self._groupBox1 = System.Windows.Forms.GroupBox()
 		self._groupBox2 = System.Windows.Forms.GroupBox()
 		self._cbsSchedule = System.Windows.Forms.CheckedListBox()
-		self._checkBox = System.Windows.Forms.CheckBox()
+		self._checkBoxAllNone = System.Windows.Forms.CheckBox()
 		self._textBoxTotalItem = System.Windows.Forms.TextBox()
 		self._label1 = System.Windows.Forms.Label()
 		self._label2 = System.Windows.Forms.Label()
@@ -63,16 +63,16 @@ class MainForm(Form):
 		self._cbsSchedule.TabIndex = 0
 		self._cbsSchedule.SelectedIndexChanged += self.CbsScheduleSelectedIndexChanged
 		# 
-		# checkBox
+		# checkBoxAllNone
 		# 
-		self._checkBox.Font = System.Drawing.Font("Meiryo UI", 8)
-		self._checkBox.Location = System.Drawing.Point(17, 229)
-		self._checkBox.Name = "checkBox"
-		self._checkBox.Size = System.Drawing.Size(135, 24)
-		self._checkBox.TabIndex = 2
-		self._checkBox.Text = "select All/None"
-		self._checkBox.UseVisualStyleBackColor = True
-		self._checkBox.CheckedChanged += self.CheckBoxCheckedChanged
+		self._checkBoxAllNone.Font = System.Drawing.Font("Meiryo UI", 8)
+		self._checkBoxAllNone.Location = System.Drawing.Point(17, 229)
+		self._checkBoxAllNone.Name = "checkBoxAllNone"
+		self._checkBoxAllNone.Size = System.Drawing.Size(135, 24)
+		self._checkBoxAllNone.TabIndex = 2
+		self._checkBoxAllNone.Text = "select All/None"
+		self._checkBoxAllNone.UseVisualStyleBackColor = True
+		self._checkBoxAllNone.CheckedChanged += self.CheckBoxCheckedChanged
 		# 
 		# textBoxTotalItem
 		# 
@@ -159,7 +159,7 @@ class MainForm(Form):
 		self.Controls.Add(self._bttOK)
 		self.Controls.Add(self._label1)
 		self.Controls.Add(self._textBoxTotalItem)
-		self.Controls.Add(self._checkBox)
+		self.Controls.Add(self._checkBoxAllNone)
 		self.Controls.Add(self._groupBox2)
 		self.Controls.Add(self._groupBox1)
 		self.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 128)
@@ -175,7 +175,7 @@ class MainForm(Form):
 
 	def CbsScheduleSelectedIndexChanged(self, sender, e):
 		pass
-
+	
 	def CheckBoxCheckedChanged(self, sender, e):
 		pass
 
@@ -193,3 +193,4 @@ class MainForm(Form):
 
 	def BttCANCLEClick(self, sender, e):
 		pass
+
