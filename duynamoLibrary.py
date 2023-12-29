@@ -129,3 +129,11 @@ idOfInSystem = allPipingSystemName.index(inSystemName)
 desPipingSystem = allPipingSystem[idOfInSystem]
 
 OUT = desPipingSystem
+
+"""________runVSCode in Dynamo___________"""
+re  = open(r"C:\Users\95053\Desktop\Python\RevitAPI-master\RevitAPI\WPF\\MainForm1.py", "r")
+
+interpret = re.read()
+
+OUT =  interpret
+
