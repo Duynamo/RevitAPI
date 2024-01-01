@@ -63,7 +63,7 @@ class MainForm(Form):
 		self._label2 = System.Windows.Forms.Label()
 		self._textBoxBrowser = System.Windows.Forms.TextBox()
 		self._bttBrowser = System.Windows.Forms.Button()
-		self._bttOK = System.Windows.Forms.Button()
+		self._bttExport = System.Windows.Forms.Button()
 		self._bttCANCLE = System.Windows.Forms.Button()
 		self._label3 = System.Windows.Forms.Label()
 		self._groupBox1.SuspendLayout()
@@ -89,7 +89,7 @@ class MainForm(Form):
 		self._groupBox2.Controls.Add(self._textBoxBrowser)
 		self._groupBox2.Controls.Add(self._label2)
 		self._groupBox2.Font = System.Drawing.Font("Meiryo UI", 8)
-		self._groupBox2.Location = System.Drawing.Point(17, 263)
+		self._groupBox2.Location = System.Drawing.Point(30, 263)
 		self._groupBox2.Name = "groupBox2"
 		self._groupBox2.Size = System.Drawing.Size(350, 100)
 		self._groupBox2.TabIndex = 1
@@ -98,6 +98,7 @@ class MainForm(Form):
 		# 
 		# cbsSchedule
 		# 
+		self._cbsSchedule.CheckOnClick = True
 		self._cbsSchedule.DisplayMember = "Name"
 		self._cbsSchedule.AllowDrop = True
 		self._cbsSchedule.Font = System.Drawing.Font("Meiryo UI", 8)
@@ -168,15 +169,15 @@ class MainForm(Form):
 		self._bttBrowser.UseVisualStyleBackColor = False
 		self._bttBrowser.Click += self.BttBrowserClick
 		# 
-		# bttOK
+		# bttExport
 		# 
-		self._bttOK.Location = System.Drawing.Point(200, 381)
-		self._bttOK.Name = "bttOK"
-		self._bttOK.Size = System.Drawing.Size(75, 29)
-		self._bttOK.TabIndex = 5
-		self._bttOK.Text = "OK"
-		self._bttOK.UseVisualStyleBackColor = True
-		self._bttOK.Click += self.BttOKClick
+		self._bttExport.Location = System.Drawing.Point(205, 381)
+		self._bttExport.Name = "bttExport"
+		self._bttExport.Size = System.Drawing.Size(75, 29)
+		self._bttExport.TabIndex = 5
+		self._bttExport.Text = "Export"
+		self._bttExport.UseVisualStyleBackColor = True
+		self._bttExport.Click += self.BttExportClick
 		# 
 		# bttCANCLE
 		# 
@@ -203,7 +204,7 @@ class MainForm(Form):
 		self.ClientSize = System.Drawing.Size(382, 428)
 		self.Controls.Add(self._label3)
 		self.Controls.Add(self._bttCANCLE)
-		self.Controls.Add(self._bttOK)
+		self.Controls.Add(self._bttExport)
 		self.Controls.Add(self._label1)
 		self.Controls.Add(self._textBoxTotalItem)
 		self.Controls.Add(self._checkBoxAllNone)
@@ -247,7 +248,29 @@ class MainForm(Form):
 		self._textBoxBrowser.Text  = fileDialog.SelectedPath
 		pass
 
-	def BttOKClick(self, sender, e):
+	def BttExportClick(self, sender, e):
+		selected = []
+		for i in self._cbsSchedule.CheckedItems:
+			selected.append(i)
+#_______________________________________________________________#
+		nameSched = []
+		for i in selected:
+			nameSched.append(i.Name + ".csv")
+		path = self._textBoxBrowser.Text 
+#_______________________________________________________________#
+		self.result_list = []
+		for index, sched in enumerate(selected):
+			schedule = UnwrapElement(sched)
+			fileName = nameSched[index]
+			try:
+				export_Options = ViewScheduleExportOptions()
+				schedule.Export(path,fileName,export_Options)
+				self.result_list.append("Schedule Exported")
+
+			except:
+				self.result_list.append("Export Failed")
+		self.Close()
+
 		pass
 
 	def BttCANCLEClick(self, sender, e):
