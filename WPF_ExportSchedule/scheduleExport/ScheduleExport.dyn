@@ -17,7 +17,7 @@
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
       "NodeType": "BooleanInputNode",
-      "InputValue": false,
+      "InputValue": true,
       "Id": "939f143b1a504463a1423eb87c407af3",
       "Inputs": [],
       "Outputs": [
@@ -37,7 +37,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\WPF_ExportSchedule\\scheduleExport\\scheduleExport\\MainForm1.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\WPF_ExportSchedule\\scheduleExport\\scheduleExport\\Export Schedule.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "33b3a796d3e14939be894f526dba327a",
@@ -77,8 +77,8 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\WPF_ExportSchedule\\scheduleExport\\scheduleExport\\MainForm1.py",
-      "InputValue": "C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\WPF_ExportSchedule\\scheduleExport\\scheduleExport\\MainForm1.py",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\WPF_ExportSchedule\\scheduleExport\\scheduleExport\\Export Schedule.py",
+      "InputValue": "scheduleExport\\Export Schedule.py",
       "NodeType": "ExtensionNode",
       "Id": "f1a9b4dd8e2344eabe20b1dc1c47562d",
       "Inputs": [],
@@ -296,10 +296,10 @@
   "View": {
     "Dynamo": {
       "ScaleFactor": 1.0,
-      "HasRunWithoutCrash": false,
+      "HasRunWithoutCrash": true,
       "IsVisibleInDynamoLibrary": true,
       "Version": "2.10.1.3976",
-      "RunType": "Automatic",
+      "RunType": "Manual",
       "RunPeriod": "1000"
     },
     "Camera": {
@@ -352,8 +352,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 825.96171355030469,
-        "Y": 309.03026251509237
+        "X": 820.7728350011148,
+        "Y": 250.91482276416457
       },
       {
         "ShowGeometry": true,
@@ -397,8 +397,8 @@
       }
     ],
     "Annotations": [],
-    "X": 27.987805647690124,
-    "Y": 10.920603182193872,
-    "Zoom": 0.91598766032529366
+    "X": -38.35066453508756,
+    "Y": 14.909301617314753,
+    "Zoom": 0.64717475706428429
   }
 }
