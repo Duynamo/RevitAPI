@@ -1,5 +1,5 @@
-﻿import clr
-import sys 
+﻿import sys 
+import clr
 import System   
 clr.AddReference("ProtoGeometry")
 from Autodesk.DesignScript.Geometry import *
@@ -339,5 +339,3 @@ class MainForm(Form):
 f = MainForm()
 Application.Run(f)
 
-	def Button1Click(self, sender, e):
-		pass

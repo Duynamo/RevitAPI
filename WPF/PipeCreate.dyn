@@ -12,7 +12,7 @@
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
       "NodeType": "BooleanInputNode",
-      "InputValue": true,
+      "InputValue": false,
       "Id": "a098ecc85f074eae8c4c4f9f42f83ef0",
       "Inputs": [],
       "Outputs": [
@@ -31,8 +31,8 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\WPF\\MainForm1.py",
-      "InputValue": ".\\MainForm1.py",
+      "HintPath": "C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\PipeCreate.py",
+      "InputValue": "..\\PipeCreate.py",
       "NodeType": "ExtensionNode",
       "Id": "f0278b7ebf9b41b1aff0657701e0ff32",
       "Inputs": [],
@@ -53,7 +53,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\WPF\\\\MainForm1.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Code": "re  = open(r\"C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\PipeCreate.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "dbbdb86afed54eee80211a9bdfee35eb",
@@ -134,7 +134,7 @@
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
       "NodeType": "BooleanInputNode",
-      "InputValue": true,
+      "InputValue": false,
       "Id": "2253b97433ea4d92b40543356278bfa8",
       "Inputs": [],
       "Outputs": [
@@ -365,6 +365,213 @@
       ],
       "Replication": "Disabled",
       "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nimport sys \r\nimport System   \r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nfrom Autodesk.Revit.DB import*\r\nfrom Autodesk.Revit.DB.Structure import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\n\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\n#Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n\r\ndiameterIN = UnwrapElement(IN[1])\r\ninSystemName = UnwrapElement(IN[2])\r\n\r\ncategories = [BuiltInCategory.OST_PipeCurves]\r\ncategoriesFilter = []\r\nfor c in categories:\r\n    collector = FilteredElementCollector(doc).OfCategory(c).WhereElementIsNotElementType()\r\n    categoriesFilter.append(collector)\r\nflat_categoriesFilter = [item for sublist in categoriesFilter for item in sublist]\r\nIDS = List[ElementId]()\r\nfor i in flat_categoriesFilter:\r\n\tIDS.Add(i.Id)\r\n\r\ndesPipes = []\r\n\r\nparamFilter1 = ParameterValueProvider(ElementId(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM))\r\nreason1 = FilterStringEquals()\r\nfRule = FilterStringRule(paramFilter1,reason1, inSystemName)\r\nfilter1 = ElementParameterFilter(fRule)\r\n\r\ni_Check = IN[1]/304.8\r\nparamFilter2 = ParameterValueProvider(ElementId(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM))\r\nreason2 = FilterNumericEquals()\r\nreason3 = FilterNumericGreaterOrEqual()\r\nfRule2 = FilterDoubleRule(paramFilter2,reason2,i_Check,0.02)\r\nfilter2 = ElementParameterFilter(fRule2)\r\ncombineFilter = LogicalAndFilter(filter1 , filter2)\r\ndesPipes = FilteredElementCollector(doc, IDS).WherePasses(filter2).WhereElementIsNotElementType().ToElements()\r\n\r\nOUT = desPipes\r\n\r\n\r\n",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "887d0df23f8e48b995ae577849e5c44f",
+      "Inputs": [
+        {
+          "Id": "34e7c37118134083a52597e7c1a0a939",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "2e6cd87438244e4a850a2a7757db720f",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "1e449d4cf0a243e7a72f6b284f0e0a90",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "608556ee8e7a441fa771bb0a0c698dcf",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": true,
+      "Id": "0ac268a1e5594a72be7426ed4a9ba14b",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "fd66587f210d458285af4e26489d6406",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.DoubleInput, CoreNodeModels",
+      "NodeType": "NumberInputNode",
+      "NumberType": "Double",
+      "InputValue": 500.0,
+      "Id": "e409925e971441b8845814ed9c09e28d",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "493bfe35e8314250bb6fb7702e1806f3",
+          "Name": "",
+          "Description": "Double",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Creates a number."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "\"通気\";",
+      "Id": "a39b604212e449db835759be2fb44d21",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "ddf40d0dc1644a4a8a97e3970bfcd5d4",
+          "Name": "",
+          "Description": "Value of expression at line 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows for DesignScript code to be authored directly"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nimport sys \r\nimport System   \r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nfrom Autodesk.Revit.DB import*\r\nfrom Autodesk.Revit.DB.Structure import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\n\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\n#Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n\r\n#Preparing input from dynamo to revit\r\nelement = UnwrapElement(IN[0])\r\n\r\n#Do some action in a Transaction\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\n\"\"\"Now, You Can Code \"\"\"\r\n\r\n\r\n\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = element",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "cb64373a88064e3180f82217b5d9562b",
+      "Inputs": [
+        {
+          "Id": "fd09ef633db444b49c2aeac568bb60cc",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "b4cf931bfade43edb41c29fa1b96838a",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nimport sys \r\nimport System   \r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nfrom Autodesk.Revit.DB import*\r\nfrom Autodesk.Revit.DB.Structure import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\n\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\n#Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n\r\ndef getAllPipingSystems(doc):\r\n\tcollector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipingSystem)\r\n\tpipingSystems = collector.ToElements()\r\n\tpipingSystemsName = []\r\n\tfor system in pipingSystems:\r\n\t\tsystemName = system.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsString()\r\n\t\tpipingSystemsName.append(systemName)\r\n\treturn pipingSystemsName\r\n\r\nlst = getAllPipingSystems(doc)\r\npipingSystemsCollector = [item for item in lst if item is not None]\r\n\r\nOUT = pipingSystemsCollector",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "85df448b51b942aba3c0425d2d5fce51",
+      "Inputs": [
+        {
+          "Id": "e8d192b2c50843f597c221086586de6f",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "78ac5ebaee844dedb5e18a3a8a56600d",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "__title__ = \"BIM3DM\"  # Name of the button displayed in Revit UI\r\n#========================================================================\r\nimport clr\r\nclr.AddReference(\"System\")   \r\nimport System\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import*\r\nfrom Autodesk.Revit.DB import Transaction, FilteredElementCollector\r\nfrom pyrevit import revit, forms\r\nfrom System.Collections.Generic import List\r\nfrom pyrevit import revit, DB, UI, HOST_APP, forms\r\n\r\n\r\nclr.AddReference('RevitAPIUI')\r\nfrom Autodesk.Revit.UI import*\r\n# from  Autodesk.Revit.UI.Selection import*\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nimport math \r\nfrom System.Collections.Generic import *\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\nfrom Autodesk.Revit.DB.Structure import *\r\n\r\nclr.AddReference('RevitAPIUI')\r\nfrom Autodesk.Revit.UI import*\r\nfrom  Autodesk.Revit.UI.Selection import*\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\nfrom Autodesk.DesignScript.Geometry import Point\r\n\r\nfrom rpw.ui.forms import (FlexForm, Label, ComboBox, Separator, Button, TextBox)\r\nfrom collections import OrderedDict\r\nfrom pyrevit.framework import List\r\nfrom Autodesk.Revit import Exceptions\r\nimport sys\r\n\r\n#========================================================================\r\nfrom pyrevit import forms\r\n#========================================================================\r\ndoc = __revit__.ActiveUIDocument.Document # Document class from RevitAPI that represents project.\r\nuidoc = __revit__.ActiveUIDocument # UIDocument class from RevitAPI that represents Revit project opened in the Revit UI.\r\napp = __revit__.Application # Represents the Autodesk Revit Application, providing.\r\nview = revit.active_view\r\n#########################################################################\r\nclass SelectionFilter(ISelectionFilter):\r\n    def __init__(self, ctgName1):\r\n        self.ctgName1 = ctgName1\r\n\r\n    def AllowElement(self, element):\r\n        if element.Category.Name == self.ctgName1:\r\n            return True\r\n        else:\r\n            return False\r\ndef addTextToString(content, add_text, index, after_number):\r\n    \"\"\"\r\n    Add a string (add_text) at a specific position (index_content) in the given string (content).\r\n    \"\"\"\r\n    index_content = int(index) - 1\r\n    if index_content < 0 or index_content > len(content):\r\n        # If index_content is invalid, simply return the original string\r\n        return content\r\n    # Add the new string at the specific position\r\n    oldText = content[index_content+1:]\r\n    result = content[:index_content+1] + add_text + after_number + oldText\r\n    return result\r\n\r\n#########################################################################\r\nele = SelectionFilter(\"Text Notes\")\r\nelSelectAll = uidoc.Selection.PickElementsByRectangle(ele,\"Selects\")\r\n#########################################################################\r\n\r\n\r\ntxt_types = FilteredElementCollector(doc).OfClass(TextNoteType)\r\ntext_style_dict= {txt_t.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsString(): txt_t for txt_t in txt_types}\r\n\r\ntextNote = elSelectAll[0]\r\n# Get the Element Type of the Text Note\r\ntextNoteType = doc.GetElement(textNote.GetTypeId())\r\n# Get the Type Name parameter by BuiltInParameter\r\ntypeParameter = textNoteType.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_NAME)\r\ntypeName = typeParameter.AsString()\r\n\r\ncontent = elSelectAll[0].Text\r\n\r\ncomponents = [\r\n    Label(\"Pick Text Style:\"),\r\n    ComboBox(name=\"textstyle_combobox\", options=text_style_dict,default=typeName),\r\n    Label(\"Text Index (after of characters):\"),\r\n    TextBox(name=\"text_index\", Text=str(len(content)-1)),\r\n    Label(\"Prefix Character:\"),\r\n    TextBox(name=\"prefix_character\", Text=\"\"),\r\n    Label(\"Middle Character:\"),\r\n    TextBox(name=\"middle_character\", Text=\"\"),\r\n    Label(\"Begin Number:\"),\r\n    TextBox(name=\"number\", Text=\"1\"),\r\n\r\n    Label(\"After Number:\"),\r\n    TextBox(name=\"after_number\", Text=\"\"),\r\n\r\n    Label(\"Suffix Character:\"),\r\n    TextBox(name=\"suffix_character\", Text=\"\"),\r\n    Button(\"Select\")\r\n    ]\r\n\r\nform = FlexForm(\"Select\", components)\r\nok = form.show()\r\nif ok:\r\n    # assign chosen values\r\n    text_style = form.values[\"textstyle_combobox\"]\r\n\r\n    text_index = form.values[\"text_index\"]\r\n    prefix_character = form.values[\"prefix_character\"]\r\n    middle_character = form.values[\"middle_character\"]\r\n    number = int(form.values[\"number\"])\r\n    suffix_character = form.values[\"suffix_character\"]\r\n    after_number = form.values[\"after_number\"]\r\nelse:\r\n    sys.exit()\r\n\r\n\r\ncondition = True\r\nn = number\r\ntry:\r\n    while condition:\r\n        with Transaction(doc, __title__) as t:\r\n            t.Start(\"Create Grid\")\r\n            pickPoint = uidoc.Selection.PickPoint(\"Select Point\")\r\n            textAdd =  str(middle_character) + str(n) \r\n            \r\n            textWithoutNewline= str(prefix_character) +  addTextToString(content, textAdd, int(text_index), after_number) +  str(suffix_character)\r\n            \r\n            textWithoutNewline = textWithoutNewline.replace(\"\\r\", \"\")\r\n            text_note = DB.TextNote.Create(doc, view.Id, pickPoint, textWithoutNewline , text_style.Id)\r\n            n = n + 1\r\n            t.Commit()\r\nexcept Exception as e:\r\n    condition = False\r\n    str(e)",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "256beb4f8782455a8a45cabce4e589ba",
+      "Inputs": [
+        {
+          "Id": "3de0904f0a994948af851c89ccc1b0f7",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "1efe0dcaea5345ce8384c637d793bf33",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
     }
   ],
   "Connectors": [
@@ -397,6 +604,21 @@
       "Start": "745534ee769143e78395c82c67eb2886",
       "End": "698e7121dd214440aadc5a4ae420ecf2",
       "Id": "539d41e840cc42b695853ca58ba3debc"
+    },
+    {
+      "Start": "fd66587f210d458285af4e26489d6406",
+      "End": "34e7c37118134083a52597e7c1a0a939",
+      "Id": "b72edc9afbc24d5095e3b3beb0512059"
+    },
+    {
+      "Start": "493bfe35e8314250bb6fb7702e1806f3",
+      "End": "2e6cd87438244e4a850a2a7757db720f",
+      "Id": "75ccccb9c917452482b88ce9d3368485"
+    },
+    {
+      "Start": "ddf40d0dc1644a4a8a97e3970bfcd5d4",
+      "End": "1e449d4cf0a243e7a72f6b284f0e0a90",
+      "Id": "c91715f1358d4220a22134df23728240"
     }
   ],
   "Dependencies": [
@@ -419,7 +641,7 @@
       "HasRunWithoutCrash": true,
       "IsVisibleInDynamoLibrary": true,
       "Version": "2.10.1.3976",
-      "RunType": "Manual",
+      "RunType": "Automatic",
       "RunPeriod": "1000"
     },
     "Camera": {
@@ -442,8 +664,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": true,
-        "X": 298.4,
-        "Y": 112.0
+        "X": 422.96448609151031,
+        "Y": -87.88254744916776
       },
       {
         "ShowGeometry": true,
@@ -452,8 +674,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 330.4,
-        "Y": 227.20000000000002
+        "X": 381.21153369281564,
+        "Y": 34.201061441377107
       },
       {
         "ShowGeometry": true,
@@ -462,8 +684,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 684.62234616165244,
-        "Y": 122.67893431700452
+        "X": 540.59351240691183,
+        "Y": 53.548014872455951
       },
       {
         "ShowGeometry": true,
@@ -472,8 +694,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 1047.7490979023707,
-        "Y": 127.69736347148711
+        "X": 690.26917640272575,
+        "Y": 49.875898485670348
       },
       {
         "ShowGeometry": true,
@@ -481,9 +703,9 @@
         "Id": "2253b97433ea4d92b40543356278bfa8",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": false,
+        "Excluded": true,
         "X": 235.12856194322285,
-        "Y": 678.2827690490451
+        "Y": 677.09785226905
       },
       {
         "ShowGeometry": true,
@@ -541,14 +763,84 @@
         "Id": "865165a938f142eca5676de03662bc30",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": false,
+        "Excluded": true,
         "X": 854.21259645628277,
         "Y": 516.23097333388137
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "887d0df23f8e48b995ae577849e5c44f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1480.717565562886,
+        "Y": 323.91857159511648
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Boolean",
+        "Id": "0ac268a1e5594a72be7426ed4a9ba14b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1314.3344444162776,
+        "Y": 223.56881821358795
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Number",
+        "Id": "e409925e971441b8845814ed9c09e28d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1325.9075540116105,
+        "Y": 293.00747578558685
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "a39b604212e449db835759be2fb44d21",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1306.0840348921204,
+        "Y": 388.052100872303
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "cb64373a88064e3180f82217b5d9562b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1890.5664043578945,
+        "Y": 297.95322807287238
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "85df448b51b942aba3c0425d2d5fce51",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1040.9876179544672,
+        "Y": -165.56994736563786
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "256beb4f8782455a8a45cabce4e589ba",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1407.4203459065238,
+        "Y": -135.89593522052644
       }
     ],
     "Annotations": [],
-    "X": 28.188204230633062,
-    "Y": -257.798078676651,
-    "Zoom": 0.77523066098131233
+    "X": -839.86401442635622,
+    "Y": 275.88810409978618,
+    "Zoom": 0.97272649656631671
   }
 }

@@ -137,3 +137,4 @@ interpret = re.read()
 
 OUT =  interpret
 
+"""__________________get All Settings Categories_________________"""

@@ -43,7 +43,7 @@ view = doc.ActiveView
 
 
 def getAllPipingSystems(doc):
-	collector = FilteredElementCollector(doc, doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipingSystem)
+	collector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipingSystem)
 	pipingSystems = collector.ToElements()
 	pipingSystemsName = []
 	for system in pipingSystems:
@@ -51,10 +51,11 @@ def getAllPipingSystems(doc):
 		pipingSystemsName.append(systemName)
 	return pipingSystemsName
 
-pipingSystemsCollector = getAllPipingSystems(doc)
+lst = getAllPipingSystems(doc)
+pipingSystemsCollector = [item for item in lst if item is not None]
 
 def getAllPipeTypes(doc):
-	collector1 = FilteredElementCollector(doc, view.Id).OfCategory(BuiltInCategory.OST_PipeCurves)
+	collector1 = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeCurves)
 	pipeTypes = collector1.ToElements()
 	pipeTypesName = []
 	for pipeType in pipeTypes:
@@ -62,7 +63,8 @@ def getAllPipeTypes(doc):
 		pipeTypesName.append(pipeTypeName)
 	return pipeTypesName
 
-pipeTypesCollector = getAllPipeTypes(doc)
+lst1 = getAllPipeTypes(doc)
+pipeTypesCollector = [item for item in lst1 if item is not None]
 
 levelsCollector = FilteredElementCollector(doc).OfClass(Level).ToElements()
 levelsNameCollector = []
@@ -76,75 +78,80 @@ class MainForm(Form):
 	
 	def InitializeComponent(self):
 		self._groupBox1 = System.Windows.Forms.GroupBox()
-		self._button1 = System.Windows.Forms.Button()
-		self._button2 = System.Windows.Forms.Button()
-		self._comboBox1 = System.Windows.Forms.ComboBox()
+		self._btt_getXY = System.Windows.Forms.Button()
+		self._btt_getZ = System.Windows.Forms.Button()
+		self._cbb_PipingSystemType = System.Windows.Forms.ComboBox()
 		self._label1 = System.Windows.Forms.Label()
 		self._groupBox2 = System.Windows.Forms.GroupBox()
 		self._label2 = System.Windows.Forms.Label()
-		self._comboBox2 = System.Windows.Forms.ComboBox()
+		self._cbb_PipeType = System.Windows.Forms.ComboBox()
 		self._groupBox3 = System.Windows.Forms.GroupBox()
 		self._label3 = System.Windows.Forms.Label()
-		self._comboBox3 = System.Windows.Forms.ComboBox()
+		self._cbb_RefLevel = System.Windows.Forms.ComboBox()
 		self._groupBox4 = System.Windows.Forms.GroupBox()
 		self._label4 = System.Windows.Forms.Label()
-		self._textBox1 = System.Windows.Forms.TextBox()
-		self._button3 = System.Windows.Forms.Button()
-		self._button4 = System.Windows.Forms.Button()
+		self._txb_Diameter = System.Windows.Forms.TextBox()
+		self._btt_OK = System.Windows.Forms.Button()
+		self._btt_CANCLE = System.Windows.Forms.Button()
 		self._label5 = System.Windows.Forms.Label()
+		self._groupBox5 = System.Windows.Forms.GroupBox()
+		self._clb_XYValue = System.Windows.Forms.CheckedListBox()
+		self._clb_ZValue = System.Windows.Forms.CheckedListBox()
 		self._groupBox1.SuspendLayout()
 		self._groupBox2.SuspendLayout()
 		self._groupBox3.SuspendLayout()
 		self._groupBox4.SuspendLayout()
+		self._groupBox5.SuspendLayout()
 		self.SuspendLayout()
 		# 
 		# groupBox1
 		# 
 		self._groupBox1.Controls.Add(self._label1)
-		self._groupBox1.Controls.Add(self._comboBox1)
-		self._groupBox1.Location = System.Drawing.Point(12, 159)
+		self._groupBox1.Controls.Add(self._cbb_PipingSystemType)
+		self._groupBox1.Location = System.Drawing.Point(12, 174)
 		self._groupBox1.Name = "groupBox1"
 		self._groupBox1.Size = System.Drawing.Size(449, 47)
 		self._groupBox1.TabIndex = 0
 		self._groupBox1.TabStop = False
 		# 
-		# button1
+		# btt_getXY
 		# 
-		self._button1.BackColor = System.Drawing.SystemColors.Info
-		self._button1.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, 128, True)
-		self._button1.ForeColor = System.Drawing.Color.Red
-		self._button1.Location = System.Drawing.Point(52, 28)
-		self._button1.Name = "button1"
-		self._button1.Size = System.Drawing.Size(140, 58)
-		self._button1.TabIndex = 1
-		self._button1.Text = "get X,Y value"
-		self._button1.UseVisualStyleBackColor = False
+		self._btt_getXY.BackColor = System.Drawing.SystemColors.Info
+		self._btt_getXY.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
+		self._btt_getXY.ForeColor = System.Drawing.Color.Red
+		self._btt_getXY.Location = System.Drawing.Point(13, 8)
+		self._btt_getXY.Name = "btt_getXY"
+		self._btt_getXY.Size = System.Drawing.Size(140, 30)
+		self._btt_getXY.TabIndex = 1
+		self._btt_getXY.Text = "get X,Y value"
+		self._btt_getXY.UseVisualStyleBackColor = False
+		self._btt_getXY.Click += self.Btt_getXYClick
 		# 
-		# button2
+		# btt_getZ
 		# 
-		self._button2.BackColor = System.Drawing.SystemColors.Info
-		self._button2.Cursor = System.Windows.Forms.Cursors.AppStarting
-		self._button2.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, 128, True)
-		self._button2.ForeColor = System.Drawing.Color.Red
-		self._button2.Location = System.Drawing.Point(279, 28)
-		self._button2.Name = "button2"
-		self._button2.Size = System.Drawing.Size(140, 58)
-		self._button2.TabIndex = 2
-		self._button2.Text = "get Z value"
-		self._button2.UseVisualStyleBackColor = False
+		self._btt_getZ.BackColor = System.Drawing.SystemColors.Info
+		self._btt_getZ.Cursor = System.Windows.Forms.Cursors.AppStarting
+		self._btt_getZ.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
+		self._btt_getZ.ForeColor = System.Drawing.Color.Red
+		self._btt_getZ.Location = System.Drawing.Point(295, 8)
+		self._btt_getZ.Name = "btt_getZ"
+		self._btt_getZ.Size = System.Drawing.Size(140, 30)
+		self._btt_getZ.TabIndex = 2
+		self._btt_getZ.Text = "get Z value"
+		self._btt_getZ.UseVisualStyleBackColor = False
+		self._btt_getZ.Click += self.Btt_getZClick
 		# 
-		# comboBox1
+		# cbb_PipingSystemType
 		# 
-		self._comboBox1.AllowDrop = True
-		self._comboBox1.Cursor = System.Windows.Forms.Cursors.AppStarting
-		self._comboBox1.FormattingEnabled = True
-		self._comboBox1.Location = System.Drawing.Point(180, 12)
-		self._comboBox1.Name = "comboBox1"
-		self._comboBox1.Size = System.Drawing.Size(263, 23)
-		self._comboBox1.TabIndex = 3
-		self._comboBox1.SelectedIndexChanged += self.ComboBox1_SelectedIndexChanged
-		self._comboBox1.Items.AddRange(System.Array[System.Object](pipingSystemsCollector))
-
+		self._cbb_PipingSystemType.AllowDrop = True
+		self._cbb_PipingSystemType.Cursor = System.Windows.Forms.Cursors.AppStarting
+		self._cbb_PipingSystemType.FormattingEnabled = True
+		self._cbb_PipingSystemType.Location = System.Drawing.Point(180, 12)
+		self._cbb_PipingSystemType.Name = "cbb_PipingSystemType"
+		self._cbb_PipingSystemType.Size = System.Drawing.Size(263, 23)
+		self._cbb_PipingSystemType.TabIndex = 3
+		self._cbb_PipingSystemType.SelectedIndexChanged += self.Cbb_PipingSystemTypeSelectedIndexChanged
+		self._cbb_PipingSystemType.Items.AddRange(System.Array[System.Object](pipingSystemsCollector)) 
 		# 
 		# label1
 		# 
@@ -152,7 +159,7 @@ class MainForm(Form):
 		self._label1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
 		self._label1.Font = System.Drawing.Font("MS UI Gothic", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._label1.ForeColor = System.Drawing.Color.Blue
-		self._label1.Location = System.Drawing.Point(19, 12)
+		self._label1.Location = System.Drawing.Point(6, 14)
 		self._label1.Name = "label1"
 		self._label1.Size = System.Drawing.Size(142, 23)
 		self._label1.TabIndex = 4
@@ -161,8 +168,8 @@ class MainForm(Form):
 		# groupBox2
 		# 
 		self._groupBox2.Controls.Add(self._label2)
-		self._groupBox2.Controls.Add(self._comboBox2)
-		self._groupBox2.Location = System.Drawing.Point(12, 212)
+		self._groupBox2.Controls.Add(self._cbb_PipeType)
+		self._groupBox2.Location = System.Drawing.Point(12, 227)
 		self._groupBox2.Name = "groupBox2"
 		self._groupBox2.Size = System.Drawing.Size(449, 47)
 		self._groupBox2.TabIndex = 5
@@ -174,30 +181,29 @@ class MainForm(Form):
 		self._label2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
 		self._label2.Font = System.Drawing.Font("MS UI Gothic", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._label2.ForeColor = System.Drawing.Color.Blue
-		self._label2.Location = System.Drawing.Point(19, 12)
+		self._label2.Location = System.Drawing.Point(6, 12)
 		self._label2.Name = "label2"
 		self._label2.Size = System.Drawing.Size(142, 23)
 		self._label2.TabIndex = 4
 		self._label2.Text = "PipeType"
-		self._label2.Click += self.Label2Click
 		# 
-		# comboBox2
+		# cbb_PipeType
 		# 
-		self._comboBox2.AllowDrop = True
-		self._comboBox2.Cursor = System.Windows.Forms.Cursors.AppStarting
-		self._comboBox2.FormattingEnabled = True
-		self._comboBox2.Location = System.Drawing.Point(180, 12)
-		self._comboBox2.Name = "comboBox2"
-		self._comboBox2.Size = System.Drawing.Size(263, 23)
-		self._comboBox2.TabIndex = 3
-		self._comboBox2.SelectedIndexChanged += self.ComboBox2_SelectedIndexChanged
-		self._comboBox2.Items.AddRange(System.Array[System.Object](pipeTypesCollector))		
+		self._cbb_PipeType.AllowDrop = True
+		self._cbb_PipeType.Cursor = System.Windows.Forms.Cursors.AppStarting
+		self._cbb_PipeType.FormattingEnabled = True
+		self._cbb_PipeType.Location = System.Drawing.Point(180, 12)
+		self._cbb_PipeType.Name = "cbb_PipeType"
+		self._cbb_PipeType.Size = System.Drawing.Size(263, 23)
+		self._cbb_PipeType.TabIndex = 3
+		self._cbb_PipeType.SelectedIndexChanged += self.Cbb_PipeTypeSelectedIndexChanged
+		self._cbb_PipeType.Items.AddRange(System.Array[System.Object](pipeTypesCollector))
 		# 
 		# groupBox3
 		# 
 		self._groupBox3.Controls.Add(self._label3)
-		self._groupBox3.Controls.Add(self._comboBox3)
-		self._groupBox3.Location = System.Drawing.Point(12, 265)
+		self._groupBox3.Controls.Add(self._cbb_RefLevel)
+		self._groupBox3.Location = System.Drawing.Point(12, 280)
 		self._groupBox3.Name = "groupBox3"
 		self._groupBox3.Size = System.Drawing.Size(449, 47)
 		self._groupBox3.TabIndex = 6
@@ -209,29 +215,29 @@ class MainForm(Form):
 		self._label3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
 		self._label3.Font = System.Drawing.Font("MS UI Gothic", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._label3.ForeColor = System.Drawing.Color.Blue
-		self._label3.Location = System.Drawing.Point(19, 12)
+		self._label3.Location = System.Drawing.Point(6, 12)
 		self._label3.Name = "label3"
 		self._label3.Size = System.Drawing.Size(142, 23)
 		self._label3.TabIndex = 4
 		self._label3.Text = "RefLevel"
 		# 
-		# comboBox3
+		# cbb_RefLevel
 		# 
-		self._comboBox3.AllowDrop = True
-		self._comboBox3.Cursor = System.Windows.Forms.Cursors.AppStarting
-		self._comboBox3.FormattingEnabled = True
-		self._comboBox3.Location = System.Drawing.Point(180, 12)
-		self._comboBox3.Name = "comboBox3"
-		self._comboBox3.Size = System.Drawing.Size(263, 23)
-		self._comboBox3.TabIndex = 3
-		self._comboBox3.SelectedIndexChanged += self.ComboBox3_SelectedIndexChanged
-		self._comboBox3.Items.AddRange(System.Array[System.Object](levelsNameCollector))			
+		self._cbb_RefLevel.AllowDrop = True
+		self._cbb_RefLevel.Cursor = System.Windows.Forms.Cursors.AppStarting
+		self._cbb_RefLevel.FormattingEnabled = True
+		self._cbb_RefLevel.Location = System.Drawing.Point(180, 12)
+		self._cbb_RefLevel.Name = "cbb_RefLevel"
+		self._cbb_RefLevel.Size = System.Drawing.Size(263, 23)
+		self._cbb_RefLevel.TabIndex = 3
+		self._cbb_RefLevel.SelectedIndexChanged += self.Cbb_RefLevelSelectedIndexChanged
+		self._cbb_RefLevel.Items.AddRange(System.Array[System.Object](levelsNameCollector))
 		# 
 		# groupBox4
 		# 
-		self._groupBox4.Controls.Add(self._textBox1)
+		self._groupBox4.Controls.Add(self._txb_Diameter)
 		self._groupBox4.Controls.Add(self._label4)
-		self._groupBox4.Location = System.Drawing.Point(12, 318)
+		self._groupBox4.Location = System.Drawing.Point(12, 333)
 		self._groupBox4.Name = "groupBox4"
 		self._groupBox4.Size = System.Drawing.Size(449, 47)
 		self._groupBox4.TabIndex = 7
@@ -243,44 +249,47 @@ class MainForm(Form):
 		self._label4.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
 		self._label4.Font = System.Drawing.Font("MS UI Gothic", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._label4.ForeColor = System.Drawing.Color.Blue
-		self._label4.Location = System.Drawing.Point(19, 12)
+		self._label4.Location = System.Drawing.Point(6, 12)
 		self._label4.Name = "label4"
 		self._label4.Size = System.Drawing.Size(142, 23)
 		self._label4.TabIndex = 4
 		self._label4.Text = "Diameter"
 		# 
-		# textBox1
+		# txb_Diameter
 		# 
-		self._textBox1.Location = System.Drawing.Point(180, 12)
-		self._textBox1.Name = "textBox1"
-		self._textBox1.Size = System.Drawing.Size(263, 22)
-		self._textBox1.TabIndex = 5
+		self._txb_Diameter.Location = System.Drawing.Point(180, 12)
+		self._txb_Diameter.Name = "txb_Diameter"
+		self._txb_Diameter.Size = System.Drawing.Size(263, 22)
+		self._txb_Diameter.TabIndex = 5
+		self._txb_Diameter.TextChanged += self.Txb_DiameterTextChanged
 		# 
-		# button3
+		# btt_OK
 		# 
-		self._button3.BackColor = System.Drawing.SystemColors.ScrollBar
-		self._button3.Cursor = System.Windows.Forms.Cursors.WaitCursor
-		self._button3.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
-		self._button3.ForeColor = System.Drawing.Color.Red
-		self._button3.Location = System.Drawing.Point(317, 395)
-		self._button3.Name = "button3"
-		self._button3.Size = System.Drawing.Size(49, 30)
-		self._button3.TabIndex = 8
-		self._button3.Text = "OK"
-		self._button3.UseVisualStyleBackColor = False
+		self._btt_OK.BackColor = System.Drawing.SystemColors.ScrollBar
+		self._btt_OK.Cursor = System.Windows.Forms.Cursors.WaitCursor
+		self._btt_OK.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
+		self._btt_OK.ForeColor = System.Drawing.Color.Red
+		self._btt_OK.Location = System.Drawing.Point(317, 410)
+		self._btt_OK.Name = "btt_OK"
+		self._btt_OK.Size = System.Drawing.Size(49, 30)
+		self._btt_OK.TabIndex = 8
+		self._btt_OK.Text = "OK"
+		self._btt_OK.UseVisualStyleBackColor = False
+		self._btt_OK.Click += self.Btt_OKClick
 		# 
-		# button4
+		# btt_CANCLE
 		# 
-		self._button4.BackColor = System.Drawing.SystemColors.ScrollBar
-		self._button4.Cursor = System.Windows.Forms.Cursors.WaitCursor
-		self._button4.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
-		self._button4.ForeColor = System.Drawing.Color.Red
-		self._button4.Location = System.Drawing.Point(372, 395)
-		self._button4.Name = "button4"
-		self._button4.Size = System.Drawing.Size(89, 30)
-		self._button4.TabIndex = 8
-		self._button4.Text = "CANCLE"
-		self._button4.UseVisualStyleBackColor = False
+		self._btt_CANCLE.BackColor = System.Drawing.SystemColors.ScrollBar
+		self._btt_CANCLE.Cursor = System.Windows.Forms.Cursors.WaitCursor
+		self._btt_CANCLE.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
+		self._btt_CANCLE.ForeColor = System.Drawing.Color.Red
+		self._btt_CANCLE.Location = System.Drawing.Point(372, 410)
+		self._btt_CANCLE.Name = "btt_CANCLE"
+		self._btt_CANCLE.Size = System.Drawing.Size(89, 30)
+		self._btt_CANCLE.TabIndex = 8
+		self._btt_CANCLE.Text = "CANCLE"
+		self._btt_CANCLE.UseVisualStyleBackColor = False
+		self._btt_CANCLE.Click += self.Btt_CANCLEClick
 		# 
 		# label5
 		# 
@@ -290,17 +299,52 @@ class MainForm(Form):
 		self._label5.TabIndex = 9
 		self._label5.Text = "@FVC"
 		# 
+		# groupBox5
+		# 
+		self._groupBox5.Controls.Add(self._clb_ZValue)
+		self._groupBox5.Controls.Add(self._clb_XYValue)
+		self._groupBox5.Location = System.Drawing.Point(13, 44)
+		self._groupBox5.Name = "groupBox5"
+		self._groupBox5.Size = System.Drawing.Size(448, 124)
+		self._groupBox5.TabIndex = 10
+		self._groupBox5.TabStop = False
+		# 
+		# clb_XYValue
+		# 
+		self._clb_XYValue.AllowDrop = True
+		self._clb_XYValue.CheckOnClick = True
+		self._clb_XYValue.FormattingEnabled = True
+		self._clb_XYValue.Location = System.Drawing.Point(0, 21)
+		self._clb_XYValue.Name = "clb_XYValue"
+		self._clb_XYValue.Size = System.Drawing.Size(264, 89)
+		self._clb_XYValue.TabIndex = 0
+		self._clb_XYValue.SelectedIndexChanged += self.Clb_XYValueSelectedIndexChanged
+
+		
+		# 
+		# clb_ZValue
+		# 
+		self._clb_ZValue.AllowDrop = True
+		self._clb_ZValue.CheckOnClick = True
+		self._clb_ZValue.FormattingEnabled = True
+		self._clb_ZValue.Location = System.Drawing.Point(282, 21)
+		self._clb_ZValue.Name = "clb_ZValue"
+		self._clb_ZValue.Size = System.Drawing.Size(166, 89)
+		self._clb_ZValue.TabIndex = 1
+		self._clb_ZValue.SelectedIndexChanged += self.Clb_ZValueSelectedIndexChanged
+		# 
 		# MainForm
 		# 
 		self.ClientSize = System.Drawing.Size(482, 453)
+		self.Controls.Add(self._groupBox5)
 		self.Controls.Add(self._label5)
-		self.Controls.Add(self._button4)
-		self.Controls.Add(self._button3)
+		self.Controls.Add(self._btt_CANCLE)
+		self.Controls.Add(self._btt_OK)
 		self.Controls.Add(self._groupBox4)
 		self.Controls.Add(self._groupBox3)
 		self.Controls.Add(self._groupBox2)
-		self.Controls.Add(self._button2)
-		self.Controls.Add(self._button1)
+		self.Controls.Add(self._btt_getZ)
+		self.Controls.Add(self._btt_getXY)
 		self.Controls.Add(self._groupBox1)
 		self.Name = "MainForm"
 		self.Text = "PipeCreate"
@@ -309,38 +353,73 @@ class MainForm(Form):
 		self._groupBox3.ResumeLayout(False)
 		self._groupBox4.ResumeLayout(False)
 		self._groupBox4.PerformLayout()
+		self._groupBox5.ResumeLayout(False)
 		self.ResumeLayout(False)
 
+	def Btt_getXYClick(self, sender, e):
+		# TransactionManager.Instance.EnsureInTransaction(doc)
+		condition = True
+		dypoint = []
+		rpointM = []
+		rpointI = []
+		n = 0
+		msg = "Pick Points on current Work plane in order, hit ESC when finished."
 
-	def Label2Click(self, sender, e):
+		TaskDialog.Show("^---------------^", msg)
+
+		while condition:
+			try:
+				pt=uidoc.Selection.PickPoint()
+				rpM=Point.ByCoordinates(pt.X*304.8,pt.Y*304.8,pt.Z*304.8)
+				rpI=Point.ByCoordinates(pt.X,pt.Y,pt.Z)
+				n += 1
+				dypoint.append(pt)
+				rpointM.append(rpM)
+				# for i in rpointM:
+				# 	self._clb_XYValue.Items.Add(i)
+				rpointI.append(rpI)
+			except Exception as e:
+				condition = False
+
+		# TransactionManager.Instance.TransactionTaskDone()
+			
+		pass
+
+	def Clb_XYValueSelectedIndexChanged(self, sender, e):
+		var = self._btt_getXY.rpointM.Items.Count
+		for i in var:
+			self._clb_XYValue.Items.append(str(i))
+
+		pass
+
+	def Btt_getZClick(self, sender, e):
+		pass
+
+	def Clb_ZValueSelectedIndexChanged(self, sender, e):
+		pass
+
+	def Cbb_PipingSystemTypeSelectedIndexChanged(self, sender, e):
+		pass
+
+	def Cbb_PipeTypeSelectedIndexChanged(self, sender, e):
+		pass
+
+	def Cbb_RefLevelSelectedIndexChanged(self, sender, e):
+		pass
+
+	def Txb_DiameterTextChanged(self, sender, e):
 		pass
 
 
-	def ComboBox1_SelectedIndexChanged(self, sender, e):
-		TransactionManager.Instance.EnsureInTransaction(doc)
-
-
-
-		TransactionManager.Instance.TransactionTaskDone()
-		pass
 	
-	def ComboBox2_SelectedIndexChanged(self, sender, e):
-		TransactionManager.Instance.EnsureInTransaction(doc)
-
-
-
-		TransactionManager.Instance.TransactionTaskDone()
-		pass	
-
-	def ComboBox3_SelectedIndexChanged(self, sender, e):
-		TransactionManager.Instance.EnsureInTransaction(doc)
-
-
-
-		TransactionManager.Instance.TransactionTaskDone()
+	def Btt_OKClick(self, sender, e):
 		pass
 
+	def Btt_CANCLEClick(self, sender, e):
+		self.Close()
+		pass
 
+	
 
 f = MainForm()
 Application.Run(f)
