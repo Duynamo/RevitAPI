@@ -72,6 +72,14 @@ for level in levelsCollector:
 	levelName = level.Name
 	levelsNameCollector.append(levelName)
 
+def logger(title, content):
+	import datetime
+	date = datetime.datetime.now()
+	f = open(r"C:\Users\Desktop\Python\02_PyRevit\04_Processing\python.log", 'a')
+	f.write(str(date) + '\n' + title + '\n' + str(content) + '\n')
+	f.close()
+
+
 class MainForm(Form):
 	def __init__(self):
 		self.InitializeComponent()
@@ -356,6 +364,9 @@ class MainForm(Form):
 		self._groupBox5.ResumeLayout(False)
 		self.ResumeLayout(False)
 
+
+
+
 	def Btt_getXYClick(self, sender, e):
 		# TransactionManager.Instance.EnsureInTransaction(doc)
 		condition = True
@@ -363,20 +374,21 @@ class MainForm(Form):
 		rpointM = []
 		rpointI = []
 		n = 0
-		msg = "Pick Points on current Work plane in order, hit ESC when finished."
 
-		TaskDialog.Show("^---------------^", msg)
+
+		# msg = "Pick Points on current Work plane in order, hit ESC when finished."
+
+		# TaskDialog.Show("^---------------^", msg)
 
 		while condition:
 			try:
+				logger('Line383:', n)
 				pt=uidoc.Selection.PickPoint()
 				rpM=Point.ByCoordinates(pt.X*304.8,pt.Y*304.8,pt.Z*304.8)
 				rpI=Point.ByCoordinates(pt.X,pt.Y,pt.Z)
 				n += 1
 				dypoint.append(pt)
 				rpointM.append(rpM)
-				# for i in rpointM:
-				# 	self._clb_XYValue.Items.Add(i)
 				rpointI.append(rpI)
 			except Exception as e:
 				condition = False
