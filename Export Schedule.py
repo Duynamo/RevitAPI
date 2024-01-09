@@ -34,11 +34,16 @@ import System.Drawing
 from System.Drawing import *
 from System.Collections.Generic import*
 
+import csv
+import codecs
+
 doc = DocumentManager.Instance.CurrentDBDocument
 uiapp = DocumentManager.Instance.CurrentUIApplication
 app = uiapp.Application
 uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
+sdkNumber = int(app.VersionNumber)
+
 
 cateByName = UnwrapElement(Revit.Elements.Category.ByName("Schedules"))
 bib = System.Enum.ToObject(BuiltInCategory, cateByName.Id.IntegerValue)
@@ -259,12 +264,18 @@ class MainForm(Form):
 		path = self._textBoxBrowser.Text 
 #_______________________________________________________________#
 		self.result_list = []
+		n = 0
 		for index, sched in enumerate(selected):
 			schedule = UnwrapElement(sched)
 			fileName = nameSched[index]
 			try:
 				export_Options = ViewScheduleExportOptions()
 				schedule.Export(path,fileName,export_Options)
+				n += 1
+				# fullPathCsv = path + "\\" + n
+				# codec_reader = "utf-8" if sdkNumber > 2020 else "utf-16"
+				# with codecs.open(path, "rb", encoding = codec_reader) as csvfile:
+				# 	csv_reader = csv.reader(csvfile, delimiter=';')				
 				self.result_list.append("Schedule Exported")
 
 			except:
@@ -279,4 +290,3 @@ class MainForm(Form):
 
 f = MainForm()
 Application.Run(f)
-

@@ -75,7 +75,8 @@ for level in levelsCollector:
 def logger(title, content):
 	import datetime
 	date = datetime.datetime.now()
-	f = open(r"C:\Users\Desktop\Python\02_PyRevit\04_Processing\python.log", 'a')
+	f = open(r"C:\Users\95053\Desktop\Python\RevitAPI-master\RevitAPI\python.log", 'a')
+	# C:\Users\95053\Desktop\Python\RevitAPI-master\RevitAPI\PipeCreate.py
 	f.write(str(date) + '\n' + title + '\n' + str(content) + '\n')
 	f.close()
 
@@ -364,11 +365,8 @@ class MainForm(Form):
 		self._groupBox5.ResumeLayout(False)
 		self.ResumeLayout(False)
 
-
-
-
 	def Btt_getXYClick(self, sender, e):
-		# TransactionManager.Instance.EnsureInTransaction(doc)
+		TransactionManager.Instance.EnsureInTransaction(doc)
 		condition = True
 		dypoint = []
 		rpointM = []
@@ -376,9 +374,9 @@ class MainForm(Form):
 		n = 0
 
 
-		# msg = "Pick Points on current Work plane in order, hit ESC when finished."
+		msg = "Pick Points on current Work plane in order, hit ESC when finished."
 
-		# TaskDialog.Show("^---------------^", msg)
+		TaskDialog.Show("^---------------^", msg)
 
 		while condition:
 			try:
@@ -393,10 +391,10 @@ class MainForm(Form):
 			except Exception as e:
 				condition = False
 
-		# TransactionManager.Instance.TransactionTaskDone()
+		TransactionManager.Instance.TransactionTaskDone()
 			
 		pass
-
+		
 	def Clb_XYValueSelectedIndexChanged(self, sender, e):
 		var = self._btt_getXY.rpointM.Items.Count
 		for i in var:
@@ -421,8 +419,6 @@ class MainForm(Form):
 
 	def Txb_DiameterTextChanged(self, sender, e):
 		pass
-
-
 	
 	def Btt_OKClick(self, sender, e):
 		pass
