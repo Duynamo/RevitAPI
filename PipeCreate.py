@@ -376,9 +376,9 @@ class MainForm(Form):
 		n = 0
 
 
-		# msg = "Pick Points on current Work plane in order, hit ESC when finished."
+		msg = "Pick Points on current Work plane in order, hit ESC when finished."
 
-		# TaskDialog.Show("^---------------^", msg)
+		TaskDialog.Show("^---------------^", msg)
 
 		while condition:
 			try:
