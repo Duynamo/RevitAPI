@@ -88,3 +88,18 @@ for i in elems4:
 collector = FilteredElementCollector(doc, IDS).OfCategory(BuiltInCategory.OST_PipeCurves).WhereElementIsNotElementType().ToElements()
 
 OUT = collector
+
+"""__________________________elementsMultiCategoryFilter___________________________"""
+
+cateList = List[BuiltInCategory]()
+cateList.Add(BuiltInCategory.OST_StructuralColumns)
+cateList.Add(BuiltInCategory.OST_StructuralFraming)
+filter = ElementMulticategoryFilter(cateList)
+elems = FilteredElementCollector(doc).WherePasses(filter).WhereElementIsNotElementType().ToElements()
+OUT = elems
+
+"""___________________emptyList___________________"""
+"""_emptyBuiltInCategoryList_"""
+builtInCateList = List[BuiltInCategory]()
+elemsIdList = List[ElementId]()
+
