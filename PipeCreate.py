@@ -33,14 +33,11 @@ from System.Windows.Forms import *
 import System.Drawing
 from System.Drawing import *
 
-
 doc = DocumentManager.Instance.CurrentDBDocument
 uiapp = DocumentManager.Instance.CurrentUIApplication
 app = uiapp.Application
 uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
-
-
 
 def getAllPipingSystems(doc):
 	collector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipingSystem)
@@ -79,7 +76,6 @@ def logger(title, content):
 	# C:\Users\95053\Desktop\Python\RevitAPI-master\RevitAPI\PipeCreate.py
 	f.write(str(date) + '\n' + title + '\n' + str(content) + '\n')
 	f.close()
-
 
 class MainForm(Form):
 	def __init__(self):
@@ -327,9 +323,7 @@ class MainForm(Form):
 		self._clb_XYValue.Name = "clb_XYValue"
 		self._clb_XYValue.Size = System.Drawing.Size(264, 89)
 		self._clb_XYValue.TabIndex = 0
-		self._clb_XYValue.SelectedIndexChanged += self.Clb_XYValueSelectedIndexChanged
-
-		
+		self._clb_XYValue.SelectedIndexChanged += self.Clb_XYValueSelectedIndexChanged	
 		# 
 		# clb_ZValue
 		# 
@@ -372,7 +366,7 @@ class MainForm(Form):
 		rpointM = []
 		rpointI = []
 		n = 0
-
+		IN[0] = "Please pick points"
 
 		msg = "Pick Points on current Work plane in order, hit ESC when finished."
 
@@ -381,7 +375,7 @@ class MainForm(Form):
 		while condition:
 			try:
 				logger('Line383:', n)
-				pt=uidoc.Selection.PickPoint()
+				pt=uidoc.Selection.PickPoint(UnwrapElement(IN[0]))
 				rpM=Point.ByCoordinates(pt.X*304.8,pt.Y*304.8,pt.Z*304.8)
 				rpI=Point.ByCoordinates(pt.X,pt.Y,pt.Z)
 				n += 1
@@ -390,15 +384,11 @@ class MainForm(Form):
 				rpointI.append(rpI)
 			except Exception as e:
 				condition = False
-
 		TransactionManager.Instance.TransactionTaskDone()
 			
 		pass
 		
 	def Clb_XYValueSelectedIndexChanged(self, sender, e):
-		var = self._btt_getXY.rpointM.Items.Count
-		for i in var:
-			self._clb_XYValue.Items.append(str(i))
 
 		pass
 

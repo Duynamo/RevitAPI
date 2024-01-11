@@ -132,11 +132,12 @@ class MainForm(Form):
 				dypoint.append(pt)
 				rpointM.append(rpM)
 				rpointI.append(rpI)
+				TaskDialog.Show("Duynamo", str(rpointM))
 			except:
 				x=False
-		self.append(rpointM)
+		
 		TransactionManager.Instance.TransactionTaskDone()
-		# return dypoint, rpointM, rpointI, counter
+	
 
 		pass
 
