@@ -12,7 +12,7 @@
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
       "NodeType": "BooleanInputNode",
-      "InputValue": false,
+      "InputValue": true,
       "Id": "a098ecc85f074eae8c4c4f9f42f83ef0",
       "Inputs": [],
       "Outputs": [
@@ -431,7 +431,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\clickButton.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Code": "re  = open(r\"C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\Test.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "3308aeaa0a594bfdbd0dfdbc020ba0f9",
@@ -531,8 +531,8 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\clickButton.py",
-      "InputValue": "..\\clickButton.py",
+      "HintPath": "C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\Test.py",
+      "InputValue": "..\\Test.py",
       "NodeType": "ExtensionNode",
       "Id": "2ad71d81768b4deea0a0c1945ca8c58e",
       "Inputs": [],
@@ -628,6 +628,87 @@
       ],
       "Replication": "Disabled",
       "Description": "Allows for DesignScript code to be authored directly"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "1;",
+      "Id": "7c2397a29b474188bb1ea30242b00ba4",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "6e6272154add4145bfb5b67eadbc6a43",
+          "Name": "",
+          "Description": "Value of expression at line 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows for DesignScript code to be authored directly"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nfrom System.Collections.Generic import *\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitAPI')\r\nfrom Autodesk.Revit.DB.Events import*\r\n\r\nclr.AddReference('RevitAPIUI')\r\nfrom Autodesk.Revit.UI import TaskDialog\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nview = doc.ActiveView\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\ninValue = UnwrapElement(IN[1])\r\nx = True\r\ndypoint = []\r\nrpointM = []\r\nrpointI = []\r\ncounter=0\r\nmsg = 'Pick Points on current Workplane in order, hit ESC when finished.'\r\n\r\nTaskDialog.Show(\"Duynamo\", msg)\r\n\r\nwhile inValue == 1:\r\n\ttry:\r\n\t\tpt=uidoc.Selection.PickPoint()\r\n\t\trpM=Point.ByCoordinates(pt.X*304.8,pt.Y*304.8,pt.Z*304.8)# don vi do mac dinh trong revitAPI la Inch, 1in=304.8mm\r\n\t\trpI=Point.ByCoordinates(pt.X,pt.Y,pt.Z)\r\n\t\tcounter=+1\r\n\t\tdypoint.append(pt)\r\n\t\trpointM.append(rpM)\r\n\t\trpointI.append(rpI)\r\n\texcept:\r\n\t\tx=False\r\n\r\nOUT=(dypoint,rpointM,rpointI)\r\n\r\n",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "bda6942b4d104af8a11ee26fe3b2b0cd",
+      "Inputs": [
+        {
+          "Id": "8b691b0ca51843ed9bf596fc82ed6cec",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "962d4b071d284ac0a51c2101259af2ae",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "620fd7b4a10c49d8b96688e7099e9fdc",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "1;",
+      "Id": "b15ce714eea1446ead2261e93be37b47",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "0c7616277c3f42648dab1f89396a9c0e",
+          "Name": "",
+          "Description": "Value of expression at line 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows for DesignScript code to be authored directly"
     }
   ],
   "Connectors": [
@@ -690,6 +771,11 @@
       "Start": "4abd977253f84df893e059aaa5e51c80",
       "End": "05eaf722eff44d549045d491a33bd665",
       "Id": "c2ef6ee69c8a4b4aba4a138a5d7b9765"
+    },
+    {
+      "Start": "6e6272154add4145bfb5b67eadbc6a43",
+      "End": "e8ea56f21f504c77acf4667141f1446b",
+      "Id": "77f27e318aa2489bbb4fa1cc6835f065"
     }
   ],
   "Dependencies": [
@@ -709,10 +795,10 @@
   "View": {
     "Dynamo": {
       "ScaleFactor": 1.0,
-      "HasRunWithoutCrash": true,
+      "HasRunWithoutCrash": false,
       "IsVisibleInDynamoLibrary": true,
       "Version": "2.10.1.3976",
-      "RunType": "Automatic",
+      "RunType": "Manual",
       "RunPeriod": "1000"
     },
     "Camera": {
@@ -734,7 +820,7 @@
         "Id": "a098ecc85f074eae8c4c4f9f42f83ef0",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": true,
+        "Excluded": false,
         "X": 215.83282049594527,
         "Y": 245.6155188814343
       },
@@ -885,8 +971,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 524.28846597329073,
-        "Y": -103.27487266676678
+        "X": 582.58547263963351,
+        "Y": -23.471893994838695
       },
       {
         "ShowGeometry": true,
@@ -894,7 +980,7 @@
         "Id": "32e245307b564325880512449d571d7c",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": false,
+        "Excluded": true,
         "X": 199.32538465604182,
         "Y": -105.47289682764273
       },
@@ -905,8 +991,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 221.45432731748986,
-        "Y": 41.459445655029242
+        "X": 210.58360230394084,
+        "Y": 17.209366778650633
       },
       {
         "ShowGeometry": true,
@@ -927,11 +1013,41 @@
         "Excluded": false,
         "X": 419.78403190193166,
         "Y": -233.67316736973424
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "7c2397a29b474188bb1ea30242b00ba4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 217.0,
+        "Y": 108.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "bda6942b4d104af8a11ee26fe3b2b0cd",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1078.9316520567893,
+        "Y": -121.52055473087034
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "b15ce714eea1446ead2261e93be37b47",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 800.0,
+        "Y": -60.0
       }
     ],
     "Annotations": [],
-    "X": -122.45230761205039,
-    "Y": 399.24311675548529,
-    "Zoom": 0.94527296517049642
+    "X": -526.90460941485128,
+    "Y": 241.16672476813039,
+    "Zoom": 0.91260452945067649
   }
 }
