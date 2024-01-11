@@ -118,7 +118,7 @@ class MainForm(Form):
 		dypoint = []
 		rpointM = []
 		rpointI = []
-		counter=0
+		counter = 0
 		msg = 'Pick Points on current Workplane in order, hit ESC when finished.'
 
 		TaskDialog.Show("Duynamo", msg)
@@ -128,7 +128,7 @@ class MainForm(Form):
 				pt=uidoc.Selection.PickPoint()
 				rpM=Point.ByCoordinates(pt.X*304.8,pt.Y*304.8,pt.Z*304.8)
 				rpI=Point.ByCoordinates(pt.X,pt.Y,pt.Z)
-				counter=+1
+				counter += 1
 				dypoint.append(pt)
 				rpointM.append(rpM)
 				rpointI.append(rpI)

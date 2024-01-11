@@ -324,6 +324,7 @@ class MainForm(Form):
 		self._clb_XYValue.Size = System.Drawing.Size(264, 89)
 		self._clb_XYValue.TabIndex = 0
 		self._clb_XYValue.SelectedIndexChanged += self.Clb_XYValueSelectedIndexChanged	
+		
 		# 
 		# clb_ZValue
 		# 
@@ -361,29 +362,33 @@ class MainForm(Form):
 
 	def Btt_getXYClick(self, sender, e):
 		TransactionManager.Instance.EnsureInTransaction(doc)
-		condition = True
+		x=True
 		dypoint = []
 		rpointM = []
 		rpointI = []
-		n = 0
-		IN[0] = "Please pick points"
+		counter=0
+		# msg = 'Pick Points on current Workplane in order, hit ESC when finished.'
+		# mss = 'Hello'
 
-		msg = "Pick Points on current Work plane in order, hit ESC when finished."
+		# # TaskDialog.Show("Duynamo", msg)
+		# TaskDialog.Show("Duynamo", mss)
 
-		TaskDialog.Show("^---------------^", msg)
-
-		while condition:
+		while x == True:
 			try:
-				logger('Line383:', n)
-				pt=uidoc.Selection.PickPoint(UnwrapElement(IN[0]))
+				pt=uidoc.Selection.PickPoint("Hello world!!!")
 				rpM=Point.ByCoordinates(pt.X*304.8,pt.Y*304.8,pt.Z*304.8)
 				rpI=Point.ByCoordinates(pt.X,pt.Y,pt.Z)
-				n += 1
+				counter += 1
 				dypoint.append(pt)
 				rpointM.append(rpM)
+				for i in rpointM:
+					self._clb_XYValue.Items.Add(i)
+
 				rpointI.append(rpI)
-			except Exception as e:
-				condition = False
+				TaskDialog.Show("Duynamo", str(rpointM))
+			except:
+				x = False
+
 		TransactionManager.Instance.TransactionTaskDone()
 			
 		pass
