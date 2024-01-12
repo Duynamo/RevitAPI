@@ -323,6 +323,7 @@ class MainForm(Form):
 		self._clb_XYValue.AllowDrop = True
 		self._clb_XYValue.CheckOnClick = True
 		self._clb_XYValue.FormattingEnabled = True
+		self._clb_XYValue.HorizontalScrollbar = True	
 		self._clb_XYValue.Location = System.Drawing.Point(0, 21)
 		self._clb_XYValue.Name = "clb_XYValue"
 		self._clb_XYValue.Size = System.Drawing.Size(264, 89)
@@ -334,6 +335,7 @@ class MainForm(Form):
 		self._clb_ZValue.AllowDrop = True
 		self._clb_ZValue.CheckOnClick = True
 		self._clb_ZValue.FormattingEnabled = True
+		self._clb_ZValue.HorizontalScrollbar = True			
 		self._clb_ZValue.Location = System.Drawing.Point(282, 21)
 		self._clb_ZValue.Name = "clb_ZValue"
 		self._clb_ZValue.Size = System.Drawing.Size(166, 89)
@@ -370,7 +372,7 @@ class MainForm(Form):
 		n = 0
 
 		msg = "Pick Points on Current Floor plane, hit ESC when finished."
-		TaskDialog.Show("^---Ai An Banh Mi Khong-------^", msg)
+		TaskDialog.Show("^---Ai An Banh Mi Khong??---^", msg)
 
 		while condition:
 			try:
@@ -380,9 +382,9 @@ class MainForm(Form):
 				pointsXY.append(pt)
 			except :
 				condition = False
-			for i in pointsXY:
-				rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(i.X*304.8,i.Y*304.8,i.Z*304.8)
-				self._clb_XYValue.Items.Add(rpM)
+		for i in pointsXY:
+			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(i.X*304.8,i.Y*304.8,i.Z*304.8)
+			self._clb_XYValue.Items.Add(rpM)
 		TransactionManager.Instance.TransactionTaskDone()		
 		pass
 		
@@ -392,24 +394,39 @@ class MainForm(Form):
 
 	def Btt_getZClick(self, sender, e):
 		TransactionManager.Instance.EnsureInTransaction(doc)
+		# iRefPlane = Plane.CreateByNormalAndOrigin( DocumentManager.Instance.CurrentDBDocument.ViewDirection, DocumentManager.Instance.CurrentDBDocument.Origin)
+		# sketchPlane = SketchPlane.Create(doc, iRefPlane)
+		
+		activeView = doc.ActiveView
+		iRefPlane = Plane.CreateByNormalAndOrigin(activeView.ViewDirection, activeView.Origin)
+		sketchPlane = SketchPlane.Create(doc, iRefPlane)
+
 		condition = True
 		pointsZ = []
 		n = 0
 
 		msg = "Pick Points on Current Section plane, hit ESC when finished."
-		TaskDialog.Show("^---Ai An Banh Mi Khong-------^", msg)
+		TaskDialog.Show("^---Ai An Banh Mi Khong??---^", msg)
 
 		while condition:
 			try:
 				logger('Line383:', n)
+				
 				pt=uidoc.Selection.PickPoint()
 				n += 1
 				pointsZ.append(pt)
+				# doc.Delete(sketchPlane.Id)
 			except :
 				condition = False
-			for i in pointsZ:
-				rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(i.X*304.8,i.Y*304.8,i.Z*304.8)
-				self._clb_ZValue.Items.Add(rpM)
+	
+	
+		doc.Delete(sketchPlane.Id)	
+		for i in pointsZ:
+			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(i.X*304.8,i.Y*304.8,i.Z*304.8)
+			# rpM1 = Autodesk.DesignScript.Geometry.Point.ByCoordinates(0, 0, i.Z*304.8)
+
+			self._clb_ZValue.Items.Add(rpM)
+
 		TransactionManager.Instance.TransactionTaskDone()			
 		pass
 
@@ -429,7 +446,23 @@ class MainForm(Form):
 		pass
 	
 	def Btt_OKClick(self, sender, e):
-		pipingSystemType = self._
+		pipingSystem = self._cbb_PipingSystemType.CheckedItems
+		pipeType = self._cbb_PipeType.CheckedItems
+		refLevel = self._cbb_RefLevel.CheckedItems
+		diameter = int(self._txb_Diameter)
+		point_XYValues = []
+		point_ZValues = []
+		desPointsList = []
+		for pXY in self._clb_XYValue:
+			point_XYValues.append(pXY)
+
+		for pZ in self._clb_ZValue:
+			point_ZValues.append(pZ)	
+
+		for i in point_XYValues :
+			for j in  point_ZValues:
+				desPoint = Autodesk.DesignScript.Geometry.Point.ByCoordinates(i.X*304.8,i.Y*304.8,j.Z*304.8)
+		desPointsList.append(desPoint)	
 		pass
 
 	def Btt_CANCLEClick(self, sender, e):
