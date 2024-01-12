@@ -123,7 +123,7 @@ class MainForm(Form):
 		dypoint = []
 		rpointM = []
 		rpointI = []
-		counter=0
+		counter = 0
 		msg = 'Pick Points on current Workplane in order, hit ESC when finished.'
 
 		TaskDialog.Show("Duynamo", msg)
