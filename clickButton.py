@@ -39,6 +39,10 @@ app = uiapp.Application
 uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
 
+
+inValue = UnwrapElement(IN[0])
+
+
 class MainForm(Form):
 	def __init__(self):
 		self.InitializeComponent()
@@ -114,6 +118,7 @@ class MainForm(Form):
 
 	def Button1Click(self, sender, e):
 		TransactionManager.Instance.EnsureInTransaction(doc)
+	
 		x=True
 		dypoint = []
 		rpointM = []
@@ -123,16 +128,17 @@ class MainForm(Form):
 
 		TaskDialog.Show("Duynamo", msg)
 
-		while x == True:
+		while x == True and inValue == True:
+			# msg = 'Pick Points on current Workplane in order, hit ESC when finished.'
+			# TaskDialog.Show("Duynamo", msg)
 			try:
 				pt=uidoc.Selection.PickPoint()
 				rpM=Point.ByCoordinates(pt.X*304.8,pt.Y*304.8,pt.Z*304.8)
 				rpI=Point.ByCoordinates(pt.X,pt.Y,pt.Z)
-				counter=+1
+				counter += 1
 				dypoint.append(pt)
 				rpointM.append(rpM)
 				rpointI.append(rpI)
-				TaskDialog.Show("Duynamo", str(rpointM))
 			except:
 				x=False
 		

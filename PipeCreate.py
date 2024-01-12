@@ -1,12 +1,16 @@
 import clr
 import sys 
 import System   
+
+
 clr.AddReference("ProtoGeometry")
 from Autodesk.DesignScript.Geometry import *
 
 clr.AddReference("RevitAPI") 
-from Autodesk.Revit.DB import*
+import Autodesk
+from Autodesk.Revit.DB import* 
 from Autodesk.Revit.DB.Structure import*
+
 
 clr.AddReference("RevitAPIUI") 
 from Autodesk.Revit.UI import*
@@ -362,30 +366,24 @@ class MainForm(Form):
 	def Btt_getXYClick(self, sender, e):
 		TransactionManager.Instance.EnsureInTransaction(doc)
 		condition = True
-		dypoint = []
-		rpointM = []
-		rpointI = []
+		pointsXY = []
 		n = 0
-		IN[0] = "Please pick points"
 
-		msg = "Pick Points on current Work plane in order, hit ESC when finished."
-
-		TaskDialog.Show("^---------------^", msg)
+		msg = "Pick Points on Current Floor plane, hit ESC when finished."
+		TaskDialog.Show("^---Ai An Banh Mi Khong-------^", msg)
 
 		while condition:
 			try:
 				logger('Line383:', n)
-				pt=uidoc.Selection.PickPoint(UnwrapElement(IN[0]))
-				rpM=Point.ByCoordinates(pt.X*304.8,pt.Y*304.8,pt.Z*304.8)
-				rpI=Point.ByCoordinates(pt.X,pt.Y,pt.Z)
+				pt=uidoc.Selection.PickPoint()
 				n += 1
-				dypoint.append(pt)
-				rpointM.append(rpM)
-				rpointI.append(rpI)
-			except Exception as e:
+				pointsXY.append(pt)
+			except :
 				condition = False
-		TransactionManager.Instance.TransactionTaskDone()
-			
+			for i in pointsXY:
+				rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(i.X*304.8,i.Y*304.8,i.Z*304.8)
+				self._clb_XYValue.Items.Add(rpM)
+		TransactionManager.Instance.TransactionTaskDone()		
 		pass
 		
 	def Clb_XYValueSelectedIndexChanged(self, sender, e):
@@ -393,6 +391,26 @@ class MainForm(Form):
 		pass
 
 	def Btt_getZClick(self, sender, e):
+		TransactionManager.Instance.EnsureInTransaction(doc)
+		condition = True
+		pointsZ = []
+		n = 0
+
+		msg = "Pick Points on Current Section plane, hit ESC when finished."
+		TaskDialog.Show("^---Ai An Banh Mi Khong-------^", msg)
+
+		while condition:
+			try:
+				logger('Line383:', n)
+				pt=uidoc.Selection.PickPoint()
+				n += 1
+				pointsZ.append(pt)
+			except :
+				condition = False
+			for i in pointsZ:
+				rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(i.X*304.8,i.Y*304.8,i.Z*304.8)
+				self._clb_ZValue.Items.Add(rpM)
+		TransactionManager.Instance.TransactionTaskDone()			
 		pass
 
 	def Clb_ZValueSelectedIndexChanged(self, sender, e):
@@ -411,6 +429,7 @@ class MainForm(Form):
 		pass
 	
 	def Btt_OKClick(self, sender, e):
+		pipingSystemType = self._
 		pass
 
 	def Btt_CANCLEClick(self, sender, e):

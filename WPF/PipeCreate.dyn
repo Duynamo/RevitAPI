@@ -12,7 +12,7 @@
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
       "NodeType": "BooleanInputNode",
-      "InputValue": true,
+      "InputValue": false,
       "Id": "a098ecc85f074eae8c4c4f9f42f83ef0",
       "Inputs": [],
       "Outputs": [
@@ -134,7 +134,7 @@
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
       "NodeType": "BooleanInputNode",
-      "InputValue": false,
+      "InputValue": true,
       "Id": "2253b97433ea4d92b40543356278bfa8",
       "Inputs": [],
       "Outputs": [
@@ -551,46 +551,6 @@
       "Description": "Allows you to select a file on the system to get its filename"
     },
     {
-      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Function, DynamoCore",
-      "FunctionSignature": "8a176012-6eba-46df-8f41-6a40b2bb13a5",
-      "FunctionType": "Graph",
-      "NodeType": "FunctionNode",
-      "Id": "82212bdd76754de38f319cb2121597bf",
-      "Inputs": [
-        {
-          "Id": "43b8e763b18e4ee3b92ef7c2af642d82",
-          "Name": "data",
-          "Description": "Data to pass through\n\nvar[]..[]",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        },
-        {
-          "Id": "32cb4e559fb14f08a8e56b0c97586bcb",
-          "Name": "waitFor",
-          "Description": "Data to wait for until\nthe upper stream can be\npassed.\n\nvar[]..[]",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Outputs": [
-        {
-          "Id": "a26cd137df114e909fbfb4a096e8892a",
-          "Name": "data",
-          "Description": "Passed through data",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Replication": "Auto",
-      "Description": "Tells the first input to wait for the second input to arrive, then passes on the first input. Really useful for scripts which have branching paths that rely on their outputs to carry each other forward.\r\n\r\nQuite a few custom packages have a 'passthrough' or 'waitfor' node. I use these all the time, so find it useful to have them contained in this package also."
-    },
-    {
       "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
       "NodeType": "CodeBlockNode",
       "Code": "[data,waitfor][0];",
@@ -652,7 +612,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nfrom System.Collections.Generic import *\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitAPI')\r\nfrom Autodesk.Revit.DB.Events import*\r\n\r\nclr.AddReference('RevitAPIUI')\r\nfrom Autodesk.Revit.UI import TaskDialog\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nview = doc.ActiveView\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\ninValue = UnwrapElement(IN[1])\r\nx = True\r\ndypoint = []\r\nrpointM = []\r\nrpointI = []\r\ncounter=0\r\nmsg = 'Pick Points on current Workplane in order, hit ESC when finished.'\r\n\r\nTaskDialog.Show(\"Duynamo\", msg)\r\n\r\nwhile inValue == 1:\r\n\ttry:\r\n\t\tpt=uidoc.Selection.PickPoint()\r\n\t\trpM=Point.ByCoordinates(pt.X*304.8,pt.Y*304.8,pt.Z*304.8)# don vi do mac dinh trong revitAPI la Inch, 1in=304.8mm\r\n\t\trpI=Point.ByCoordinates(pt.X,pt.Y,pt.Z)\r\n\t\tcounter=+1\r\n\t\tdypoint.append(pt)\r\n\t\trpointM.append(rpM)\r\n\t\trpointI.append(rpI)\r\n\texcept:\r\n\t\tx=False\r\n\r\nOUT=(dypoint,rpointM,rpointI)\r\n\r\n",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nfrom System.Collections.Generic import *\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitAPI')\r\nfrom Autodesk.Revit.DB.Events import*\r\n\r\nclr.AddReference('RevitAPIUI')\r\nfrom Autodesk.Revit.UI import TaskDialog\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nview = doc.ActiveView\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\ninValue = UnwrapElement(IN[1])\r\nx = True\r\ndypoint = []\r\nrpointM = []\r\nrpointI = []\r\ncounter=0\r\n# msg = 'Pick Points on current Workplane in order, hit ESC when finished.'\r\n\r\n# TaskDialog.Show(\"Duynamo\", msg)\r\n\r\nwhile x == True and inValue == True:\r\n\tmsg = 'Pick Points on current Workplane in order, hit ESC when finished.'\r\n\r\n\tTaskDialog.Show(\"Duynamo\", msg)\r\n\ttry:\r\n\t\tpt=uidoc.Selection.PickPoint()\r\n\t\trpM=Point.ByCoordinates(pt.X*304.8,pt.Y*304.8,pt.Z*304.8)# don vi do mac dinh trong revitAPI la Inch, 1in=304.8mm\r\n\t\trpI=Point.ByCoordinates(pt.X,pt.Y,pt.Z)\r\n\t\tcounter=+1\r\n\t\tdypoint.append(pt)\r\n\t\trpointM.append(rpM)\r\n\t\trpointI.append(rpI)\r\n\texcept:\r\n\t\tx=False\r\n\t\r\n\r\nOUT=(dypoint,rpointM,rpointI)\r\n\r\n",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "bda6942b4d104af8a11ee26fe3b2b0cd",
@@ -693,12 +653,12 @@
     {
       "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
       "NodeType": "CodeBlockNode",
-      "Code": "1;",
+      "Code": "102;",
       "Id": "b15ce714eea1446ead2261e93be37b47",
       "Inputs": [],
       "Outputs": [
         {
-          "Id": "0c7616277c3f42648dab1f89396a9c0e",
+          "Id": "bc8ccae392b64f4f8d09f3ae2811f772",
           "Name": "",
           "Description": "Value of expression at line 1",
           "UsingDefaultValue": false,
@@ -709,6 +669,207 @@
       ],
       "Replication": "Disabled",
       "Description": "Allows for DesignScript code to be authored directly"
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": false,
+      "Id": "0622afafc94045c292f741a64041fd95",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "68e5e3cf7ed04efab95b4fca881bf25b",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": false,
+      "Id": "937a88bfe1ef49fba369adcdb27efb22",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d6889bb54bd94248ab2f78b3ca6813b0",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": true,
+      "Id": "5c4a719ba96e4bb89c51ebc4c6cc58d3",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "7203211222164e669fa66fdb1fb49821",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Function, DynamoCore",
+      "FunctionSignature": "6eaab507-a7b2-41c9-b398-99ccd3293c89",
+      "FunctionType": "Graph",
+      "NodeType": "FunctionNode",
+      "Id": "39793d5a6adb479e9f5698a22b006a49",
+      "Inputs": [
+        {
+          "Id": "c54b078f27ed40f780d0416406f567ad",
+          "Name": "Reset",
+          "Description": "bool\nDefault value : false",
+          "UsingDefaultValue": true,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "c32e1d824bfa463c88ca59f4aaf88ce5",
+          "Name": "DynamoXYZ",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "dc58a4176eaa4609bb5b64ae1e7f2396",
+          "Name": "revitPointsInMillimeterUnit",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "from Duynamo.\r\npick Point in current Workplane and retrive Revit Points in Millimeter unit"
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": false,
+      "Id": "d3064b1412e24a8f936e37325c44fe5c",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "c85af72b91ff4b419f68bef22cebfecf",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nfrom System.Collections.Generic import *\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitAPI')\r\nfrom Autodesk.Revit.DB.Events import*\r\n\r\nclr.AddReference('RevitAPIUI')\r\nfrom Autodesk.Revit.UI import TaskDialog\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nview = doc.ActiveView\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\ninValue = UnwrapElement(IN[1])\r\nx = True\r\ndypoint = []\r\nrpointM = []\r\nrpointI = []\r\ncounter=0\r\nmsg = 'Pick Points on current Workplane in order, hit ESC when finished.'\r\n\r\nTaskDialog.Show(\"Duynamo\", msg)\r\n\r\nwhile x == True and inValue == True :\r\n\t# msg = 'Pick Points on current Workplane in order, hit ESC when finished.'\r\n\r\n\t# TaskDialog.Show(\"Duynamo\", msg)\r\n\ttry:\r\n\t\tpt=uidoc.Selection.PickPoint()\r\n\t\trpM=Point.ByCoordinates(pt.X*304.8,pt.Y*304.8,pt.Z*304.8)# don vi do mac dinh trong revitAPI la Inch, 1in=304.8mm\r\n\t\trpI=Point.ByCoordinates(pt.X,pt.Y,pt.Z)\r\n\t\tcounter += 1\r\n\t\tdypoint.append(pt)\r\n\t\trpointM.append(rpM)\r\n\t\trpointI.append(rpI)\r\n\texcept:\r\n\t\tx=False\r\n\t\r\n\r\nOUT=(dypoint,rpointM,rpointI)\r\n\r\n",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "3566266a040c404eac2092f12a59ad47",
+      "Inputs": [
+        {
+          "Id": "b6a29edbcd614a41a2a214293ad4b74d",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "988e7e2a64c44946b704fb704ba07946",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "d5111f79bcd64955ae9a38f068890d18",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": true,
+      "Id": "5bd4be56b508484ea4cd9a7e6950f1b2",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "43e3e22bebdf46588842ccc3acd09201",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": true,
+      "Id": "dd059583e2ff48c594280804abef742c",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "5b3eeec2b56149cfbcefca8ee37e0b85",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
     }
   ],
   "Connectors": [
@@ -773,32 +934,57 @@
       "Id": "c2ef6ee69c8a4b4aba4a138a5d7b9765"
     },
     {
-      "Start": "6e6272154add4145bfb5b67eadbc6a43",
-      "End": "e8ea56f21f504c77acf4667141f1446b",
-      "Id": "77f27e318aa2489bbb4fa1cc6835f065"
+      "Start": "68e5e3cf7ed04efab95b4fca881bf25b",
+      "End": "8b691b0ca51843ed9bf596fc82ed6cec",
+      "Id": "168c8918b65a4de7b4285de003f0a17d"
+    },
+    {
+      "Start": "d6889bb54bd94248ab2f78b3ca6813b0",
+      "End": "962d4b071d284ac0a51c2101259af2ae",
+      "Id": "491316bbd6684d169f200ad36823d238"
+    },
+    {
+      "Start": "7203211222164e669fa66fdb1fb49821",
+      "End": "f87e58fc90c84976a8d3fe166e709453",
+      "Id": "93b187e5d6a34e93a082471ff2031805"
+    },
+    {
+      "Start": "c85af72b91ff4b419f68bef22cebfecf",
+      "End": "c54b078f27ed40f780d0416406f567ad",
+      "Id": "a09d738d79bc426cbe32157557be619d"
+    },
+    {
+      "Start": "43e3e22bebdf46588842ccc3acd09201",
+      "End": "b6a29edbcd614a41a2a214293ad4b74d",
+      "Id": "c9f8d1db9f754670acd1018c2a642d13"
+    },
+    {
+      "Start": "5b3eeec2b56149cfbcefca8ee37e0b85",
+      "End": "988e7e2a64c44946b704fb704ba07946",
+      "Id": "fa09aab5a1344177ae638b2f4e9f28a4"
     }
   ],
   "Dependencies": [
-    "8a176012-6eba-46df-8f41-6a40b2bb13a5"
+    "6eaab507-a7b2-41c9-b398-99ccd3293c89"
   ],
   "NodeLibraryDependencies": [
     {
-      "Name": "Crumple",
-      "Version": "2022.5.27",
+      "Name": "Duynamo",
+      "Version": "2022.12.24",
       "ReferenceType": "Package",
       "Nodes": [
-        "82212bdd76754de38f319cb2121597bf"
+        "39793d5a6adb479e9f5698a22b006a49"
       ]
     }
   ],
   "Bindings": [],
   "View": {
     "Dynamo": {
-      "ScaleFactor": 1.0,
+      "ScaleFactor": 10000.0,
       "HasRunWithoutCrash": false,
       "IsVisibleInDynamoLibrary": true,
       "Version": "2.10.1.3976",
-      "RunType": "Manual",
+      "RunType": "Automatic",
       "RunPeriod": "1000"
     },
     "Camera": {
@@ -822,7 +1008,7 @@
         "IsSetAsOutput": false,
         "Excluded": false,
         "X": 215.83282049594527,
-        "Y": 245.6155188814343
+        "Y": 244.56253784136362
       },
       {
         "ShowGeometry": true,
@@ -996,23 +1182,13 @@
       },
       {
         "ShowGeometry": true,
-        "Name": "© Flow.WaitFor",
-        "Id": "82212bdd76754de38f319cb2121597bf",
-        "IsSetAsInput": false,
-        "IsSetAsOutput": false,
-        "Excluded": false,
-        "X": 236.17760777891613,
-        "Y": -331.80163647112693
-      },
-      {
-        "ShowGeometry": true,
         "Name": "Code Block",
         "Id": "e9fe937aaf5d42ce851450bb668a42da",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 419.78403190193166,
-        "Y": -233.67316736973424
+        "X": 952.17086482294269,
+        "Y": 584.198219754217
       },
       {
         "ShowGeometry": true,
@@ -1041,13 +1217,93 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 800.0,
-        "Y": -60.0
+        "X": 842.13928346974149,
+        "Y": -17.89392474393
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Boolean",
+        "Id": "0622afafc94045c292f741a64041fd95",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": 835.70910629671391,
+        "Y": -195.70579761271412
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Boolean",
+        "Id": "937a88bfe1ef49fba369adcdb27efb22",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 844.50507013843128,
+        "Y": -135.96755922689456
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Boolean",
+        "Id": "5c4a719ba96e4bb89c51ebc4c6cc58d3",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 807.74608673133275,
+        "Y": 856.54440021647929
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "pickPoints",
+        "Id": "39793d5a6adb479e9f5698a22b006a49",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 674.91316622414934,
+        "Y": -674.19942443278944
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Boolean",
+        "Id": "d3064b1412e24a8f936e37325c44fe5c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": 464.89901117113016,
+        "Y": -722.65877712529323
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "3566266a040c404eac2092f12a59ad47",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 832.46816756788485,
+        "Y": -1099.2270947720558
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Boolean",
+        "Id": "5bd4be56b508484ea4cd9a7e6950f1b2",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": 426.44653649166258,
+        "Y": -1085.860127493826
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Boolean",
+        "Id": "dd059583e2ff48c594280804abef742c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 484.73602372449841,
+        "Y": -944.72198653487078
       }
     ],
     "Annotations": [],
-    "X": -526.90460941485128,
-    "Y": 241.16672476813039,
-    "Zoom": 0.91260452945067649
+    "X": -134.53671419202124,
+    "Y": -165.51229870262671,
+    "Zoom": 1.0523755818271603
   }
 }
