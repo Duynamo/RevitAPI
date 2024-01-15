@@ -993,7 +993,7 @@
   "View": {
     "Dynamo": {
       "ScaleFactor": 10000.0,
-      "HasRunWithoutCrash": false,
+      "HasRunWithoutCrash": true,
       "IsVisibleInDynamoLibrary": true,
       "Version": "2.10.1.3976",
       "RunType": "Automatic",
@@ -1019,8 +1019,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 233.55788198063868,
-        "Y": 272.64050269621004
+        "X": 235.36432532042346,
+        "Y": 249.15673927900684
       },
       {
         "ShowGeometry": true,

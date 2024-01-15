@@ -394,13 +394,11 @@ class MainForm(Form):
 
 	def Btt_getZClick(self, sender, e):
 		TransactionManager.Instance.EnsureInTransaction(doc)
-		# iRefPlane = Plane.CreateByNormalAndOrigin( DocumentManager.Instance.CurrentDBDocument.ViewDirection, DocumentManager.Instance.CurrentDBDocument.Origin)
-		# sketchPlane = SketchPlane.Create(doc, iRefPlane)
-		
+
 		activeView = doc.ActiveView
 		iRefPlane = Plane.CreateByNormalAndOrigin(activeView.ViewDirection, activeView.Origin)
 		sketchPlane = SketchPlane.Create(doc, iRefPlane)
-
+		doc.ActiveView.SketchPlane = sketchPlane
 		condition = True
 		pointsZ = []
 		n = 0
@@ -410,12 +408,14 @@ class MainForm(Form):
 
 		while condition:
 			try:
-				logger('Line383:', n)
+				# logger('Line383:', n)
 				
 				pt=uidoc.Selection.PickPoint()
 				n += 1
 				pointsZ.append(pt)
 				# doc.Delete(sketchPlane.Id)
+
+				
 			except :
 				condition = False
 	
@@ -447,9 +447,14 @@ class MainForm(Form):
 	
 	def Btt_OKClick(self, sender, e):
 		pipingSystem = self._cbb_PipingSystemType.CheckedItems
+		stl = len(pipingSystem)
 		pipeType = self._cbb_PipeType.CheckedItems
+		ptl = len(pipeType)
 		refLevel = self._cbb_RefLevel.CheckedItems
+		ll = len(refLevel)
 		diameter = int(self._txb_Diameter)
+		dl = len(diameter)
+
 		point_XYValues = []
 		point_ZValues = []
 		desPointsList = []
@@ -463,13 +468,42 @@ class MainForm(Form):
 			for j in  point_ZValues:
 				desPoint = Autodesk.DesignScript.Geometry.Point.ByCoordinates(i.X*304.8,i.Y*304.8,j.Z*304.8)
 		desPointsList.append(desPoint)	
+
+		lst_Points1 = desPointsList
+		lst_Points2 = desPointsList.pop(0)
+
+		linesList = []
+		for pt1, pt2 in zip(lst_Points1,lst_Points2):
+			line = Line.ByStartPointEndPoint(pt1,pt2)
+			linesList.append(line)
+
+		firstPoint = [x.StartPoint for x in linesList]
+		secondPoint  = [x.EndPoint for x in linesList]
+
+		elements =[]
+
+		TransactionManager.Instance.EnsureInTransaction(doc)
+		for i,x in enumerate(firstPoint):
+			try:
+				levelId = level[i%ll].Id
+				sysTypeId = pipingSystem[i%stl].Id
+				pipeTypeId = pipeType[i%ptl].Id
+				diam = diameter[i%dl]
+				
+				pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(doc,sysTypeId,pipeTypeId,levelId,x.ToXyz(),secondPoint[i].ToXyz())
+				
+				param = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
+				param.SetValueString(diam.ToString())
+			
+				elements.append(pipe.ToDSType(False))	
+			except:
+				elements.append(None)
+
+		TransactionManager.Instance.TransactionTaskDone()
 		pass
 
 	def Btt_CANCLEClick(self, sender, e):
 		self.Close()
 		pass
-
-	
-
 f = MainForm()
 Application.Run(f)
