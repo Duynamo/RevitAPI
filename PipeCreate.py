@@ -413,20 +413,13 @@ class MainForm(Form):
 				pt=uidoc.Selection.PickPoint()
 				n += 1
 				pointsZ.append(pt)
-				# doc.Delete(sketchPlane.Id)
-
-				
+		
 			except :
 				condition = False
-	
-	
 		doc.Delete(sketchPlane.Id)	
 		for i in pointsZ:
 			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(i.X*304.8,i.Y*304.8,i.Z*304.8)
-			# rpM1 = Autodesk.DesignScript.Geometry.Point.ByCoordinates(0, 0, i.Z*304.8)
-
 			self._clb_ZValue.Items.Add(rpM)
-
 		TransactionManager.Instance.TransactionTaskDone()			
 		pass
 
@@ -434,6 +427,7 @@ class MainForm(Form):
 		pass
 
 	def Cbb_PipingSystemTypeSelectedIndexChanged(self, sender, e):
+		# self._cbb_PipingSystemType.selectedIndex = 0	
 		pass
 
 	def Cbb_PipeTypeSelectedIndexChanged(self, sender, e):
@@ -446,29 +440,38 @@ class MainForm(Form):
 		pass
 	
 	def Btt_OKClick(self, sender, e):
-		pipingSystem = self._cbb_PipingSystemType.CheckedItems
-		stl = len(pipingSystem)
-		pipeType = self._cbb_PipeType.CheckedItems
-		ptl = len(pipeType)
-		refLevel = self._cbb_RefLevel.CheckedItems
-		ll = len(refLevel)
-		diameter = int(self._txb_Diameter)
-		dl = len(diameter)
+		pipingSystem = []
+		for i in self._cbb_PipingSystemType.SelectedItem:
+			pipingSystem.append(i)
+		# stl = len(pipingSystem)
+		pipeType = []
+		for j in self._cbb_PipeType.SelectedItem:
+			pipeType.append(j)
+		# ptl = len(pipeType)
+		refLevel = []
+		for k in self._cbb_RefLevel.SelectedItem:
+			refLevel.append(k)
+		# ll = len(refLevel)
+		diameter = []
+		for m in self._txb_Diameter.Text:
+			diameter.append(int(m))
+		# dl = len(diameter)
 
 		point_XYValues = []
 		point_ZValues = []
 		desPointsList = []
-		for pXY in self._clb_XYValue:
+
+		for pXY in self._clb_XYValue.CheckedItems:
 			point_XYValues.append(pXY)
 
-		for pZ in self._clb_ZValue:
-			point_ZValues.append(pZ)	
+		for pZ in self._clb_ZValue.CheckedItems:
+			point_ZValues.append(pZ)
 
-		for i in point_XYValues :
-			for j in  point_ZValues:
-				desPoint = Autodesk.DesignScript.Geometry.Point.ByCoordinates(i.X*304.8,i.Y*304.8,j.Z*304.8)
-		desPointsList.append(desPoint)	
+		for pXY ,pZ  in zip(point_XYValues, point_ZValues):
+			desPoint = Autodesk.DesignScript.Geometry.Point.ByCoordinates(i.X*304.8, i.Y*304.8, j.Z*304.8)
+			desPointsList.append(desPoint)
 
+		# TaskDialog.show(desPointsList.tostring())		
 		lst_Points1 = desPointsList
 		lst_Points2 = desPointsList.pop(0)
 
@@ -477,18 +480,18 @@ class MainForm(Form):
 			line = Line.ByStartPointEndPoint(pt1,pt2)
 			linesList.append(line)
 
-		firstPoint = [x.StartPoint for x in linesList]
+		firstPoint   = [x.StartPoint for x in linesList]
 		secondPoint  = [x.EndPoint for x in linesList]
 
-		elements =[]
+		elements = []
 
 		TransactionManager.Instance.EnsureInTransaction(doc)
 		for i,x in enumerate(firstPoint):
 			try:
-				levelId = level[i%ll].Id
-				sysTypeId = pipingSystem[i%stl].Id
-				pipeTypeId = pipeType[i%ptl].Id
-				diam = diameter[i%dl]
+				levelId = level.Id
+				sysTypeId = pipingSystem.Id
+				pipeTypeId = pipeType.Id
+				diam = diameter
 				
 				pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(doc,sysTypeId,pipeTypeId,levelId,x.ToXyz(),secondPoint[i].ToXyz())
 				
@@ -505,5 +508,6 @@ class MainForm(Form):
 	def Btt_CANCLEClick(self, sender, e):
 		self.Close()
 		pass
+
 f = MainForm()
 Application.Run(f)
