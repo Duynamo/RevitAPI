@@ -482,10 +482,8 @@ class MainForm(Form):
 		pass
 	
 	def Btt_OKClick(self, sender, e):
-		pipingSystem = []
-		for i in self._cbb_PipingSystemType.SelectedItem:
-			pipingSystem.append(i)
-		# stl = len(pipingSystem)
+		pipingSystem = self._cbb_PipingSystemType.SelectedItem
+
 		all_PipingSystem = getAllPipingSystems(doc)
 		# all_PipingSystemsName = getAllPipingSystemsName(doc)
 		# sel_PipingSystemIdx = all_PipingSystemsName.index(pipingSystem)
@@ -496,7 +494,6 @@ class MainForm(Form):
 		pipeType = []
 		for j in self._cbb_PipeType.SelectedItem:
 			pipeType.append(j)
-		# ptl = len(pipeType)
 		all_PipeTypes = getAllPipeTypes(doc)
 		# all_PipeTypesName = getAllPipeTypesName(doc)
 		# sel_PipeTypeIdx = all_PipeTypesName.index(pipeType)
@@ -510,7 +507,7 @@ class MainForm(Form):
 		"""_______________________________________________________"""
 		diameter = []
 		for m in self._txb_Diameter.Text:
-			diameter.append(int(m))
+			diameter.append(float(m))
 		"""_______________________________________________________"""
 		point_XYValues = []
 		point_ZValues = []
@@ -523,13 +520,11 @@ class MainForm(Form):
 			point_ZValues.append(pZ)
 
 		for pXY ,pZ  in zip(point_XYValues, point_ZValues):
-			desPoint = Autodesk.DesignScript.Geometry.Point.ByCoordinates(pXY.X, pXY.Y, pZ.Z)
+			desPoint = Autodesk.DesignScript.Geometry.Point.ByCoordinates(pXY.X*304.8, pXY.Y*304.8, pZ.Z*304.8)
 			desPointsList.append(desPoint)
 
 		lst_Points1 = [i for i in desPointsList]
 		lst_Points2 = [i for i in desPointsList[1:]]
-
-
 		linesList = []
 		for pt1, pt2 in zip(lst_Points1,lst_Points2):
 			line =  Autodesk.DesignScript.Geometry.Line.ByStartPointEndPoint(pt1,pt2)
@@ -546,7 +541,7 @@ class MainForm(Form):
 				sysTypeId = auto_PipingSystem.Id
 				pipeTypeId = auto_PipeType.Id
 				diam = diameter[0]
-				diam1 = diam/304.8
+				diam1 = diam*304.8
 				pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(doc,sysTypeId,pipeTypeId,levelId,x.ToXyz(),secondPoint[i].ToXyz())
 				
 				param = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
