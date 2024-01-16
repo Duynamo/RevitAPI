@@ -10,6 +10,8 @@ clr.AddReference("RevitAPI")
 import Autodesk
 from Autodesk.Revit.DB import* 
 from Autodesk.Revit.DB.Structure import*
+from Autodesk.Revit.DB import MEPSystemType
+# from Autodesk.Revit.DB import MechanicalSystem
 
 
 clr.AddReference("RevitAPIUI") 
@@ -43,74 +45,99 @@ app = uiapp.Application
 uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
 
-# # inValue = UnwrapElement(IN[1])
-# x = True
-# dypoint = []
-# rpointM = []
-# rpointI = []
-# counter=0
-# msg = 'Pick Points on current Workplane in order, hit ESC when finished.'
+def getAllPipingSystems(doc):
+	collector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipingSystem)
+	pipingSystems = collector.ToElements()
+	pipingSystemsName = []
+	for system in pipingSystems:
+		systemName = system.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsString()
+		pipingSystemsName.append(systemName)
+	return pipingSystems
 
-# TaskDialog.Show("Duynamo", msg)
+pipingSystems = getAllPipingSystems(doc)
+# pipingSystemsCollector = [item for item in lst if item is not None]
 
-# while x == True :
-# 	# msg = 'Pick Points on current Workplane in order, hit ESC when finished.'
+def getAllPipeTypes(doc):
+	collector1 = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeCurves)
+	pipeTypes = collector1.ToElements()
+	# pipeTypesName = []
+	# for pipeType in pipeTypes:
+	# 	pipeTypeName = pipeType.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsString()
+	# 	pipeTypesName.append(pipeTypeName)
+	return pipeTypes
 
-# 	# TaskDialog.Show("Duynamo", msg)
-# 	try:
-# 		pt=uidoc.Selection.PickPoint()
-# 		# rpM=Point.ByCoordinates(pt.X*304.8,pt.Y*304.8,pt.Z*304.8)# don vi do mac dinh trong revitAPI la Inch, 1in=304.8mm
-# 		# rpI=Point.ByCoordinates(pt.X,pt.Y,pt.Z)
-# 		counter=+1
-# 		dypoint.append(pt)
-# 		# rpointM.append(rpM)
-# 		# rpointI.append(rpI)
-# 	except:
-# 		x=False
+lst1 = getAllPipeTypes(doc)
+# pipeTypesCollector = list(set(lst_PipeType))
+# pipeTypesCollector = [item for item in lst1 if item is not None]
+pipeTypesCollector = []
+[pipeTypesCollector.append(i) for i in lst1 if i not in pipeTypesCollector]
+# for i in lst1:
+# 	if i not in pipeTypesCollector:
+# 		pipeTypesCollector.append(i)
+
+
+def create_piping_system(doc, system_name):
+    # Get the Piping System Type
+    system_type = FilteredElementCollector(doc).OfClass(MEPSystemType).OfCategory(BuiltInCategory.OST_PipingSystem).FirstElement()
+
+    # Check if the system type is found
+    if system_type is not None:
+        # Create a Mechanical System
+        new_system = MechanicalSystem.Create(doc, system_type.Id)
+
+        # Set the name of the system
+        new_system.Name = system_name
+
+        # Commit the transaction
+        doc.Regenerate()
+        return new_system
+    return None
+
+newSystemName1 = "vudinhduy"
+newSystemName2 = "dadasdadadad"
+newSystemName = []
+[newSystemName.extend(i for i in (newSystemName1, newSystemName2))]
+newSystemType = create_piping_system(newSystemName)
+
+
+
+class MainForm(Form):
+	def __init__(self):
+		self.InitializeComponent()
 	
+	def InitializeComponent(self):
+		self._cbb = System.Windows.Forms.ComboBox()
+		self.SuspendLayout()
+		# 
+		# cbb
+		# 
+		self._cbb.DisplayMember = "Name"
+		self._cbb.FormattingEnabled = True
+		self._cbb.Location = System.Drawing.Point(57, 65)
+		self._cbb.Name = "cbb"
+		self._cbb.Size = System.Drawing.Size(397, 23)
+		self._cbb.TabIndex = 0
+		self._cbb.SelectedIndexChanged += self.CbbSelectedIndexChanged
+		self._cbb.Items.AddRange(System.Array[System.Object](newSystemType)) 
+		# 
+		# MainForm
+		# 
+		self.ClientSize = System.Drawing.Size(554, 320)
+		self.Controls.Add(self._cbb)
+		self.Name = "MainForm"
+		self.Text = "test"
+		self.ResumeLayout(False)
 
-# OUT=(dypoint,rpointM,rpointI)
 
-# my_list = [1, 2, 3, 4, 5]
-
-# # Remove the first item
-# # if my_list:
-# #     my_list.pop(0)
-    
-# newlist = my_list.pop(0)
-
-# print(my_list)
+	def CbbSelectedIndexChanged(self, sender, e):
+		pass
 
 
 
-# TransactionManager.Instance.EnsureInTransaction(doc)
-# for i,x in enumerate(FirstPoint):
-# 	try:
-# 		levelid = level[i%ll].Id
-# 		systypeid = systemtype[i%stl].Id
-# 		pipetypeid = pipetype[i%ptl].Id
-# 		diam = diameter[i%dl]
-		
-# 		pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(doc,systypeid,pipetypeid,levelid,x.ToXyz(),SecondPoint[i].ToXyz())
-		
-# 		param = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
-# 		param.SetValueString(diam.ToString())
-	
-# 		elements.append(pipe.ToDSType(False))	
-# 	except:
-# 		elements.append(None)
+f = MainForm()
+Application.Run(f)
 
-# TransactionManager.Instance.TransactionTaskDone()
-
-p1 = Point.ByCoordinates(1000, 1000, 1000)
-p2 = Point.ByCoordinates(1500, 1500, 1500)
-p3 = Point.ByCoordinates(500, 500, 500)
-p4 = Point.ByCoordinates(0, 0, 0)
-
-lst1 = []
-
-for l in (p1, p2, p3, p4):
-    for e in l:
-        lst1.append(e)
-
-print(lst1)
+# lstt = [1,1,1,1,2,34,5]
+# als = []
+# [als.append(i) for i in lstt if i not in als]
+# print(als)

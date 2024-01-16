@@ -65,13 +65,13 @@ def getAllPipeTypes(doc):
 	return pipeTypesName
 
 lst1 = getAllPipeTypes(doc)
+# pipeTypesCollector = list(set(lst_PipeType))
 pipeTypesCollector = [item for item in lst1 if item is not None]
 
 levelsCollector = FilteredElementCollector(doc).OfClass(Level).ToElements()
-levelsNameCollector = []
-for level in levelsCollector:
-	levelName = level.Name
-	levelsNameCollector.append(levelName)
+# for level in levelsCollector:
+# 	levelName = level.Name
+# 	levelsNameCollector.append(levelName)
 
 def logger(title, content):
 	import datetime
@@ -152,6 +152,7 @@ class MainForm(Form):
 		# 
 		# cbb_PipingSystemType
 		# 
+		# self._cbb_PipingSystemType.DisplayMember = "Name"
 		self._cbb_PipingSystemType.AllowDrop = True
 		self._cbb_PipingSystemType.Cursor = System.Windows.Forms.Cursors.AppStarting
 		self._cbb_PipingSystemType.FormattingEnabled = True
@@ -198,6 +199,7 @@ class MainForm(Form):
 		# 
 		# cbb_PipeType
 		# 
+		# self._cbb_PipeType.DisplayMember = "Name"
 		self._cbb_PipeType.AllowDrop = True
 		self._cbb_PipeType.Cursor = System.Windows.Forms.Cursors.AppStarting
 		self._cbb_PipeType.FormattingEnabled = True
@@ -232,6 +234,7 @@ class MainForm(Form):
 		# 
 		# cbb_RefLevel
 		# 
+		self._cbb_RefLevel.DisplayMember = "Name"
 		self._cbb_RefLevel.AllowDrop = True
 		self._cbb_RefLevel.Cursor = System.Windows.Forms.Cursors.AppStarting
 		self._cbb_RefLevel.FormattingEnabled = True
@@ -240,7 +243,7 @@ class MainForm(Form):
 		self._cbb_RefLevel.Size = System.Drawing.Size(263, 23)
 		self._cbb_RefLevel.TabIndex = 3
 		self._cbb_RefLevel.SelectedIndexChanged += self.Cbb_RefLevelSelectedIndexChanged
-		self._cbb_RefLevel.Items.AddRange(System.Array[System.Object](levelsNameCollector))
+		self._cbb_RefLevel.Items.AddRange(System.Array[System.Object](levelsCollector))
 		# 
 		# groupBox4
 		# 
@@ -444,19 +447,27 @@ class MainForm(Form):
 		for i in self._cbb_PipingSystemType.SelectedItem:
 			pipingSystem.append(i)
 		# stl = len(pipingSystem)
+		all_PipingSystem = getAllPipingSystems(doc)
+		sel_PipingSystemIdx = all_PipingSystem.index(pipingSystem)
+		sel_pipingSystem = all_PipingSystem[sel_PipingSystemIdx]
+
+		"""______________________________________________________"""
 		pipeType = []
 		for j in self._cbb_PipeType.SelectedItem:
 			pipeType.append(j)
 		# ptl = len(pipeType)
+		all_PipeTypes = getAllPipeTypes(doc)
+		sel_PipeTypeIdx = all_PipeTypes.index(pipeType)
+		sel_PipeType = all_PipingSystem[sel_PipeTypeIdx]
+		"""______________________________________________________"""
 		refLevel = []
 		for k in self._cbb_RefLevel.SelectedItem:
 			refLevel.append(k)
-		# ll = len(refLevel)
+		"""_______________________________________________________"""
 		diameter = []
 		for m in self._txb_Diameter.Text:
 			diameter.append(int(m))
-		# dl = len(diameter)
-
+		"""_______________________________________________________"""
 		point_XYValues = []
 		point_ZValues = []
 		desPointsList = []
@@ -471,7 +482,6 @@ class MainForm(Form):
 			desPoint = Autodesk.DesignScript.Geometry.Point.ByCoordinates(i.X*304.8, i.Y*304.8, j.Z*304.8)
 			desPointsList.append(desPoint)
 
-		# TaskDialog.show(desPointsList.tostring())		
 		lst_Points1 = desPointsList
 		lst_Points2 = desPointsList.pop(0)
 
@@ -488,9 +498,9 @@ class MainForm(Form):
 		TransactionManager.Instance.EnsureInTransaction(doc)
 		for i,x in enumerate(firstPoint):
 			try:
-				levelId = level.Id
-				sysTypeId = pipingSystem.Id
-				pipeTypeId = pipeType.Id
+				levelId = refLevel.Id
+				sysTypeId = sel_pipingSystem.Id
+				pipeTypeId = sel_PipeType.Id
 				diam = diameter
 				
 				pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(doc,sysTypeId,pipeTypeId,levelId,x.ToXyz(),secondPoint[i].ToXyz())

@@ -12,7 +12,7 @@
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
       "NodeType": "BooleanInputNode",
-      "InputValue": true,
+      "InputValue": false,
       "Id": "a098ecc85f074eae8c4c4f9f42f83ef0",
       "Inputs": [],
       "Outputs": [
@@ -1151,6 +1151,67 @@
       ],
       "Replication": "Disabled",
       "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nimport sys \r\nimport System   \r\n\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import* \r\nfrom Autodesk.Revit.DB.Structure import*\r\nfrom Autodesk.Revit.DB import MEPSystem\r\n#from Autodesk.Revit.DB import MechanicalSystem\r\n\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\n\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference(\"System.Windows.Forms\")\r\nclr.AddReference(\"System.Drawing\")\r\nclr.AddReference(\"System.Windows.Forms.DataVisualization\")\r\n\r\nimport System.Windows.Forms \r\nfrom System.Windows.Forms import *\r\nimport System.Drawing\r\nfrom System.Drawing import *\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n\r\ndef getAllPipingSystems(doc):\r\n\tcollector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipingSystem)\r\n\tpipingSystems = collector.ToElements()\r\n\tpipingSystemsName = []\r\n\tfor system in pipingSystems:\r\n\t\tsystemName = system.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsString()\r\n\t\tpipingSystemsName.append(systemName)\r\n\treturn pipingSystems\r\n\r\npipingSystems = getAllPipingSystems(doc)\r\n# pipingSystemsCollector = [item for item in lst if item is not None]\r\n\r\ndef getAllPipeTypes(doc):\r\n\tcollector1 = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeCurves)\r\n\tpipeTypes = collector1.ToElements()\r\n\t# pipeTypesName = []\r\n\t# for pipeType in pipeTypes:\r\n\t# \tpipeTypeName = pipeType.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsString()\r\n\t# \tpipeTypesName.append(pipeTypeName)\r\n\treturn pipeTypes\r\n\r\nlst1 = getAllPipeTypes(doc)\r\n# pipeTypesCollector = list(set(lst_PipeType))\r\n# pipeTypesCollector = [item for item in lst1 if item is not None]\r\npipeTypesCollector = []\r\n[pipeTypesCollector.append(i) for i in lst1 if i not in pipeTypesCollector]\r\n# for i in lst1:\r\n# \tif i not in pipeTypesCollector:\r\n# \t\tpipeTypesCollector.append(i)\r\n\r\n\r\ndef create_piping_system(doc, system_name):\r\n    # Get the Piping System Type\r\n    system_type = FilteredElementCollector(doc).OfClass(MEPSystemType).OfCategory(BuiltInCategory.OST_PipingSystem).FirstElement()\r\n\r\n    # Check if the system type is found\r\n    if system_type is not None:\r\n        # Create a Mechanical System\r\n        new_system = MechanicalSystem.Create(doc, system_type.Id)\r\n\r\n        # Set the name of the system\r\n        new_system.Name = system_name\r\n\r\n        # Commit the transaction\r\n        doc.Regenerate()\r\n        return new_system\r\n    return None\r\n\r\nnewSystemName1 = \"vudinhduy\"\r\nnewSystemName2 = \"dadasdadadad\"\r\nnewSystemName = []\r\n[newSystemName.extend(i for i in (newSystemName1, newSystemName2))]\r\nnewSystemType = create_piping_system(doc, \"dadsdadasdasdasd\")\r\n\r\n\r\nclass MainForm(Form):\r\n\tdef __init__(self):\r\n\t\tself.InitializeComponent()\r\n\t\r\n\tdef InitializeComponent(self):\r\n\t\tself._cbb = System.Windows.Forms.ComboBox()\r\n\t\tself.SuspendLayout()\r\n\t\t# \r\n\t\t# cbb\r\n\t\t# \r\n\t\tself._cbb.DisplayMember = \"Name\"\r\n\t\tself._cbb.FormattingEnabled = True\r\n\t\tself._cbb.Location = System.Drawing.Point(57, 65)\r\n\t\tself._cbb.Name = \"cbb\"\r\n\t\tself._cbb.Size = System.Drawing.Size(397, 23)\r\n\t\tself._cbb.TabIndex = 0\r\n\t\tself._cbb.SelectedIndexChanged += self.CbbSelectedIndexChanged\r\n\t\tself._cbb.Items.AddRange(System.Array[System.Object](newSystemType)) \r\n\t\t# \r\n\t\t# MainForm\r\n\t\t# \r\n\t\tself.ClientSize = System.Drawing.Size(554, 320)\r\n\t\tself.Controls.Add(self._cbb)\r\n\t\tself.Name = \"MainForm\"\r\n\t\tself.Text = \"test\"\r\n\t\tself.ResumeLayout(False)\r\n\r\n\r\n\tdef CbbSelectedIndexChanged(self, sender, e):\r\n\t\tpass\r\n\r\n\r\n\r\nf = MainForm()\r\nApplication.Run(f)\r\n\r\n# lstt = [1,1,1,1,2,34,5]\r\n# als = []\r\n# [als.append(i) for i in lstt if i not in als]\r\n# print(als)",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "2c35ccd15c3d4fcba2245ab89e1f1a05",
+      "Inputs": [
+        {
+          "Id": "fbefc288d397427ea88b9ab1b9ca292a",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "4d32f221e5e64964b54615580a701d7c",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "ce1100b71f7f446ca939c9fcee330f3d",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": false,
+      "Id": "2567f62ce8a043b998aa929fbcd612df",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "e7c2c7e439424342b360d74d6ef40b3a",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
     }
   ],
   "Connectors": [
@@ -1278,6 +1339,11 @@
       "Start": "648d635117a641679babed5640c1189a",
       "End": "5f9a3ddb602e4289b1f0a7a40801ec27",
       "Id": "4316c90c69f148e387ae2919b2a4170f"
+    },
+    {
+      "Start": "e7c2c7e439424342b360d74d6ef40b3a",
+      "End": "fbefc288d397427ea88b9ab1b9ca292a",
+      "Id": "3c083686808b4b19bc3bef60218720d8"
     }
   ],
   "Dependencies": [
@@ -1300,7 +1366,7 @@
       "HasRunWithoutCrash": true,
       "IsVisibleInDynamoLibrary": true,
       "Version": "2.10.1.3976",
-      "RunType": "Manual",
+      "RunType": "Automatic",
       "RunPeriod": "1000"
     },
     "Camera": {
@@ -1323,7 +1389,7 @@
         "Name": "Boolean",
         "ShowGeometry": true,
         "Excluded": false,
-        "X": 236.64000237560487,
+        "X": 236.75566878523443,
         "Y": 249.15673927900684
       },
       {
@@ -1685,11 +1751,31 @@
         "Excluded": false,
         "X": 437.8711193376916,
         "Y": -552.762828384081
+      },
+      {
+        "Id": "2c35ccd15c3d4fcba2245ab89e1f1a05",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": -1069.6530352849222,
+        "Y": -127.07186894565558
+      },
+      {
+        "Id": "2567f62ce8a043b998aa929fbcd612df",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Boolean",
+        "ShowGeometry": true,
+        "Excluded": true,
+        "X": -1190.4415671352267,
+        "Y": -257.46656789367887
       }
     ],
     "Annotations": [],
-    "X": -104.25946142267492,
-    "Y": -55.598207285483,
-    "Zoom": 0.98220388500737354
+    "X": -49.38319506981486,
+    "Y": 53.685199091123195,
+    "Zoom": 0.74349595399055879
   }
 }
