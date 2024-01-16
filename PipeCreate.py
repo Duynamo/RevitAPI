@@ -379,26 +379,55 @@ class MainForm(Form):
 		self.ResumeLayout(False)
 
 	def Btt_getXYClick(self, sender, e):
+		# TransactionManager.Instance.EnsureInTransaction(doc)
+		# condition = True
+		# pointsXY = []
+		# n = 0
+
+		# msg = "Pick Points on Current Floor plane, hit ESC when finished."
+		# TaskDialog.Show("^---Ai An Banh Mi Khong??---^", msg)
+
+		# while condition:
+		# 	try:
+		# 		logger('Line383:', n)
+		# 		pt=uidoc.Selection.PickPoint()
+		# 		n += 1
+		# 		pointsXY.append(pt)
+		# 	except :
+		# 		condition = False
+		# for i in pointsXY:
+		# 	rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(i.X*304.8,i.Y*304.8,i.Z*304.8)
+		# 	self._clb_XYValue.Items.Add(rpM)
+		# TransactionManager.Instance.TransactionTaskDone()		
+
+		# TransactionManager.Instance.EnsureInTransaction(doc)
 		TransactionManager.Instance.EnsureInTransaction(doc)
+		activeView = doc.ActiveView
+		iRefPlane = Plane.CreateByNormalAndOrigin(activeView.ViewDirection, activeView.Origin)
+		sketchPlane = SketchPlane.Create(doc, iRefPlane)
+		doc.ActiveView.SketchPlane = sketchPlane
 		condition = True
 		pointsXY = []
 		n = 0
 
-		msg = "Pick Points on Current Floor plane, hit ESC when finished."
+		msg = "Pick Points on Current Section plane, hit ESC when finished."
 		TaskDialog.Show("^---Ai An Banh Mi Khong??---^", msg)
 
 		while condition:
 			try:
-				logger('Line383:', n)
+				# logger('Line383:', n)
+				
 				pt=uidoc.Selection.PickPoint()
 				n += 1
 				pointsXY.append(pt)
+		
 			except :
 				condition = False
-		for i in pointsXY:
-			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(i.X*304.8,i.Y*304.8,i.Z*304.8)
+		doc.Delete(sketchPlane.Id)	
+		for j in pointsXY:
+			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X, j.Y, j.Z)
 			self._clb_XYValue.Items.Add(rpM)
-		TransactionManager.Instance.TransactionTaskDone()		
+		TransactionManager.Instance.TransactionTaskDone()			
 		pass
 		
 	def Clb_XYValueSelectedIndexChanged(self, sender, e):
@@ -430,8 +459,8 @@ class MainForm(Form):
 			except :
 				condition = False
 		doc.Delete(sketchPlane.Id)	
-		for i in pointsZ:
-			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(i.X*304.8,i.Y*304.8,i.Z*304.8)
+		for j in pointsZ:
+			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X, j.Y, j.Z)
 			self._clb_ZValue.Items.Add(rpM)
 		TransactionManager.Instance.TransactionTaskDone()			
 		pass
@@ -458,9 +487,10 @@ class MainForm(Form):
 			pipingSystem.append(i)
 		# stl = len(pipingSystem)
 		all_PipingSystem = getAllPipingSystems(doc)
-		all_PipingSystemsName = getAllPipingSystemsName(doc)
-		sel_PipingSystemIdx = all_PipingSystemsName.index(pipingSystem)
-		sel_pipingSystem = all_PipingSystem[sel_PipingSystemIdx]
+		# all_PipingSystemsName = getAllPipingSystemsName(doc)
+		# sel_PipingSystemIdx = all_PipingSystemsName.index(pipingSystem)
+		# sel_pipingSystem = all_PipingSystem[sel_PipingSystemIdx]
+		auto_PipingSystem = all_PipingSystem[0]
 
 		"""______________________________________________________"""
 		pipeType = []
@@ -468,13 +498,15 @@ class MainForm(Form):
 			pipeType.append(j)
 		# ptl = len(pipeType)
 		all_PipeTypes = getAllPipeTypes(doc)
-		all_PipeTypesName = getAllPipeTypesName(doc)
-		sel_PipeTypeIdx = all_PipeTypesName.index(pipeType)
-		sel_PipeType = all_PipeTypes[sel_PipeTypeIdx]
+		# all_PipeTypesName = getAllPipeTypesName(doc)
+		# sel_PipeTypeIdx = all_PipeTypesName.index(pipeType)
+		# sel_PipeType = all_PipeTypes[sel_PipeTypeIdx]
+		auto_PipeType = all_PipeTypes[0]
 		"""______________________________________________________"""
-		refLevel = []
-		for k in self._cbb_RefLevel.SelectedItem:
-			refLevel.append(k)
+		# refLevel = []
+		# for k in self._cbb_RefLevel.SelectedItem:
+		# 	refLevel.append(k)
+		refLevel = levelsCollector[0]
 		"""_______________________________________________________"""
 		diameter = []
 		for m in self._txb_Diameter.Text:
@@ -491,15 +523,16 @@ class MainForm(Form):
 			point_ZValues.append(pZ)
 
 		for pXY ,pZ  in zip(point_XYValues, point_ZValues):
-			desPoint = Autodesk.DesignScript.Geometry.Point.ByCoordinates(i.X*304.8, i.Y*304.8, j.Z*304.8)
+			desPoint = Autodesk.DesignScript.Geometry.Point.ByCoordinates(pXY.X, pXY.Y, pZ.Z)
 			desPointsList.append(desPoint)
 
-		lst_Points1 = desPointsList
-		lst_Points2 = desPointsList.pop(0)
+		lst_Points1 = [i for i in desPointsList]
+		lst_Points2 = [i for i in desPointsList[1:]]
+
 
 		linesList = []
 		for pt1, pt2 in zip(lst_Points1,lst_Points2):
-			line = Line.ByStartPointEndPoint(pt1,pt2)
+			line =  Autodesk.DesignScript.Geometry.Line.ByStartPointEndPoint(pt1,pt2)
 			linesList.append(line)
 
 		firstPoint   = [x.StartPoint for x in linesList]
@@ -510,21 +543,21 @@ class MainForm(Form):
 		for i,x in enumerate(firstPoint):
 			try:
 				levelId = refLevel.Id
-				sysTypeId = sel_pipingSystem.Id
-				pipeTypeId = sel_PipeType.Id
-				diam = diameter
-				
+				sysTypeId = auto_PipingSystem.Id
+				pipeTypeId = auto_PipeType.Id
+				diam = diameter[0]
+				diam1 = diam/304.8
 				pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(doc,sysTypeId,pipeTypeId,levelId,x.ToXyz(),secondPoint[i].ToXyz())
 				
 				param = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
-				param.SetValueString(diam.ToString())
+				param.SetValueString(diam1.ToString())
 			
 				elements.append(pipe.ToDSType(False))	
 			except:
 				elements.append(None)
 
 		TransactionManager.Instance.TransactionTaskDone()
-		self.close()
+		self.Close()
 		pass
 
 	def Btt_CANCLEClick(self, sender, e):
