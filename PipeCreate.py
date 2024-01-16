@@ -43,7 +43,8 @@ app = uiapp.Application
 uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
 
-def getAllPipingSystems(doc):
+"""________________________________________________________________________________________"""
+def getAllPipingSystemsName(doc):
 	collector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipingSystem)
 	pipingSystems = collector.ToElements()
 	pipingSystemsName = []
@@ -51,11 +52,16 @@ def getAllPipingSystems(doc):
 		systemName = system.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsString()
 		pipingSystemsName.append(systemName)
 	return pipingSystemsName
-
-lst = getAllPipingSystems(doc)
+lst = getAllPipingSystemsName(doc)
 pipingSystemsCollector = [item for item in lst if item is not None]
 
-def getAllPipeTypes(doc):
+def getAllPipingSystems(doc):
+	collector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipingSystem)
+	pipingSystems = collector.ToElements()
+	return pipingSystems
+
+"""____________________________________________________________________________________________"""
+def getAllPipeTypesName(doc):
 	collector1 = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeCurves)
 	pipeTypes = collector1.ToElements()
 	pipeTypesName = []
@@ -63,10 +69,14 @@ def getAllPipeTypes(doc):
 		pipeTypeName = pipeType.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsString()
 		pipeTypesName.append(pipeTypeName)
 	return pipeTypesName
-
-lst1 = getAllPipeTypes(doc)
-# pipeTypesCollector = list(set(lst_PipeType))
+lst1 = getAllPipeTypesName(doc)
 pipeTypesCollector = [item for item in lst1 if item is not None]
+
+def getAllPipeTypes(doc):
+	collector1 = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeCurves)
+	pipeTypes = collector1.ToElements()
+	return pipeTypes
+"""_____________________________________________________________________________________________"""
 
 levelsCollector = FilteredElementCollector(doc).OfClass(Level).ToElements()
 # for level in levelsCollector:
@@ -448,7 +458,8 @@ class MainForm(Form):
 			pipingSystem.append(i)
 		# stl = len(pipingSystem)
 		all_PipingSystem = getAllPipingSystems(doc)
-		sel_PipingSystemIdx = all_PipingSystem.index(pipingSystem)
+		all_PipingSystemsName = getAllPipingSystemsName(doc)
+		sel_PipingSystemIdx = all_PipingSystemsName.index(pipingSystem)
 		sel_pipingSystem = all_PipingSystem[sel_PipingSystemIdx]
 
 		"""______________________________________________________"""
@@ -457,8 +468,9 @@ class MainForm(Form):
 			pipeType.append(j)
 		# ptl = len(pipeType)
 		all_PipeTypes = getAllPipeTypes(doc)
-		sel_PipeTypeIdx = all_PipeTypes.index(pipeType)
-		sel_PipeType = all_PipingSystem[sel_PipeTypeIdx]
+		all_PipeTypesName = getAllPipeTypesName(doc)
+		sel_PipeTypeIdx = all_PipeTypesName.index(pipeType)
+		sel_PipeType = all_PipeTypes[sel_PipeTypeIdx]
 		"""______________________________________________________"""
 		refLevel = []
 		for k in self._cbb_RefLevel.SelectedItem:
@@ -492,7 +504,6 @@ class MainForm(Form):
 
 		firstPoint   = [x.StartPoint for x in linesList]
 		secondPoint  = [x.EndPoint for x in linesList]
-
 		elements = []
 
 		TransactionManager.Instance.EnsureInTransaction(doc)
@@ -513,6 +524,7 @@ class MainForm(Form):
 				elements.append(None)
 
 		TransactionManager.Instance.TransactionTaskDone()
+		self.close()
 		pass
 
 	def Btt_CANCLEClick(self, sender, e):
