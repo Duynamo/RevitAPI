@@ -83,7 +83,43 @@ def getAllPipeTypes(doc):
 	collector1 = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeCurves)
 	pipeTypes = collector1.ToElements()
 	return pipeTypes
-"""________________________________________________________________________________________"""
+
+"""________________________________________________________________"""
+def setParamValue(elements,params,values):
+	re = []
+	doc = DocumentManager.Instance.CurrentDBDocument
+	for i, param_name in enumerate(params):
+		for elem in elements:
+			param =  elem.LookupParameter(param_name)
+			if param == None:
+				param = elem.Document.GetElement(elem.GetTypeId()).LookupParameter(param_name)
+			if param.StorageType == StorageType.ElementId:
+				TransactionManager.Instance.EnsureInTransaction(doc) 
+				param.Set(values[i].Id)
+				TransactionManager.Instance.TransactionTaskDone()
+
+			elif param.StorageType == StorageType.Double:
+				TransactionManager.Instance.EnsureInTransaction(doc) 
+				param.Set(UnitUtils.ConvertToInternalUnits(values[i],param.DisplayUnitType))
+				TransactionManager.Instance.TransactionTaskDone()
+			else:
+				TransactionManager.Instance.EnsureInTransaction(doc) 
+				param.Set(values[i])
+				TransactionManager.Instance.TransactionTaskDone()
+			re.append(elem)	
+"""________________________________________________________________"""
+def GetParameterByName(lstEle,para):
+    doc = DocumentManager.Instance.CurrentDBDocument
+    if isinstance(lstEle,list):
+        element = UnwrapElement(lstEle)
+    else:
+        element = [UnwrapElement(lstEle)]
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    valPara = []
+    valPara.append(i.LookupParameter(para).AsDouble()*304.8 for i in [doc.GetElement(i.GetTypeId()) for i in element])
+    TransactionManager.Instance.TransactionTaskDone()
+    return valPara
+"""______________________________________________________________________"""
 # def create_model_text(doc, text, model_text_type, sketch_plane, position, horizontal_align, depth):
 #     # Ensure valid input
 #     if not doc or not model_text_type or not sketch_plane or not position:
@@ -521,10 +557,9 @@ class MainForm(Form):
 				condition = False
 		doc.Delete(sketchPlane.Id)	
 		for j in pointsXY:
-			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X, j.Y, j.Z)
-			rpM1 = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304, j.Z*304)
+			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304.8, j.Z*304.8)
 			self._clb_XYValue.Items.Add(rpM)
-			pointsXY_modelText.append(rpM1)
+			pointsXY_modelText.append(rpM)
 			
 		# all_modelTextType = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_ModelText).OfClass(ModelTextType).ToElements()
 		# sketch_plane = sketchPlane# Obtain or create a SketchPlane
@@ -569,7 +604,7 @@ class MainForm(Form):
 				condition = False
 		doc.Delete(sketchPlane.Id)	
 		for j in pointsZ:
-			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X, j.Y, j.Z)
+			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304.8, j.Z*304.8)
 			self._clb_ZValue.Items.Add(rpM)
 		TransactionManager.Instance.TransactionTaskDone()			
 		pass
@@ -663,7 +698,7 @@ class MainForm(Form):
 		for pZ in self._clb_ZValue.CheckedItems:
 			point_ZValues.append(pZ)
 		for pXY ,pZ  in zip(point_XYValues, point_ZValues):
-			desPoint = Autodesk.DesignScript.Geometry.Point.ByCoordinates(pXY.X*304.8, pXY.Y*304.8, pZ.Z*304.8)
+			desPoint = Autodesk.DesignScript.Geometry.Point.ByCoordinates(pXY.X, pXY.Y, pZ.Z)
 			desPointsList.append(desPoint)
 		lst_Points1 = [i for i in desPointsList]
 		lst_Points2 = [i for i in desPointsList[1:]]
@@ -689,9 +724,10 @@ class MainForm(Form):
 				for pipe in pipesList:
 					pipeLength_Param = pipe.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH)
 					pipeLength = pipeLength_Param.AsDouble()
-					des_Parameter = pipe.LookupParameter("True Length")
+					des_Parameter = pipe.LookupParameter(des_ParameterName)
+					des_ParameterId = des_Parameter.Id
 					if des_Parameter:
-						des_Parameter.Set(pipeLength * 304.8)
+						des_Parameter.SetParameterValue(des_ParameterId ,pipeLength*304.8 )
 
 			except:
 				pipesList.append(None)
