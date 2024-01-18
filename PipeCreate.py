@@ -691,9 +691,8 @@ class MainForm(Form):
 					pipeLength = pipeLength_Param.AsDouble()
 					des_Parameter = pipe.LookupParameter("True Length")
 					if des_Parameter:
-						des_Parameter.Set(pipeLength*304.8.AsString)
-					else:
-						des_Parameter.Set(None)
+						des_Parameter.Set(pipeLength * 304.8)
+
 			except:
 				pipesList.append(None)
 		TransactionManager.Instance.TransactionTaskDone()
