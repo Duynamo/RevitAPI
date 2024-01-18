@@ -34,13 +34,12 @@ import System.Windows.Forms
 from System.Windows.Forms import *
 import System.Drawing
 from System.Drawing import *
-
+"""_______________________________________________________________________________________"""
 doc = DocumentManager.Instance.CurrentDBDocument
 uiapp = DocumentManager.Instance.CurrentUIApplication
 app = uiapp.Application
 uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
-
 """________________________________________________________________________________________"""
 def getAllPipingSystemsName(doc):
 	collector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipingSystem)
@@ -78,36 +77,34 @@ def createModelText(doc, points, text_size, start_value=1):
 		textValue = "Point " + str(number)
 		textSize = 15
 		modelTextsList.append(i for i in createModelText(doc, point, textValue, textSize))
-	return modelTextsList
-	
+	return modelTextsList	
 """_______________________________________________________________________________________"""
 def getAllPipeTypes(doc):
 	collector1 = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeCurves)
 	pipeTypes = collector1.ToElements()
 	return pipeTypes
 """________________________________________________________________________________________"""
-def create_model_text(doc, text, model_text_type, sketch_plane, position, horizontal_align, depth):
-    # Ensure valid input
-    if not doc or not model_text_type or not sketch_plane or not position:
-        raise ValueError("Invalid input parameters.")
-    # Start a transaction
-    transaction = Autodesk.Revit.DB.Transaction(doc, "Create Model Text")
-    transaction.Start()
-    try:
-        # Create Model Text
-        model_text = ModelText.Create(doc, sketch_plane.Id, position, text, model_text_type.Id, depth, horizontal_align)
+# def create_model_text(doc, text, model_text_type, sketch_plane, position, horizontal_align, depth):
+#     # Ensure valid input
+#     if not doc or not model_text_type or not sketch_plane or not position:
+#         raise ValueError("Invalid input parameters.")
+#     # Start a transaction
+#     transaction = Autodesk.Revit.DB.Transaction(doc, "Create Model Text")
+#     transaction.Start()
+#     try:
+#         # Create Model Text
+#         model_text = ModelText.Create(doc, sketch_plane.Id, position, text, model_text_type.Id, depth, horizontal_align)
 
-        # Commit the transaction
-        transaction.Commit()
-    except Exception as ex:
-        # Handle exceptions
-        TaskDialog.Show("Error", "Failed to create model text: " + str(ex))
-        transaction.RollBack()
+#         # Commit the transaction
+#         transaction.Commit()
+#     except Exception as ex:
+#         # Handle exceptions
+#         TaskDialog.Show("Error", "Failed to create model text: " + str(ex))
+#         transaction.RollBack()
 """______________________________________________________________________________________"""
 
 levelsCollector = FilteredElementCollector(doc).OfClass(Level).ToElements()
 """________________________________________________________________________________________"""
-
 def logger(title, content):
 	import datetime
 	date = datetime.datetime.now()
@@ -115,11 +112,11 @@ def logger(title, content):
 	# C:\Users\95053\Desktop\Python\RevitAPI-master\RevitAPI\PipeCreate.py
 	f.write(str(date) + '\n' + title + '\n' + str(content) + '\n')
 	f.close()
-
+"""________________________________________________________________________________________"""
 class MainForm(Form):
 	def __init__(self):
 		self.InitializeComponent()
-	
+	#________________________________________________________________________________________#	
 	def InitializeComponent(self):
 		self._groupBox1 = System.Windows.Forms.GroupBox()
 		self._btt_getXY = System.Windows.Forms.Button()
@@ -479,7 +476,7 @@ class MainForm(Form):
 		self._groupBox5.ResumeLayout(False)
 		self._groupBox5.PerformLayout()
 		self.ResumeLayout(False)
-
+	#____________________________________________________________________________________________#
 	def Btt_getXYClick(self, sender, e):
 		"""the code below worked in floor pl@ne but dont know why the bug has generated LOL"""
 		#________________________________________________________________________________________#
@@ -512,17 +509,14 @@ class MainForm(Form):
 		pointsXY = []
 		pointsXY_modelText = []
 		n = 0
-
 		msg = "Pick Points on Current Section plane, hit ESC when finished."
 		TaskDialog.Show("^---Ai An Banh Mi Khong??---^", msg)
-
 		while condition:
 			try:
 				# logger('Line383:', n)
 				pt=uidoc.Selection.PickPoint()
 				n += 1
-				pointsXY.append(pt)
-				
+				pointsXY.append(pt)				
 			except :
 				condition = False
 		doc.Delete(sketchPlane.Id)	
@@ -579,7 +573,7 @@ class MainForm(Form):
 			self._clb_ZValue.Items.Add(rpM)
 		TransactionManager.Instance.TransactionTaskDone()			
 		pass
-	"""_________________________________________________________"""
+	"""________________________________________________________"""
 	def Clb_ZValueSelectedIndexChanged(self, sender, e):
 		varZ = self._clb_ZValue.CheckedItems.Count
 		n = 0
@@ -597,13 +591,13 @@ class MainForm(Form):
 	"""_________________________________________________________"""
 	def Cbb_PipeTypeSelectedIndexChanged(self, sender, e):
 		pass
-	"""__________________________________________________________"""
+	"""_________________________________________________________"""
 	def Cbb_RefLevelSelectedIndexChanged(self, sender, e):
 		pass
-	"""__________________________________________________________"""
+	"""_________________________________________________________"""
 	def Txb_DiameterTextChanged(self, sender, e):
 		pass
-	"""__________________________________________________________"""
+	"""_________________________________________________________"""
 	def Cb_AllXYCheckedChanged(self, sender, e):
 		var = self._clb_XYValue.Items.Count
 		rangers = range(var)
@@ -615,10 +609,10 @@ class MainForm(Form):
 				self._clb_XYValue.SetItemChecked(i, False)
 				self._total_XYValue.Text = str(0)
 		pass
-	"""__________________________________________________________"""
+	"""_________________________________________________________"""
 	def Total_XYValueTextChanged(self, sender, e):
 		pass
-	"""__________________________________________________________"""
+	"""_________________________________________________________"""
 	def Cbb_AllZCheckedChanged(self, sender, e):
 		var = self._clb_ZValue.Items.Count
 		rangers = range(var)
@@ -630,28 +624,28 @@ class MainForm(Form):
 				self._clb_ZValue.SetItemChecked(i, False)
 				self._total_ZValue.Text = str(0)		
 		pass
-	"""__________________________________________________________"""
+	"""_________________________________________________________"""
 	def Total_ZValueTextChanged(self, sender, e):
 		pass	
-	"""__________________________________________________________"""
+	"""_________________________________________________________"""
 	def Btt_OKClick(self, sender, e):
 		pipingSystem = self._cbb_PipingSystemType.SelectedItem
 		all_PipingSystem = getAllPipingSystems(doc)		
 		all_PipingSystemsName = getAllPipingSystemsName(doc)
 		sel_PipingSystemIdx = all_PipingSystemsName.index(pipingSystem)
 		sel_pipingSystem = all_PipingSystem[sel_PipingSystemIdx]		
-		"""______________________________________________________"""
+		"""_____________________________________________________"""
 		pipeType = self._cbb_PipeType.SelectedItem
 		all_PipeTypes = getAllPipeTypes(doc)
 		all_PipeTypesName = getAllPipeTypesName(doc)
 		sel_PipeTypeIdx = all_PipeTypesName.index(pipeType)
 		sel_PipeType = all_PipeTypes[sel_PipeTypeIdx]
-		"""______________________________________________________"""
+		"""_____________________________________________________"""
 		refLevel = self._cbb_RefLevel.SelectedItem
 		all_Levels = list(levelsCollector)
 		sel_LevelIdx = all_Levels.index(refLevel)
 		sel_Level = all_Levels[sel_LevelIdx]
-		"""_______________________________________________________"""
+		"""_____________________________________________________"""
 		diameter1 = self._txb_Diameter.Text
 		if diameter1.strip():
 			try:
@@ -679,7 +673,7 @@ class MainForm(Form):
 			linesList.append(line)
 		firstPoint   = [x.StartPoint for x in linesList]
 		secondPoint  = [x.EndPoint for x in linesList]
-		elements = []
+		pipesList = []
 		TransactionManager.Instance.EnsureInTransaction(doc)
 		for i,x in enumerate(firstPoint):
 			try:
@@ -690,12 +684,21 @@ class MainForm(Form):
 				pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(doc,sysTypeId,pipeTypeId,levelId,x.ToXyz(),secondPoint[i].ToXyz())
 				param = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
 				param.SetValueString(diam.ToString())			
-				elements.append(pipe.ToDSType(False))	
+				pipesList.append(pipe.ToDSType(False))
+				des_ParameterName = "True Length"	
+				for pipe in pipesList:
+					pipeLength_Param = pipe.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH)
+					pipeLength = pipeLength_Param.AsDouble()
+					des_Parameter = pipe.LookupParameter("True Length")
+					if des_Parameter:
+						des_Parameter.Set(pipeLength*304.8.AsString)
+					else:
+						des_Parameter.Set(None)
 			except:
-				elements.append(None)
+				pipesList.append(None)
 		TransactionManager.Instance.TransactionTaskDone()
 		"""________________________________________________________________"""
-		if len(elements) != 0:
+		if len(pipesList) != 0:
 			msg = "Mission passed"
 			TaskDialog.Show("^---Congrat---^", msg)	
 		else: 	
