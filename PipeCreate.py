@@ -539,17 +539,23 @@ class MainForm(Form):
 		# text = "Selected Point"  # Specify the text
 		# horizontal_align = HorizontalAlign.Left  # Specify the horizontal alignment
 		# depth = 1.0  # Specify the depth
-		# modelTexts = create_model_text(doc, text, model_text_type, sketch_plane, position,horizontal_align,  depth)
-
+		# modelTexts = create_model_text(doc, text, model_text_type, sketch_plane, position,horizontal_align,  depth)		
 		TransactionManager.Instance.TransactionTaskDone()			
 		pass
 	"""_____________________________________________________________________________________"""	
-	def Clb_XYValueSelectedIndexChanged(self, sender, e):
+	def Clb_XYValueSelectedIndexChanged(self, sender, e):		
+		var = self._clb_XYValue.CheckedItems.Count
+		n = 0
+		if var != 0:
+			for i in range(var):
+				n += 1
+				self._total_XYValue.Text = str(n)		
+		else:
+			self._total_XYValue.Text = str(0)	
 		pass
 	"""_____________________________________________________________________________________"""
 	def Btt_getZClick(self, sender, e):
 		TransactionManager.Instance.EnsureInTransaction(doc)
-
 		activeView = doc.ActiveView
 		iRefPlane = Plane.CreateByNormalAndOrigin(activeView.ViewDirection, activeView.Origin)
 		sketchPlane = SketchPlane.Create(doc, iRefPlane)
@@ -557,10 +563,8 @@ class MainForm(Form):
 		condition = True
 		pointsZ = []
 		n = 0
-
 		msg = "Pick Points on Current Section plane, hit ESC when finished."
 		TaskDialog.Show("^---Ai An Banh Mi Khong??---^", msg)
-
 		while condition:
 			try:
 				# logger('Line383:', n)
@@ -577,6 +581,14 @@ class MainForm(Form):
 		pass
 	"""_________________________________________________________"""
 	def Clb_ZValueSelectedIndexChanged(self, sender, e):
+		varZ = self._clb_ZValue.CheckedItems.Count
+		n = 0
+		if varZ != 0:
+			for i in range(varZ):
+				n += 1
+				self._total_ZValue.Text = str(n)		
+		else:
+			self._total_ZValue.Text = str(0)				
 		pass
 	"""_________________________________________________________"""
 	def Cbb_PipingSystemTypeSelectedIndexChanged(self, sender, e):
