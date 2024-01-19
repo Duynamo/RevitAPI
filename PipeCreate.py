@@ -1,6 +1,7 @@
 import clr
 import sys 
 import System   
+import math
 
 clr.AddReference("ProtoGeometry")
 from Autodesk.DesignScript.Geometry import *
@@ -109,16 +110,11 @@ def setParamValue(elements,params,values):
 			re.append(elem)	
 """________________________________________________________________"""
 def GetParameterByName(lstEle,para):
-    doc = DocumentManager.Instance.CurrentDBDocument
-    if isinstance(lstEle,list):
-        element = UnwrapElement(lstEle)
-    else:
-        element = [UnwrapElement(lstEle)]
-    TransactionManager.Instance.EnsureInTransaction(doc)
-    valPara = []
-    valPara.append(i.LookupParameter(para).AsDouble()*304.8 for i in [doc.GetElement(i.GetTypeId()) for i in element])
-    TransactionManager.Instance.TransactionTaskDone()
-    return valPara
+    paramList = []
+    for ele in lstEle:
+        ele_Param = math.ceil(ele.get_Parameter(para).AsDouble()*304.8)
+        paramList.append(ele_Param)
+    return paramList
 """______________________________________________________________________"""
 # def create_model_text(doc, text, model_text_type, sketch_plane, position, horizontal_align, depth):
 #     # Ensure valid input
@@ -721,13 +717,17 @@ class MainForm(Form):
 				param.SetValueString(diam.ToString())			
 				pipesList.append(pipe.ToDSType(False))
 				des_ParameterName = "True Length"	
-				for pipe in pipesList:
-					pipeLength_Param = pipe.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH)
-					pipeLength = pipeLength_Param.AsDouble()
-					des_Parameter = pipe.LookupParameter(des_ParameterName)
-					des_ParameterId = des_Parameter.Id
-					if des_Parameter:
-						des_Parameter.SetParameterValue(des_ParameterId ,pipeLength*304.8 )
+				# for pipe in pipesList:
+				# 	pipeLength_Param = pipe.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH)
+				# 	pipeLength = pipeLength_Param.AsDouble()
+				# 	des_Parameter = pipe.LookupParameter(des_ParameterName)
+				# 	des_ParameterId = des_Parameter.Id
+				# 	if des_Parameter:
+				# 		des_Parameter.SetParameterValue(des_ParameterId ,pipeLength*304.8 )
+				TransactionManager.Instance.EnsureInTransaction(doc)
+				pipes_TrueLength_Param = GetParameterByName(pipesList, "Length")
+				setParamValue(pipesList, "True Length", pipes_TrueLength_Param)
+				TransactionManager.Instance.TransactionTaskDone()
 
 			except:
 				pipesList.append(None)
