@@ -679,9 +679,11 @@ class MainForm(Form):
 f = MainForm()
 Application.Run(f)
 
+
 for pipe in pipes:
 	param = pipe.LookupParameter("True Length")
-	pipeLength = pipe.LookupParameter(BuiltInParameter.CURVE_ELEM_LENGTH).AsDouble()*304.8
+	pipeLength = pipe.LookupParameter("Length").AsDouble()*304.8
 	TransactionManager.Instance.EnsureInTransaction(doc)
-	param.Set(pipeLength)
+	param.Set(str(math.ceil(pipeLength)))
+	TransactionManager.Instance.TransactionTaskDone()
 	TransactionManager.Instance.TransactionTaskDone()
