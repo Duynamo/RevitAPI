@@ -85,36 +85,23 @@ def getAllPipeTypes(doc):
 	pipeTypes = collector1.ToElements()
 	return pipeTypes
 
-"""________________________________________________________________"""
-def setParamValue(elements,params,values):
-	re = []
-	doc = DocumentManager.Instance.CurrentDBDocument
-	for i, param_name in enumerate(params):
-		for elem in elements:
-			param =  elem.LookupParameter(param_name)
-			if param == None:
-				param = elem.Document.GetElement(elem.GetTypeId()).LookupParameter(param_name)
-			if param.StorageType == StorageType.ElementId:
-				TransactionManager.Instance.EnsureInTransaction(doc) 
-				param.Set(values[i].Id)
-				TransactionManager.Instance.TransactionTaskDone()
 
-			elif param.StorageType == StorageType.Double:
-				TransactionManager.Instance.EnsureInTransaction(doc) 
-				param.Set(UnitUtils.ConvertToInternalUnits(values[i],param.DisplayUnitType))
-				TransactionManager.Instance.TransactionTaskDone()
-			else:
-				TransactionManager.Instance.EnsureInTransaction(doc) 
-				param.Set(values[i])
-				TransactionManager.Instance.TransactionTaskDone()
-			re.append(elem)	
 """________________________________________________________________"""
-def GetParameterByName(lstEle,para):
-    paramList = []
-    for ele in lstEle:
-        ele_Param = math.ceil(ele.get_Parameter(para).AsDouble()*304.8)
-        paramList.append(ele_Param)
-    return paramList
+# def GetAndSetParameterValue(eleList, getParamName, SetParamName):
+#     for ele in eleList:
+#         param = ele.LookupParameter(getParamName)
+#         pipeLength = ele.LookupParameter(SetParamName).AsDouble()*304.8
+#         TransactionManager.Instance.EnsureInTransaction(doc)
+#         param.Set(str(math.ceil(pipeLength)))
+#         TransactionManager.Instance.TransactionTaskDone()
+#     return eleList
+
+# def flattenList(unflattened_list):
+# 	if isinstance(unflattened_list,collections.Iterable):
+# 		return [sub_element for element in unflattened_list for sub_element in flattenList(element)]
+# 	else:
+# 		return [unflattened_list]
+
 """______________________________________________________________________"""
 # def create_model_text(doc, text, model_text_type, sketch_plane, position, horizontal_align, depth):
 #     # Ensure valid input
@@ -518,7 +505,6 @@ class MainForm(Form):
 		# n = 0
 		# msg = "Pick Points on Current Floor plane, hit ESC when finished."
 		# TaskDialog.Show("^---Ai An Banh Mi Khong??---^", msg)
-
 		# while condition:
 		# 	try:
 		# 		logger('Line383:', n)
@@ -542,7 +528,7 @@ class MainForm(Form):
 		pointsXY_modelText = []
 		n = 0
 		msg = "Pick Points on Current Section plane, hit ESC when finished."
-		TaskDialog.Show("^---Ai An Banh Mi Khong??---^", msg)
+		TaskDialog.Show("^------^", msg)
 		while condition:
 			try:
 				# logger('Line383:', n)
@@ -589,7 +575,7 @@ class MainForm(Form):
 		pointsZ = []
 		n = 0
 		msg = "Pick Points on Current Section plane, hit ESC when finished."
-		TaskDialog.Show("^---Ai An Banh Mi Khong??---^", msg)
+		TaskDialog.Show("^------^", msg)
 		while condition:
 			try:
 				# logger('Line383:', n)
@@ -705,6 +691,7 @@ class MainForm(Form):
 		firstPoint   = [x.StartPoint for x in linesList]
 		secondPoint  = [x.EndPoint for x in linesList]
 		pipesList = []
+		pipesList1 = []
 		TransactionManager.Instance.EnsureInTransaction(doc)
 		for i,x in enumerate(firstPoint):
 			try:
@@ -713,25 +700,58 @@ class MainForm(Form):
 				pipeTypeId = sel_PipeType.Id
 				diam = diameter
 				pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(doc,sysTypeId,pipeTypeId,levelId,x.ToXyz(),secondPoint[i].ToXyz())
-				param = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
-				param.SetValueString(diam.ToString())			
-				pipesList.append(pipe.ToDSType(False))
-				des_ParameterName = "True Length"	
-				# for pipe in pipesList:
-				# 	pipeLength_Param = pipe.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH)
-				# 	pipeLength = pipeLength_Param.AsDouble()
-				# 	des_Parameter = pipe.LookupParameter(des_ParameterName)
-				# 	des_ParameterId = des_Parameter.Id
-				# 	if des_Parameter:
-				# 		des_Parameter.SetParameterValue(des_ParameterId ,pipeLength*304.8 )
+				param_Diameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
+				param_Diameter.SetValueString(diam.ToString())
+				param_Length = pipe.LookupParameter("True Length")
+				pipeLength = pipe.LookupParameter("Length").AsDouble()*304.8
 				TransactionManager.Instance.EnsureInTransaction(doc)
-				pipes_TrueLength_Param = GetParameterByName(pipesList, "Length")
-				setParamValue(pipesList, "True Length", pipes_TrueLength_Param)
+				pipesList.append(pipe.ToDSType(False))
+				pipesList1.append(pipe)
+				param_Length.Set(str(math.ceil(pipeLength)))
 				TransactionManager.Instance.TransactionTaskDone()
-
 			except:
-				pipesList.append(None)
+				pipesList.append(None)				
 		TransactionManager.Instance.TransactionTaskDone()
+
+		fittings = []
+		connectors = {}
+		connlist = []
+		margin = 0				
+		for ele in pipesList1:
+			conns = ele.ConnectorManager.Connectors
+			for conn in conns:
+				if conn.IsConnected:
+					continue
+				connectors[conn] = None
+				connlist.append(conn)				
+		"""________________________________________________________________"""
+		for k in connectors.keys():
+			mindist = 1000000
+			closest = None
+			for conn in connlist:
+				if conn.Owner.Id.Equals(k.Owner.Id):
+					continue
+				dist = k.Origin.DistanceTo(conn.Origin)
+				if dist < mindist:
+					mindist = dist
+					closest = conn
+			if mindist > margin:
+				continue
+			connectors[k] = closest
+			connlist.remove(closest)
+			try:
+				del connectors[closest]
+			except:
+				pass			
+		"""________________________________________________________________"""
+		for k,v in connectors.items():
+			TransactionManager.Instance.EnsureInTransaction(doc)		
+			try:
+				fitting = doc.Create.NewElbowFitting(k,v)
+				fittings.append(fitting.ToDSType(False))
+			except:
+				pass
+			TransactionManager.Instance.TransactionTaskDone()		
 		"""________________________________________________________________"""
 		if len(pipesList) != 0:
 			msg = "Mission passed"
