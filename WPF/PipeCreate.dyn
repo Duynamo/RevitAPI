@@ -1341,46 +1341,6 @@
       "Description": "Runs an embedded Python script."
     },
     {
-      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Function, DynamoCore",
-      "FunctionSignature": "32e981ca-79e5-48f1-a9e2-ca299d7ec881",
-      "FunctionType": "Graph",
-      "NodeType": "FunctionNode",
-      "Id": "275a82dd229947aabb424e406e78a2f7",
-      "Inputs": [
-        {
-          "Id": "df5623827338473a89d8b643d49ecee7",
-          "Name": "MEPCurves",
-          "Description": "var[]..[]",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        },
-        {
-          "Id": "54ef1514926740c7957740d5115dac7d",
-          "Name": "Margin",
-          "Description": "int\nDefault value : 1",
-          "UsingDefaultValue": true,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Outputs": [
-        {
-          "Id": "402313d3f76c46cf8963fda14b3bdd3a",
-          "Name": "Elbows",
-          "Description": "return value",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Replication": "Auto",
-      "Description": "Takes in a list of MEPCurves (pipe, duct, cable tray, conduit)  and will attempt to create elbows where possible. A margin can be entered for max distance between connectors"
-    },
-    {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
       "Code": "import clr\n\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nclr.AddReference(\"RevitAPI\")\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference(\"RevitNodes\")\nimport Revit\nclr.ImportExtensions(Revit.Elements)\nclr.ImportExtensions(Revit.GeometryConversion)\n\n\npipes = UnwrapElement(IN[0])\nmargin = 1\n\nfittings = []\nconnectors = {}\nconnlist = []\n\nfor pipe in pipes:\n\tconns = pipe.ConnectorManager.Connectors\n\tfor conn in conns:\n\t\tif conn.IsConnected:\n\t\t\tcontinue\n\t\tconnectors[conn] = None\n\t\tconnlist.append(conn)\n\nfor k in connectors.keys():\n\tmindist = 1000000\n\tclosest = None\n\tfor conn in connlist:\n\t\tif conn.Owner.Id.Equals(k.Owner.Id):\n\t\t\tcontinue\n\t\tdist = k.Origin.DistanceTo(conn.Origin)\n\t\tif dist < mindist:\n\t\t\tmindist = dist\n\t\t\tclosest = conn\n\tif mindist > margin:\n\t\tcontinue\n\tconnectors[k] = closest\n\tconnlist.remove(closest)\n\ttry:\n\t\tdel connectors[closest]\n\texcept:\n\t\tpass\n\n\nfor k,v in connectors.items():\n\tTransactionManager.Instance.EnsureInTransaction(doc)\t\t\n\ttry:\n\t\tfitting = doc.Create.NewElbowFitting(k,v)\n\t\tfittings.append(fitting.ToDSType(False))\n\texcept:\n\t\tpass\n\tTransactionManager.Instance.TransactionTaskDone()\n\nOUT = fittings",
@@ -1934,7 +1894,6 @@
       "Version": "2022.10.30",
       "ReferenceType": "Package",
       "Nodes": [
-        "275a82dd229947aabb424e406e78a2f7",
         "f257e9b533614ac8a7ed5151e4d0a55d"
       ]
     }
@@ -1943,7 +1902,7 @@
   "View": {
     "Dynamo": {
       "ScaleFactor": 10000.0,
-      "HasRunWithoutCrash": true,
+      "HasRunWithoutCrash": false,
       "IsVisibleInDynamoLibrary": true,
       "Version": "2.10.1.3976",
       "RunType": "Automatic",
@@ -1979,8 +1938,8 @@
         "Name": "File Path",
         "ShowGeometry": true,
         "Excluded": false,
-        "X": 258.50401721027373,
-        "Y": 314.8882832704777
+        "X": 224.53159762697982,
+        "Y": 292.24000354828178
       },
       {
         "Id": "dbbdb86afed54eee80211a9bdfee35eb",
@@ -2393,16 +2352,6 @@
         "Y": 13.228485367957035
       },
       {
-        "Id": "275a82dd229947aabb424e406e78a2f7",
-        "IsSetAsInput": false,
-        "IsSetAsOutput": false,
-        "Name": "Elbow.ByMEPCurves",
-        "ShowGeometry": true,
-        "Excluded": false,
-        "X": 62.757534414306519,
-        "Y": 442.45841756927325
-      },
-      {
         "Id": "0cf447f04c8545b2a438ba77b327cf8a",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -2531,13 +2480,13 @@
         "Height": 718.56353357983971,
         "FontSize": 36.0,
         "InitialTop": 423.69323061287412,
-        "InitialHeight": 652.16353357983962,
+        "InitialHeight": 662.56353357983983,
         "TextblockHeight": 86.4,
         "Background": "#FFC1D676"
       }
     ],
-    "X": -31.969604486244464,
-    "Y": -147.17249687829252,
-    "Zoom": 1.0611297491485712
+    "X": -155.6084750375922,
+    "Y": -191.45955265559587,
+    "Zoom": 0.98903759026109928
   }
 }

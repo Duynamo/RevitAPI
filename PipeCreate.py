@@ -84,42 +84,6 @@ def getAllPipeTypes(doc):
 	collector1 = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeCurves)
 	pipeTypes = collector1.ToElements()
 	return pipeTypes
-
-
-"""________________________________________________________________"""
-# def GetAndSetParameterValue(eleList, getParamName, SetParamName):
-#     for ele in eleList:
-#         param = ele.LookupParameter(getParamName)
-#         pipeLength = ele.LookupParameter(SetParamName).AsDouble()*304.8
-#         TransactionManager.Instance.EnsureInTransaction(doc)
-#         param.Set(str(math.ceil(pipeLength)))
-#         TransactionManager.Instance.TransactionTaskDone()
-#     return eleList
-
-# def flattenList(unflattened_list):
-# 	if isinstance(unflattened_list,collections.Iterable):
-# 		return [sub_element for element in unflattened_list for sub_element in flattenList(element)]
-# 	else:
-# 		return [unflattened_list]
-
-"""______________________________________________________________________"""
-# def create_model_text(doc, text, model_text_type, sketch_plane, position, horizontal_align, depth):
-#     # Ensure valid input
-#     if not doc or not model_text_type or not sketch_plane or not position:
-#         raise ValueError("Invalid input parameters.")
-#     # Start a transaction
-#     transaction = Autodesk.Revit.DB.Transaction(doc, "Create Model Text")
-#     transaction.Start()
-#     try:
-#         # Create Model Text
-#         model_text = ModelText.Create(doc, sketch_plane.Id, position, text, model_text_type.Id, depth, horizontal_align)
-
-#         # Commit the transaction
-#         transaction.Commit()
-#     except Exception as ex:
-#         # Handle exceptions
-#         TaskDialog.Show("Error", "Failed to create model text: " + str(ex))
-#         transaction.RollBack()
 """______________________________________________________________________________________"""
 
 levelsCollector = FilteredElementCollector(doc).OfClass(Level).ToElements()
@@ -163,6 +127,9 @@ class MainForm(Form):
 		self._total_ZValue = System.Windows.Forms.TextBox()
 		self._label6 = System.Windows.Forms.Label()
 		self._label7 = System.Windows.Forms.Label()
+		self._btt_LoopZ = System.Windows.Forms.Button()		
+		self._btt_ResetXYValue = System.Windows.Forms.Button()
+		self._btt_ResetZValue = System.Windows.Forms.Button()		
 		self._groupBox1.SuspendLayout()
 		self._groupBox2.SuspendLayout()
 		self._groupBox3.SuspendLayout()
@@ -182,7 +149,8 @@ class MainForm(Form):
 		# 
 		# btt_getXY
 		# 
-		self._btt_getXY.BackColor = System.Drawing.SystemColors.Info
+		self._btt_getXY.BackColor = System.Drawing.SystemColors.ScrollBar
+		self._btt_getXY.Cursor = System.Windows.Forms.Cursors.AppStarting		
 		self._btt_getXY.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
 		self._btt_getXY.ForeColor = System.Drawing.Color.Red
 		self._btt_getXY.Location = System.Drawing.Point(55, 8)
@@ -195,13 +163,13 @@ class MainForm(Form):
 		# 
 		# btt_getZ
 		# 
-		self._btt_getZ.BackColor = System.Drawing.SystemColors.Info
+		self._btt_getZ.BackColor = System.Drawing.SystemColors.ScrollBar
 		self._btt_getZ.Cursor = System.Windows.Forms.Cursors.AppStarting
 		self._btt_getZ.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
 		self._btt_getZ.ForeColor = System.Drawing.Color.Red
-		self._btt_getZ.Location = System.Drawing.Point(283, 8)
+		self._btt_getZ.Location = System.Drawing.Point(250, 8)
 		self._btt_getZ.Name = "btt_getZ"
-		self._btt_getZ.Size = System.Drawing.Size(140, 30)
+		self._btt_getZ.Size = System.Drawing.Size(110, 30)
 		self._btt_getZ.TabIndex = 2
 		self._btt_getZ.Text = "get Z value"
 		self._btt_getZ.UseVisualStyleBackColor = False
@@ -226,7 +194,7 @@ class MainForm(Form):
 		self._label1.BackColor = System.Drawing.SystemColors.Info
 		self._label1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
 		self._label1.Font = System.Drawing.Font("MS UI Gothic", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
-		self._label1.ForeColor = System.Drawing.Color.Blue
+		self._label1.ForeColor = System.Drawing.Color.Red
 		self._label1.Location = System.Drawing.Point(6, 14)
 		self._label1.Name = "label1"
 		self._label1.Size = System.Drawing.Size(142, 23)
@@ -248,7 +216,7 @@ class MainForm(Form):
 		self._label2.BackColor = System.Drawing.SystemColors.Info
 		self._label2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
 		self._label2.Font = System.Drawing.Font("MS UI Gothic", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
-		self._label2.ForeColor = System.Drawing.Color.Blue
+		self._label2.ForeColor = System.Drawing.Color.Red
 		self._label2.Location = System.Drawing.Point(6, 12)
 		self._label2.Name = "label2"
 		self._label2.Size = System.Drawing.Size(142, 23)
@@ -284,7 +252,7 @@ class MainForm(Form):
 		self._label3.BackColor = System.Drawing.SystemColors.Info
 		self._label3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
 		self._label3.Font = System.Drawing.Font("MS UI Gothic", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
-		self._label3.ForeColor = System.Drawing.Color.Blue
+		self._label3.ForeColor = System.Drawing.Color.Red
 		self._label3.Location = System.Drawing.Point(6, 12)
 		self._label3.Name = "label3"
 		self._label3.Size = System.Drawing.Size(142, 23)
@@ -320,7 +288,7 @@ class MainForm(Form):
 		self._label4.BackColor = System.Drawing.SystemColors.Info
 		self._label4.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
 		self._label4.Font = System.Drawing.Font("MS UI Gothic", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
-		self._label4.ForeColor = System.Drawing.Color.Blue
+		self._label4.ForeColor = System.Drawing.Color.Red
 		self._label4.Location = System.Drawing.Point(6, 12)
 		self._label4.Name = "label4"
 		self._label4.Size = System.Drawing.Size(142, 23)
@@ -373,6 +341,8 @@ class MainForm(Form):
 		# 
 		# groupBox5
 		# 
+		self._groupBox5.Controls.Add(self._btt_ResetZValue)
+		self._groupBox5.Controls.Add(self._btt_ResetXYValue)		
 		self._groupBox5.Controls.Add(self._label7)
 		self._groupBox5.Controls.Add(self._label6)
 		self._groupBox5.Controls.Add(self._total_ZValue)
@@ -397,7 +367,7 @@ class MainForm(Form):
 		self._clb_XYValue.HorizontalScrollbar = True
 		self._clb_XYValue.Location = System.Drawing.Point(0, 40)
 		self._clb_XYValue.Name = "clb_XYValue"
-		self._clb_XYValue.Size = System.Drawing.Size(213, 123)
+		self._clb_XYValue.Size = System.Drawing.Size(213, 115)
 		self._clb_XYValue.TabIndex = 0
 		self._clb_XYValue.SelectedIndexChanged += self.Clb_XYValueSelectedIndexChanged
 		# 
@@ -410,7 +380,7 @@ class MainForm(Form):
 		self._clb_ZValue.HorizontalScrollbar = True
 		self._clb_ZValue.Location = System.Drawing.Point(232, 40)
 		self._clb_ZValue.Name = "clb_ZValue"
-		self._clb_ZValue.Size = System.Drawing.Size(216, 123)
+		self._clb_ZValue.Size = System.Drawing.Size(216, 115)
 		self._clb_ZValue.TabIndex = 1
 		self._clb_ZValue.SelectedIndexChanged += self.Clb_ZValueSelectedIndexChanged
 		# 
@@ -470,9 +440,54 @@ class MainForm(Form):
 		self._label7.TabIndex = 4
 		self._label7.Text = "Total"
 		# 
+		# btt_LoopZ
+		# 
+		self._btt_LoopZ.BackColor = System.Drawing.SystemColors.ScrollBar
+		self._btt_LoopZ.Cursor = System.Windows.Forms.Cursors.AppStarting
+		self._btt_LoopZ.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
+		self._btt_LoopZ.ForeColor = System.Drawing.Color.Red
+		self._btt_LoopZ.Location = System.Drawing.Point(383, 8)
+		self._btt_LoopZ.Name = "btt_LoopZ"
+		self._btt_LoopZ.Size = System.Drawing.Size(78, 30)
+		self._btt_LoopZ.TabIndex = 11
+		self._btt_LoopZ.Text = "Loop Z"
+		self._btt_LoopZ.UseVisualStyleBackColor = False
+		self._btt_LoopZ.Click += self.Btt_LoopZClick		
+		# 
+		# btt_ResetXYValue
+		# 
+		self._btt_ResetXYValue.AllowDrop = True
+		self._btt_ResetXYValue.BackColor = System.Drawing.SystemColors.ScrollBar
+		self._btt_ResetXYValue.Cursor = System.Windows.Forms.Cursors.AppStarting
+		self._btt_ResetXYValue.Font = System.Drawing.Font("MS UI Gothic", 7.5, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
+		self._btt_ResetXYValue.ForeColor = System.Drawing.Color.Red
+		self._btt_ResetXYValue.Location = System.Drawing.Point(58, 155)
+		self._btt_ResetXYValue.Name = "btt_ResetXYValue"
+		self._btt_ResetXYValue.Size = System.Drawing.Size(89, 24)
+		self._btt_ResetXYValue.TabIndex = 12
+		self._btt_ResetXYValue.Text = "Reset XY"
+		self._btt_ResetXYValue.UseVisualStyleBackColor = False
+		self._btt_ResetXYValue.Click += self.Btt_ResetXYValueClick
+		# 
+		# btt_ResetZValue
+		# 
+		self._btt_ResetZValue.AllowDrop = True
+		self._btt_ResetZValue.BackColor = System.Drawing.SystemColors.ScrollBar
+		self._btt_ResetZValue.Cursor = System.Windows.Forms.Cursors.AppStarting
+		self._btt_ResetZValue.Font = System.Drawing.Font("MS UI Gothic", 7.5, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
+		self._btt_ResetZValue.ForeColor = System.Drawing.Color.Red
+		self._btt_ResetZValue.Location = System.Drawing.Point(293, 155)
+		self._btt_ResetZValue.Name = "btt_ResetZValue"
+		self._btt_ResetZValue.Size = System.Drawing.Size(89, 24)
+		self._btt_ResetZValue.TabIndex = 13
+		self._btt_ResetZValue.Text = "Reset Z"
+		self._btt_ResetZValue.UseVisualStyleBackColor = False
+		self._btt_ResetZValue.Click += self.Btt_ResetZValueClick		
+		# 
 		# MainForm
 		# 
 		self.ClientSize = System.Drawing.Size(482, 501)
+		self.Controls.Add(self._btt_LoopZ)
 		self.Controls.Add(self._groupBox5)
 		self.Controls.Add(self._label5)
 		self.Controls.Add(self._btt_CANCLE)
@@ -483,6 +498,7 @@ class MainForm(Form):
 		self.Controls.Add(self._btt_getZ)
 		self.Controls.Add(self._btt_getXY)
 		self.Controls.Add(self._groupBox1)
+		self.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
 		self.MaximizeBox = False
 		self.MinimizeBox = False
 		self.Name = "MainForm"
@@ -762,6 +778,44 @@ class MainForm(Form):
 		self.Close()
 		pass
 	"""_____________________________________________________________________"""
+	def Btt_LoopZClick(self, sender, e):
+		TransactionManager.Instance.EnsureInTransaction(doc)
+		activeView = doc.ActiveView
+		iRefPlane = Plane.CreateByNormalAndOrigin(activeView.ViewDirection, activeView.Origin)
+		sketchPlane = SketchPlane.Create(doc, iRefPlane)
+		doc.ActiveView.SketchPlane = sketchPlane
+		condition = True
+		pointsZ = []
+		n = 0
+		msg = "Pick only 1 Points on Current Section plane, hit ESC when finished."
+		TaskDialog.Show("^------^", msg)
+		while condition:
+			try:
+				# logger('Line383:', n)
+				pt=uidoc.Selection.PickPoint()
+				pointsZ.append(pt)
+			except :
+				condition = False
+		doc.Delete(sketchPlane.Id)	
+		loop_n = self._clb_XYValue.Items.Count
+		loopZ = []
+		for j in pointsZ:
+			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304.8, j.Z*304.8)
+			rpM1 = [rpM]*loop_n
+			for m in rpM1:
+				self._clb_ZValue.Items.Add(m)
+		TransactionManager.Instance.TransactionTaskDone()			
+
+		pass
+	"""_____________________________________________________________________"""	
+	def Btt_ResetXYValueClick(self, sender, e):
+		self._clb_XYValue.Items.Clear()
+		pass
+	"""_____________________________________________________________________"""
+	def Btt_ResetZValueClick(self, sender, e):
+		self._clb_ZValue.Items.Clear()	
+		pass	
+	"""_____________________________________________________________________"""			
 	def Btt_CANCLEClick(self, sender, e):
 		self.Close()
 		pass
