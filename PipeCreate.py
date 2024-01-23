@@ -503,6 +503,7 @@ class MainForm(Form):
 		self.MinimizeBox = False
 		self.Name = "MainForm"
 		self.Text = "PipeCreate"
+		self.TopMost = True		
 		self._groupBox1.ResumeLayout(False)
 		self._groupBox2.ResumeLayout(False)
 		self._groupBox3.ResumeLayout(False)
@@ -742,6 +743,7 @@ class MainForm(Form):
 				connlist.append(conn)				
 		"""________________________________________________________________"""
 		for k in connectors.keys():
+			TransactionManager.Instance.EnsureInTransaction(doc)	
 			mindist = 1000000
 			closest = None
 			for conn in connlist:
@@ -759,6 +761,7 @@ class MainForm(Form):
 				del connectors[closest]
 			except:
 				pass			
+			TransactionManager.Instance.TransactionTaskDone()	
 		"""________________________________________________________________"""
 		for k,v in connectors.items():
 			TransactionManager.Instance.EnsureInTransaction(doc)		
