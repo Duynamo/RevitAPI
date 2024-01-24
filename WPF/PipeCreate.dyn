@@ -1615,7 +1615,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "import clr\r\nimport sys \r\nimport System   \r\nimport math\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import* \r\nfrom Autodesk.Revit.DB.Structure import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\n\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference(\"System.Windows.Forms\")\r\nclr.AddReference(\"System.Drawing\")\r\nclr.AddReference(\"System.Windows.Forms.DataVisualization\")\r\n\r\nimport System.Windows.Forms \r\nfrom System.Windows.Forms import *\r\nimport System.Drawing\r\nfrom System.Drawing import *\r\n\r\n#Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n\r\n#Preparing input from dynamo to revit\r\npoints = UnwrapElement(IN[0])\r\ncircles = []\r\nmodelCurves = []\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\niRefPlane = Plane.CreateByNormalAndOrigin(view.ViewDirection, view.Origin)\r\nsketchPlane = SketchPlane.Create(doc, iRefPlane)\r\ndoc.ActiveView.SketchPlane = sketchPlane\r\nred_color = Autodesk.Revit.DB.Color(255, 0, 0)\r\n\r\n\r\nfill_pattern_elements = list(FilteredElementCollector(doc).OfClass(FillPatternElement))\r\nhatch_pattern_names = [element.Name for element in fill_pattern_elements if element.GetFillPattern().Target == FillPatternTarget.Model]\r\nfill_pattern = fill_pattern_elements[0]\r\n\r\n# Create circles for each center point\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\n\r\nfor point in points:\r\n\r\n    XYZ_point = XYZ(point.X/304.8, point.Y/304.8, point.Z/304.8)\r\n    radius = 1/304.8*50  # You can set your desired radius\r\n    circle = Arc.Create(XYZ_point, radius, 0.0, 2 * 3.14,  XYZ.BasisX, XYZ.BasisY)\r\n    model_curve = doc.Create.NewModelCurve(circle, sketchPlane)\r\n    #filled_regionArray = FilledRegion.Create(doc, fill_pattern.Id, doc.ActiveView.Id, model_curve)\r\n    circles.append(circle.ToProtoType())\r\n    modelCurves.append(model_curve)\r\n# End the transaction\r\nfilled_regionArray = FilledRegion.Create(doc, fill_pattern.Id, view.Id, CurveLoop.Create(circles))\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\n# Output: List of created circles\r\nOUT = fill_pattern\r\n",
+      "Code": "import clr\r\nimport sys \r\nimport System   \r\nimport math\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import* \r\nfrom Autodesk.Revit.DB.Structure import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\n\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference(\"System.Windows.Forms\")\r\nclr.AddReference(\"System.Drawing\")\r\nclr.AddReference(\"System.Windows.Forms.DataVisualization\")\r\n\r\nimport System.Windows.Forms \r\nfrom System.Windows.Forms import *\r\nimport System.Drawing\r\nfrom System.Drawing import *\r\n\r\n#Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n\r\n#Preparing input from dynamo to revit\r\npoints = UnwrapElement(IN[0])\r\ncircles = []\r\nmodelCurves = []\r\ncircle_refs = []\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\niRefPlane = Plane.CreateByNormalAndOrigin(view.ViewDirection, view.Origin)\r\nsketchPlane = SketchPlane.Create(doc, iRefPlane)\r\ndoc.ActiveView.SketchPlane = sketchPlane\r\nred_color = Autodesk.Revit.DB.Color(255, 0, 0)\r\n\r\n\r\nfill_pattern_elements = list(FilteredElementCollector(doc).OfClass(FillPatternElement))\r\nhatch_pattern_names = [element.Name for element in fill_pattern_elements if element.GetFillPattern().Target == FillPatternTarget.Model]\r\nfill_pattern = fill_pattern_elements[0]\r\n\r\n# Create circles for each center point\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\n\r\nfor point in points:\r\n\r\n    XYZ_point = XYZ(point.X/304.8, point.Y/304.8, point.Z/304.8)\r\n    radius = 1/304.8*50  # You can set your desired radius\r\n    circle = Arc.Create(XYZ_point, radius, 0.0, 2 * 3.142,  XYZ.BasisX, XYZ.BasisY)\r\n    model_curve = doc.Create.NewModelCurve(circle, sketchPlane)\r\n    #filled_regionArray = FilledRegion.Create(doc, fill_pattern.Id, doc.ActiveView.Id, model_curve)\r\n    circles.append(circle.ToProtoType())\r\n    circle_refs.append(model_curve.GeometryCurve.Reference)\r\n    modelCurves.append(model_curve)\r\n    filled_regionArray = FilledRegion.Create(doc, fill_pattern.Id, view.Id, [circle.Reference])\r\n# End the transaction\r\n\r\n\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\n# Output: List of created circles\r\nOUT = fill_pattern\r\n",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "eee0418dcf324213bba42ecd21b8bc9f",
@@ -1725,6 +1725,38 @@
       ],
       "Replication": "Disabled",
       "Description": "Allows for DesignScript code to be authored directly"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nimport sys \r\nimport System   \r\nimport math\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import* \r\nfrom Autodesk.Revit.DB.Structure import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\n\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference(\"System.Windows.Forms\")\r\nclr.AddReference(\"System.Drawing\")\r\nclr.AddReference(\"System.Windows.Forms.DataVisualization\")\r\n\r\nimport System.Windows.Forms \r\nfrom System.Windows.Forms import *\r\nimport System.Drawing\r\nfrom System.Drawing import *\r\n\r\n#Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n\r\n#Preparing input from dynamo to revit\r\npoints = UnwrapElement(IN[0])\r\ncircles = []\r\nmodelCurves = []\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\niRefPlane = Plane.CreateByNormalAndOrigin(view.ViewDirection, view.Origin)\r\nsketchPlane = SketchPlane.Create(doc, iRefPlane)\r\ndoc.ActiveView.SketchPlane = sketchPlane\r\nred_color = Autodesk.Revit.DB.Color(255, 0, 0)\r\n\r\n\r\nfill_pattern_elements = list(FilteredElementCollector(doc).OfClass(FillPatternElement))\r\nhatch_pattern_names = [element.Name for element in fill_pattern_elements if element.GetFillPattern().Target == FillPatternTarget.Model]\r\nfill_pattern = fill_pattern_elements[0]\r\n\r\n# Create circles for each center point\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\n\r\nfor point in points:\r\n\r\n    XYZ_point = XYZ(point.X/304.8, point.Y/304.8, point.Z/304.8)\r\n    radius = 1/304.8*50  # You can set your desired radius\r\n    circle = Arc.Create(XYZ_point, radius, 0.0, 2 * 3.14,  XYZ.BasisX, XYZ.BasisY)\r\n    model_curve = doc.Create.NewModelCurve(circle, sketchPlane)\r\n    #filled_regionArray = FilledRegion.Create(doc, fill_pattern.Id, doc.ActiveView.Id, model_curve)\r\n    circles.append(circle.ToProtoType())\r\n    modelCurves.append(model_curve)\r\n# End the transaction\r\n\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\n# Output: List of created circles\r\nOUT = fill_pattern.Id\r\n",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "1dce35d59fdc4262940e80f424f8138e",
+      "Inputs": [
+        {
+          "Id": "bbae75ef78ec415883e04bda3bc7cbf3",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "bd9bb6400e4b45b3b9bcc323c9396d00",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
     }
   ],
   "Connectors": [
@@ -1932,6 +1964,11 @@
       "Start": "61476e044b5040cfb122ed645026e567",
       "End": "f9b26578f45549ebae2159609f1b7d6f",
       "Id": "0c3b9d5e2f5a41d0b8a6063ea09d8c17"
+    },
+    {
+      "Start": "61476e044b5040cfb122ed645026e567",
+      "End": "bbae75ef78ec415883e04bda3bc7cbf3",
+      "Id": "baf436bc378a4dc8ac6a0be271bd8b2f"
     }
   ],
   "Dependencies": [
@@ -2519,8 +2556,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 572.0644249461111,
-        "Y": 516.97067774095672
+        "X": 679.20401498578906,
+        "Y": 519.91782222829943
       },
       {
         "ShowGeometry": true,
@@ -2551,6 +2588,16 @@
         "Excluded": false,
         "X": 139.11783105374246,
         "Y": 484.76994153007627
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "1dce35d59fdc4262940e80f424f8138e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 532.69715833476573,
+        "Y": 544.24043826508876
       }
     ],
     "Annotations": [
@@ -2576,8 +2623,8 @@
         "Background": "#FFC1D676"
       }
     ],
-    "X": -37.218124261642743,
-    "Y": -257.18115363525453,
-    "Zoom": 0.78623969772113389
+    "X": 105.17887862744038,
+    "Y": -94.834003860657788,
+    "Zoom": 0.77235681387262167
   }
 }

@@ -618,6 +618,36 @@ class MainForm(Form):
 		else:
 			self._total_ZValue.Text = str(0)				
 		pass
+	"""_____________________________________________________________________"""
+	def Btt_LoopZClick(self, sender, e):
+		TransactionManager.Instance.EnsureInTransaction(doc)
+		activeView = doc.ActiveView
+		iRefPlane = Plane.CreateByNormalAndOrigin(activeView.ViewDirection, activeView.Origin)
+		sketchPlane = SketchPlane.Create(doc, iRefPlane)
+		doc.ActiveView.SketchPlane = sketchPlane
+		condition = True
+		pointsZ = []
+		n = 0
+		msg = "Pick only 1 Points on Current Section plane, hit ESC when finished."
+		TaskDialog.Show("^------^", msg)
+		while condition:
+			try:
+				# logger('Line383:', n)
+				pt=uidoc.Selection.PickPoint()
+				pointsZ.append(pt)
+			except :
+				condition = False
+		doc.Delete(sketchPlane.Id)	
+		loop_n = self._clb_XYValue.Items.Count
+		loopZ = []
+		for j in pointsZ:
+			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304.8, j.Z*304.8)
+			rpM1 = [rpM]*loop_n
+			for m in rpM1:
+				self._clb_ZValue.Items.Add(m)
+		TransactionManager.Instance.TransactionTaskDone()			
+		pass
+
 	"""_________________________________________________________"""
 	def Cbb_PipingSystemTypeSelectedIndexChanged(self, sender, e):
 		# self._cbb_PipingSystemType.selectedIndex = 0	
@@ -689,127 +719,105 @@ class MainForm(Form):
 		else:
 			diameter = None
 		#_________________________________________________________#
-		point_XYValues = []
-		point_ZValues = []
-		desPointsList = []
-		for pXY in self._clb_XYValue.CheckedItems:
-			point_XYValues.append(pXY)
-		for pZ in self._clb_ZValue.CheckedItems:
-			point_ZValues.append(pZ)
-		for pXY ,pZ  in zip(point_XYValues, point_ZValues):
-			desPoint = Autodesk.DesignScript.Geometry.Point.ByCoordinates(pXY.X, pXY.Y, pZ.Z)
-			desPointsList.append(desPoint)
-		lst_Points1 = [i for i in desPointsList]
-		lst_Points2 = [i for i in desPointsList[1:]]
-		linesList = []
-		for pt1, pt2 in zip(lst_Points1,lst_Points2):
-			line =  Autodesk.DesignScript.Geometry.Line.ByStartPointEndPoint(pt1,pt2)
-			linesList.append(line)
-		firstPoint   = [x.StartPoint for x in linesList]
-		secondPoint  = [x.EndPoint for x in linesList]
-		pipesList = []
-		pipesList1 = []
-		TransactionManager.Instance.EnsureInTransaction(doc)
-		for i,x in enumerate(firstPoint):
-			try:
-				levelId = sel_Level.Id
-				sysTypeId = sel_pipingSystem.Id
-				pipeTypeId = sel_PipeType.Id
-				diam = diameter
-				pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(doc,sysTypeId,pipeTypeId,levelId,x.ToXyz(),secondPoint[i].ToXyz())
-				param_Diameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
-				param_Diameter.SetValueString(diam.ToString())
-				param_Length = pipe.LookupParameter("True Length")
-				pipeLength = pipe.LookupParameter("Length").AsDouble()*304.8
-				TransactionManager.Instance.EnsureInTransaction(doc)
-				pipesList.append(pipe.ToDSType(False))
-				pipesList1.append(pipe)
-				param_Length.Set(str(math.ceil(pipeLength)))
-				TransactionManager.Instance.TransactionTaskDone()
-			except:
-				pipesList.append(None)				
-		TransactionManager.Instance.TransactionTaskDone()
+		XYValues_count = self._clb_XYValue.CheckedItems.Count
+		ZValues_count = self._clb_ZValue.CheckedItems.Count
+		
+		if XYValues_count == ZValues_count:
+			point_XYValues = []
+			point_ZValues = []
+			desPointsList = []
+			for pXY in self._clb_XYValue.CheckedItems:
+				point_XYValues.append(pXY)
+			for pZ in self._clb_ZValue.CheckedItems:
+				point_ZValues.append(pZ)
+			for pXY ,pZ  in zip(point_XYValues, point_ZValues):
+				desPoint = Autodesk.DesignScript.Geometry.Point.ByCoordinates(pXY.X, pXY.Y, pZ.Z)
+				desPointsList.append(desPoint)
+			lst_Points1 = [i for i in desPointsList]
+			lst_Points2 = [i for i in desPointsList[1:]]
+			linesList = []
+			for pt1, pt2 in zip(lst_Points1,lst_Points2):
+				line =  Autodesk.DesignScript.Geometry.Line.ByStartPointEndPoint(pt1,pt2)
+				linesList.append(line)
+			firstPoint   = [x.StartPoint for x in linesList]
+			secondPoint  = [x.EndPoint for x in linesList]
+			pipesList = []
+			pipesList1 = []
+			TransactionManager.Instance.EnsureInTransaction(doc)
+			for i,x in enumerate(firstPoint):
+				try:
+					levelId = sel_Level.Id
+					sysTypeId = sel_pipingSystem.Id
+					pipeTypeId = sel_PipeType.Id
+					diam = diameter
+					pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(doc,sysTypeId,pipeTypeId,levelId,x.ToXyz(),secondPoint[i].ToXyz())
+					param_Diameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
+					param_Diameter.SetValueString(diam.ToString())
+					param_Length = pipe.LookupParameter("True Length")
+					pipeLength = pipe.LookupParameter("Length").AsDouble()*304.8
+					TransactionManager.Instance.EnsureInTransaction(doc)
+					pipesList.append(pipe.ToDSType(False))
+					pipesList1.append(pipe)
+					param_Length.Set(str(math.ceil(pipeLength)))
+					TransactionManager.Instance.TransactionTaskDone()
+				except:
+					pipesList.append(None)				
+			TransactionManager.Instance.TransactionTaskDone()
 
-		fittings = []
-		connectors = {}
-		connlist = []
-		margin = 0				
-		for ele in pipesList1:
-			conns = ele.ConnectorManager.Connectors
-			for conn in conns:
-				if conn.IsConnected:
+			fittings = []
+			connectors = {}
+			connlist = []
+			margin = 0				
+			for ele in pipesList1:
+				conns = ele.ConnectorManager.Connectors
+				for conn in conns:
+					if conn.IsConnected:
+						continue
+					connectors[conn] = None
+					connlist.append(conn)				
+			"""________________________________________________________________"""
+			for k in connectors.keys():
+				TransactionManager.Instance.EnsureInTransaction(doc)	
+				mindist = 1000000
+				closest = None
+				for conn in connlist:
+					if conn.Owner.Id.Equals(k.Owner.Id):
+						continue
+					dist = k.Origin.DistanceTo(conn.Origin)
+					if dist < mindist:
+						mindist = dist
+						closest = conn
+				if mindist > margin:
 					continue
-				connectors[conn] = None
-				connlist.append(conn)				
-		"""________________________________________________________________"""
-		for k in connectors.keys():
-			TransactionManager.Instance.EnsureInTransaction(doc)	
-			mindist = 1000000
-			closest = None
-			for conn in connlist:
-				if conn.Owner.Id.Equals(k.Owner.Id):
-					continue
-				dist = k.Origin.DistanceTo(conn.Origin)
-				if dist < mindist:
-					mindist = dist
-					closest = conn
-			if mindist > margin:
-				continue
-			connectors[k] = closest
-			connlist.remove(closest)
-			try:
-				del connectors[closest]
-			except:
-				pass			
-			TransactionManager.Instance.TransactionTaskDone()	
-		"""________________________________________________________________"""
-		for k,v in connectors.items():
-			TransactionManager.Instance.EnsureInTransaction(doc)		
-			try:
-				fitting = doc.Create.NewElbowFitting(k,v)
-				fittings.append(fitting.ToDSType(False))
-			except:
-				pass
-			TransactionManager.Instance.TransactionTaskDone()		
-		"""________________________________________________________________"""
-		if len(pipesList) != 0:
-			msg = "Mission passed"
-			TaskDialog.Show("^---Congrat---^", msg)	
-		else: 	
-			msg = "Mission Failed"
-			TaskDialog.Show("^---Try again---^", msg)				
-		self.Close()
-		pass
-	"""_____________________________________________________________________"""
-	def Btt_LoopZClick(self, sender, e):
-		TransactionManager.Instance.EnsureInTransaction(doc)
-		activeView = doc.ActiveView
-		iRefPlane = Plane.CreateByNormalAndOrigin(activeView.ViewDirection, activeView.Origin)
-		sketchPlane = SketchPlane.Create(doc, iRefPlane)
-		doc.ActiveView.SketchPlane = sketchPlane
-		condition = True
-		pointsZ = []
-		n = 0
-		msg = "Pick only 1 Points on Current Section plane, hit ESC when finished."
-		TaskDialog.Show("^------^", msg)
-		while condition:
-			try:
-				# logger('Line383:', n)
-				pt=uidoc.Selection.PickPoint()
-				pointsZ.append(pt)
-			except :
-				condition = False
-		doc.Delete(sketchPlane.Id)	
-		loop_n = self._clb_XYValue.Items.Count
-		loopZ = []
-		for j in pointsZ:
-			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304.8, j.Z*304.8)
-			rpM1 = [rpM]*loop_n
-			for m in rpM1:
-				self._clb_ZValue.Items.Add(m)
-		TransactionManager.Instance.TransactionTaskDone()			
-
-		pass
+				connectors[k] = closest
+				connlist.remove(closest)
+				try:
+					del connectors[closest]
+				except:
+					pass			
+				TransactionManager.Instance.TransactionTaskDone()	
+			"""________________________________________________________________"""
+			for k,v in connectors.items():
+				TransactionManager.Instance.EnsureInTransaction(doc)		
+				try:
+					fitting = doc.Create.NewElbowFitting(k,v)
+					fittings.append(fitting.ToDSType(False))
+				except:
+					pass
+				TransactionManager.Instance.TransactionTaskDone()		
+			"""________________________________________________________________"""
+			if len(pipesList) != 0:
+				msg = "Mission passed"
+				TaskDialog.Show("^---Congrat---^", msg)	
+			else: 	
+				msg = "Mission Failed"
+				TaskDialog.Show("^---Try again---^", msg)				
+			self.Close()
+			pass
+			"""_________________________________________________________________"""				
+		else:
+			msg = "XY values and Z values doesn't match"
+			TaskDialog.Show("Try Again", msg)
 	"""_____________________________________________________________________"""	
 	def Btt_ResetXYValueClick(self, sender, e):
 		self._clb_XYValue.Items.Clear()
