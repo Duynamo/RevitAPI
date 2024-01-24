@@ -801,6 +801,7 @@ class MainForm(Form):
 				TransactionManager.Instance.EnsureInTransaction(doc)		
 				try:
 					fitting = doc.Create.NewElbowFitting(k,v)
+					# Connector.Angle = 91
 					fittings.append(fitting.ToDSType(False))
 				except:
 					pass
@@ -808,11 +809,11 @@ class MainForm(Form):
 			"""________________________________________________________________"""
 			if len(pipesList) != 0:
 				msg = "Mission passed"
-				TaskDialog.Show("^---Congrat---^", msg)	
+				# TaskDialog.Show("^---Congrat---^", msg)	
 			else: 	
-				msg = "Mission Failed"
+				msg = "cannot create pipe"
 				TaskDialog.Show("^---Try again---^", msg)				
-			self.Close()
+			# self.Close()
 			pass
 			"""_________________________________________________________________"""				
 		else:
