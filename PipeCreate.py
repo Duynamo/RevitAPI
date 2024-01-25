@@ -393,6 +393,7 @@ class MainForm(Form):
 		self._cbb_AllXY.TabIndex = 2
 		self._cbb_AllXY.Text = "All/None"
 		self._cbb_AllXY.UseVisualStyleBackColor = True
+		self._cbb_AllXY.Checked = True
 		self._cbb_AllXY.CheckedChanged += self.Cb_AllXYCheckedChanged
 		# 
 		# cbb_AllZ
@@ -404,6 +405,7 @@ class MainForm(Form):
 		self._cbb_AllZ.TabIndex = 2
 		self._cbb_AllZ.Text = "All/None"
 		self._cbb_AllZ.UseVisualStyleBackColor = True
+		self._cbb_AllZ.Checked = True
 		self._cbb_AllZ.CheckedChanged += self.Cbb_AllZCheckedChanged
 		# 
 		# total_XYValue
@@ -503,6 +505,8 @@ class MainForm(Form):
 		self.MinimizeBox = False
 		self.Name = "MainForm"
 		self.Text = "PipeCreate"
+		self.TopMost = True
+		self.TransparencyKey = System.Drawing.Color.FromArgb(255, 192, 192)		
 		self._groupBox1.ResumeLayout(False)
 		self._groupBox2.ResumeLayout(False)
 		self._groupBox3.ResumeLayout(False)
