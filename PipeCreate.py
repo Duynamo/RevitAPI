@@ -115,7 +115,7 @@ class MainForm(Form):
 		self._groupBox4 = System.Windows.Forms.GroupBox()
 		self._label4 = System.Windows.Forms.Label()
 		self._txb_Diameter = System.Windows.Forms.TextBox()
-		self._btt_OK = System.Windows.Forms.Button()
+		self._btt_CREATE = System.Windows.Forms.Button()
 		self._btt_CANCLE = System.Windows.Forms.Button()
 		self._label5 = System.Windows.Forms.Label()
 		self._groupBox5 = System.Windows.Forms.GroupBox()
@@ -149,8 +149,11 @@ class MainForm(Form):
 		# 
 		# btt_getXY
 		# 
-		self._btt_getXY.BackColor = System.Drawing.SystemColors.ScrollBar
-		self._btt_getXY.Cursor = System.Windows.Forms.Cursors.AppStarting		
+		# self._btt_getXY.BackColor = System.Drawing.SystemColors.ScrollBar
+		self._btt_getXY.FlatAppearance.BorderColor = System.Drawing.Color.Red		
+		self._btt_getXY.Cursor = System.Windows.Forms.Cursors.AppStarting	
+		self._btt_getXY.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Yellow
+		self._btt_getXY.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Cyan			
 		self._btt_getXY.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
 		self._btt_getXY.ForeColor = System.Drawing.Color.Red
 		self._btt_getXY.Location = System.Drawing.Point(55, 8)
@@ -163,8 +166,11 @@ class MainForm(Form):
 		# 
 		# btt_getZ
 		# 
-		self._btt_getZ.BackColor = System.Drawing.SystemColors.ScrollBar
+		# self._btt_getZ.BackColor = System.Drawing.SystemColors.ScrollBar
 		self._btt_getZ.Cursor = System.Windows.Forms.Cursors.AppStarting
+		self._btt_getZ.FlatAppearance.BorderColor = System.Drawing.Color.Red		
+		self._btt_getZ.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Yellow
+		self._btt_getZ.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Cyan
 		self._btt_getZ.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
 		self._btt_getZ.ForeColor = System.Drawing.Color.Red
 		self._btt_getZ.Location = System.Drawing.Point(250, 8)
@@ -303,24 +309,30 @@ class MainForm(Form):
 		self._txb_Diameter.TabIndex = 5
 		self._txb_Diameter.TextChanged += self.Txb_DiameterTextChanged
 		# 
-		# btt_OK
+		# CREATE
 		# 
-		self._btt_OK.BackColor = System.Drawing.SystemColors.ScrollBar
-		self._btt_OK.Cursor = System.Windows.Forms.Cursors.WaitCursor
-		self._btt_OK.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
-		self._btt_OK.ForeColor = System.Drawing.Color.Red
-		self._btt_OK.Location = System.Drawing.Point(317, 464)
-		self._btt_OK.Name = "btt_OK"
-		self._btt_OK.Size = System.Drawing.Size(49, 30)
-		self._btt_OK.TabIndex = 8
-		self._btt_OK.Text = "OK"
-		self._btt_OK.UseVisualStyleBackColor = False
-		self._btt_OK.Click += self.Btt_OKClick
+		# self._btt_CREATE.BackColor = System.Drawing.SystemColors.ScrollBar
+		self._btt_CREATE.Cursor = System.Windows.Forms.Cursors.WaitCursor
+		self._btt_CREATE.FlatAppearance.BorderColor = System.Drawing.Color.Red		
+		self._btt_CREATE.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Yellow
+		self._btt_CREATE.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Cyan		
+		self._btt_CREATE.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
+		self._btt_CREATE.ForeColor = System.Drawing.Color.Red
+		self._btt_CREATE.Location = System.Drawing.Point(262, 464)
+		self._btt_CREATE.Name = "btt_CREATE"
+		self._btt_CREATE.Size = System.Drawing.Size(104, 30)
+		self._btt_CREATE.TabIndex = 8
+		self._btt_CREATE.Text = "CREATE"
+		self._btt_CREATE.UseVisualStyleBackColor = False
+		self._btt_CREATE.Click += self.Btt_CREATEClick
 		# 
 		# btt_CANCLE
 		# 
-		self._btt_CANCLE.BackColor = System.Drawing.SystemColors.ScrollBar
+		# self._btt_CANCLE.BackColor = System.Drawing.SystemColors.ScrollBar
 		self._btt_CANCLE.Cursor = System.Windows.Forms.Cursors.WaitCursor
+		self._btt_CANCLE.FlatAppearance.BorderColor = System.Drawing.Color.Red		
+		self._btt_CANCLE.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Yellow
+		self._btt_CANCLE.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Cyan	
 		self._btt_CANCLE.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
 		self._btt_CANCLE.ForeColor = System.Drawing.Color.Red
 		self._btt_CANCLE.Location = System.Drawing.Point(372, 464)
@@ -370,6 +382,7 @@ class MainForm(Form):
 		self._clb_XYValue.Size = System.Drawing.Size(213, 115)
 		self._clb_XYValue.TabIndex = 0
 		self._clb_XYValue.SelectedIndexChanged += self.Clb_XYValueSelectedIndexChanged
+
 		# 
 		# clb_ZValue
 		# 
@@ -383,6 +396,7 @@ class MainForm(Form):
 		self._clb_ZValue.Size = System.Drawing.Size(216, 115)
 		self._clb_ZValue.TabIndex = 1
 		self._clb_ZValue.SelectedIndexChanged += self.Clb_ZValueSelectedIndexChanged
+		
 		# 
 		# cbb_AllXY
 		# 
@@ -393,7 +407,7 @@ class MainForm(Form):
 		self._cbb_AllXY.TabIndex = 2
 		self._cbb_AllXY.Text = "All/None"
 		self._cbb_AllXY.UseVisualStyleBackColor = True
-		self._cbb_AllXY.Checked = True
+		# self._cbb_AllXY.Checked = True
 		self._cbb_AllXY.CheckedChanged += self.Cb_AllXYCheckedChanged
 		# 
 		# cbb_AllZ
@@ -405,7 +419,7 @@ class MainForm(Form):
 		self._cbb_AllZ.TabIndex = 2
 		self._cbb_AllZ.Text = "All/None"
 		self._cbb_AllZ.UseVisualStyleBackColor = True
-		self._cbb_AllZ.Checked = True
+		# self._cbb_AllZ.Checked = True
 		self._cbb_AllZ.CheckedChanged += self.Cbb_AllZCheckedChanged
 		# 
 		# total_XYValue
@@ -444,8 +458,11 @@ class MainForm(Form):
 		# 
 		# btt_LoopZ
 		# 
-		self._btt_LoopZ.BackColor = System.Drawing.SystemColors.ScrollBar
+		# self._btt_LoopZ.BackColor = System.Drawing.SystemColors.ScrollBar
 		self._btt_LoopZ.Cursor = System.Windows.Forms.Cursors.AppStarting
+		self._btt_LoopZ.FlatAppearance.BorderColor = System.Drawing.Color.Red		
+		self._btt_LoopZ.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Yellow
+		self._btt_LoopZ.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Cyan		
 		self._btt_LoopZ.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
 		self._btt_LoopZ.ForeColor = System.Drawing.Color.Red
 		self._btt_LoopZ.Location = System.Drawing.Point(383, 8)
@@ -493,7 +510,7 @@ class MainForm(Form):
 		self.Controls.Add(self._groupBox5)
 		self.Controls.Add(self._label5)
 		self.Controls.Add(self._btt_CANCLE)
-		self.Controls.Add(self._btt_OK)
+		self.Controls.Add(self._btt_CREATE)
 		self.Controls.Add(self._groupBox4)
 		self.Controls.Add(self._groupBox3)
 		self.Controls.Add(self._groupBox2)
@@ -561,16 +578,8 @@ class MainForm(Form):
 		for j in pointsXY:
 			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304.8, j.Z*304.8)
 			self._clb_XYValue.Items.Add(rpM)
-			pointsXY_modelText.append(rpM)
-			
-		# all_modelTextType = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_ModelText).OfClass(ModelTextType).ToElements()
-		# sketch_plane = sketchPlane# Obtain or create a SketchPlane
-		# model_text_type = all_modelTextType[0]# Obtain or create a ModelTextType
-		# position = pointsXY_modelText  # Specify the position
-		# text = "Selected Point"  # Specify the text
-		# horizontal_align = HorizontalAlign.Left  # Specify the horizontal alignment
-		# depth = 1.0  # Specify the depth
-		# modelTexts = create_model_text(doc, text, model_text_type, sketch_plane, position,horizontal_align,  depth)		
+			pointsXY_modelText.append(rpM)	
+		self._cbb_AllXY.Checked = True	
 		TransactionManager.Instance.TransactionTaskDone()			
 		pass
 	"""_____________________________________________________________________________________"""	
@@ -580,7 +589,7 @@ class MainForm(Form):
 		if var != 0:
 			for i in range(var):
 				n += 1
-				self._total_XYValue.Text = str(n)		
+				self._total_XYValue.Text = str(n)				
 		else:
 			self._total_XYValue.Text = str(0)	
 		pass
@@ -608,6 +617,7 @@ class MainForm(Form):
 		for j in pointsZ:
 			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304.8, j.Z*304.8)
 			self._clb_ZValue.Items.Add(rpM)
+		self._cbb_AllZ.Checked = True	
 		TransactionManager.Instance.TransactionTaskDone()			
 		pass
 	"""________________________________________________________"""
@@ -623,7 +633,6 @@ class MainForm(Form):
 		pass
 	"""_________________________________________________________"""
 	def Cbb_PipingSystemTypeSelectedIndexChanged(self, sender, e):
-		# self._cbb_PipingSystemType.selectedIndex = 0	
 		pass
 	"""_________________________________________________________"""
 	def Cbb_PipeTypeSelectedIndexChanged(self, sender, e):
@@ -665,7 +674,7 @@ class MainForm(Form):
 	def Total_ZValueTextChanged(self, sender, e):
 		pass	
 	"""_________________________________________________________"""
-	def Btt_OKClick(self, sender, e):
+	def Btt_CREATEClick(self, sender, e):
 		pipingSystem = self._cbb_PipingSystemType.SelectedItem
 		all_PipingSystem = getAllPipingSystems(doc)		
 		all_PipingSystemsName = getAllPipingSystemsName(doc)
@@ -778,8 +787,18 @@ class MainForm(Form):
 			TaskDialog.Show("^---Congrat---^", msg)	
 		else: 	
 			msg = "Mission Failed"
-			TaskDialog.Show("^---Try again---^", msg)				
-		self.Close()
+			TaskDialog.Show("^---Try again---^", msg)	
+		TransactionManager.Instance.EnsureInTransaction(doc)		
+		self._clb_XYValue.Items.Clear()		
+		self._clb_ZValue.Items.Clear()		
+		self._total_XYValue.Clear()	
+		self._total_ZValue.Clear()
+		TransactionManager.Instance.EnsureInTransaction(doc)	
+		self._cbb_AllXY.Checked = False
+		self._cbb_AllZ.Checked = False
+		TransactionManager.Instance.TransactionTaskDone()	
+		TransactionManager.Instance.TransactionTaskDone()	
+		# self.Close()
 		pass
 	"""_____________________________________________________________________"""
 	def Btt_LoopZClick(self, sender, e):
@@ -808,6 +827,7 @@ class MainForm(Form):
 			rpM1 = [rpM]*loop_n
 			for m in rpM1:
 				self._clb_ZValue.Items.Add(m)
+		self._cbb_AllZ.Checked = True		
 		TransactionManager.Instance.TransactionTaskDone()			
 
 		pass
