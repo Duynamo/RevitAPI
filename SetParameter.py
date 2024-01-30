@@ -43,6 +43,17 @@ app = uiapp.Application
 uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
 
+#Filter all pipe tags in Doc
+pipe_tags = []
+tagCollector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeTags).WhereElementIsNotElementType().ToElements()
+pipe_tags.append(i for i in tagCollector)
+
+#Filter all pipe in ActiveView
+pipesList = []
+pipesCollector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeCurves).WhereElementIsNotElementType().ToElements()
+pipesList.append(i for i in pipesCollector)
+
+
 class MainForm(Form):
 	def __init__(self):
 		self.InitializeComponent()
@@ -60,6 +71,7 @@ class MainForm(Form):
 		# 
 		# cbb_PipeTag
 		# 
+		self._cbb_PipeTag.DisplayMember = "Name"
 		self._cbb_PipeTag.Cursor = System.Windows.Forms.Cursors.Default
 		self._cbb_PipeTag.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
 		self._cbb_PipeTag.ForeColor = System.Drawing.Color.Red
@@ -69,6 +81,8 @@ class MainForm(Form):
 		self._cbb_PipeTag.Size = System.Drawing.Size(229, 27)
 		self._cbb_PipeTag.TabIndex = 0
 		self._cbb_PipeTag.SelectedIndexChanged += self.Cbb_PipeTagSelectedIndexChanged
+		self._cbb_PipeTag.Items.AddRange(System.Array[System.Object](tagCollector)) 
+		self._cbb_PipeTag.SelectedIndex = 0			
 		# 
 		# lb_PipeTag
 		# 
@@ -184,6 +198,7 @@ class MainForm(Form):
 		self.PerformLayout()
 
 
+
 	def Cbb_PipeTagSelectedIndexChanged(self, sender, e):
 		pass
 
@@ -191,12 +206,25 @@ class MainForm(Form):
 		pass
 
 	def Btt_PipeTagClick(self, sender, e):
+		desTag = self._cbb_PipeTag.SelectedItem
+		pipeTags = []
+		TransactionManager.Instance.EnsureInTransaction(doc)
+		for pipe in pipesCollector:
+			pipeRef = Reference(pipe)
+			tagMode = TagMode.TM_ADDBY_CATEGORY
+			tag = IndependentTag.Create(doc, view.Id, pipeRef, True , tagMode, TagOrientation.AnyModelDirection, XYZ.BasisZ)
+			pipeLocation = pipe.Location.Curve.Evaluate(0.5, True)
+			tagLocation = XYZ(pipeLocation.X, pipeLocation.Y, pipeLocation.Z)
+			tag.TagHeadPosition = tagLocation 
+			pipeTags.append(tag)
+		TransactionManager.Instance.TransactionTaskDone()
 		pass
 
 	def Btt_TrueLengthClick(self, sender, e):
 		pass
 
 	def Btt_CANCLEClick(self, sender, e):
+		self.Close()
 		pass
 
 f = MainForm()

@@ -3647,6 +3647,128 @@
       ],
       "Replication": "Disabled",
       "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "NodeType": "ExtensionNode",
+      "Id": "fd7c5666620b4290b5ac8043dc3d5b77",
+      "Inputs": [
+        {
+          "Id": "a9738c12246e439db93f48aa5d4e47c1",
+          "Name": "script",
+          "Description": "Python script to run.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "4fa816f24fb9418786ebf24f9ee6a258",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "f8d83604c38843d18ac8ff4de2d075e6",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs a Python script from a string."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\SetParameter.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "1b2a6cc5e638466fa4ded15612d3495f",
+      "Inputs": [
+        {
+          "Id": "83e2145b784f493691728a35f571c02e",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "c5a08dc0b1f341dea8ce32d4ecbc39db",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "0ac1fcde57364fc8a0e2d9a59d56e456",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": true,
+      "Id": "54506452177e4ab29645cc421be138d3",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "ac3a1b8a82fb42dbae8cd5f2459ab384",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\SetParameter.py",
+      "InputValue": ".\\SetParameter.py",
+      "NodeType": "ExtensionNode",
+      "Id": "88b8dc88eaa549a6a7876c9f5385d423",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "8a9a3bdc25564f2caf29b7b5525e47a4",
+          "Name": "",
+          "Description": "Filename",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows you to select a file on the system to get its filename"
     }
   ],
   "Connectors": [
@@ -4039,6 +4161,21 @@
       "Start": "b0c961b8036f474b993276053adf7400",
       "End": "61c583eaca7d4e8194aa4ffa8972356c",
       "Id": "038d3ffac895403c800cc2cdfa89d2b5"
+    },
+    {
+      "Start": "0ac1fcde57364fc8a0e2d9a59d56e456",
+      "End": "a9738c12246e439db93f48aa5d4e47c1",
+      "Id": "9663c64a13504ebd8d6ab9b2ce158d2a"
+    },
+    {
+      "Start": "ac3a1b8a82fb42dbae8cd5f2459ab384",
+      "End": "83e2145b784f493691728a35f571c02e",
+      "Id": "df00d65e138245dd9d81580ce6a3ab36"
+    },
+    {
+      "Start": "8a9a3bdc25564f2caf29b7b5525e47a4",
+      "End": "c5a08dc0b1f341dea8ce32d4ecbc39db",
+      "Id": "2d0a0f4386ee4501b9224cd7b96447b3"
     }
   ],
   "Dependencies": [
@@ -5128,7 +5265,7 @@
         "IsSetAsOutput": false,
         "Name": "Boolean",
         "ShowGeometry": true,
-        "Excluded": false,
+        "Excluded": true,
         "X": -435.52224866381948,
         "Y": -1367.1399200397964
       },
@@ -5291,6 +5428,46 @@
         "Excluded": false,
         "X": -128.95360066566582,
         "Y": -1844.6002025042656
+      },
+      {
+        "Id": "fd7c5666620b4290b5ac8043dc3d5b77",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Python Script From String",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": -161.05412683958386,
+        "Y": -1542.132586881376
+      },
+      {
+        "Id": "1b2a6cc5e638466fa4ded15612d3495f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": -305.29977611131989,
+        "Y": -1544.022751404086
+      },
+      {
+        "Id": "54506452177e4ab29645cc421be138d3",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Boolean",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": -457.7282710101149,
+        "Y": -1574.9457358736161
+      },
+      {
+        "Id": "88b8dc88eaa549a6a7876c9f5385d423",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "File Path",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": -447.02024085178886,
+        "Y": -1490.567522956426
       }
     ],
     "Annotations": [
@@ -5563,8 +5740,8 @@
         "Background": "#FF848484"
       }
     ],
-    "X": 462.01039415981654,
-    "Y": 1087.8361668277453,
-    "Zoom": 0.63559652806099509
+    "X": 652.40244561176951,
+    "Y": 1887.1615453202087,
+    "Zoom": 1.1319545305146079
   }
 }
