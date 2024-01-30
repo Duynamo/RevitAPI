@@ -115,7 +115,7 @@ class MainForm(Form):
 		self._groupBox4 = System.Windows.Forms.GroupBox()
 		self._label4 = System.Windows.Forms.Label()
 		self._txb_Diameter = System.Windows.Forms.TextBox()
-		self._btt_OK = System.Windows.Forms.Button()
+		self._btt_CREATE = System.Windows.Forms.Button()
 		self._btt_CANCLE = System.Windows.Forms.Button()
 		self._label5 = System.Windows.Forms.Label()
 		self._groupBox5 = System.Windows.Forms.GroupBox()
@@ -149,8 +149,11 @@ class MainForm(Form):
 		# 
 		# btt_getXY
 		# 
-		self._btt_getXY.BackColor = System.Drawing.SystemColors.ScrollBar
-		self._btt_getXY.Cursor = System.Windows.Forms.Cursors.AppStarting		
+		# self._btt_getXY.BackColor = System.Drawing.SystemColors.ScrollBar
+		self._btt_getXY.FlatAppearance.BorderColor = System.Drawing.Color.Red		
+		self._btt_getXY.Cursor = System.Windows.Forms.Cursors.AppStarting	
+		self._btt_getXY.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Yellow
+		self._btt_getXY.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Cyan			
 		self._btt_getXY.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
 		self._btt_getXY.ForeColor = System.Drawing.Color.Red
 		self._btt_getXY.Location = System.Drawing.Point(55, 8)
@@ -163,8 +166,11 @@ class MainForm(Form):
 		# 
 		# btt_getZ
 		# 
-		self._btt_getZ.BackColor = System.Drawing.SystemColors.ScrollBar
+		# self._btt_getZ.BackColor = System.Drawing.SystemColors.ScrollBar
 		self._btt_getZ.Cursor = System.Windows.Forms.Cursors.AppStarting
+		self._btt_getZ.FlatAppearance.BorderColor = System.Drawing.Color.Red		
+		self._btt_getZ.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Yellow
+		self._btt_getZ.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Cyan
 		self._btt_getZ.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
 		self._btt_getZ.ForeColor = System.Drawing.Color.Red
 		self._btt_getZ.Location = System.Drawing.Point(250, 8)
@@ -303,24 +309,30 @@ class MainForm(Form):
 		self._txb_Diameter.TabIndex = 5
 		self._txb_Diameter.TextChanged += self.Txb_DiameterTextChanged
 		# 
-		# btt_OK
+		# CREATE
 		# 
-		self._btt_OK.BackColor = System.Drawing.SystemColors.ScrollBar
-		self._btt_OK.Cursor = System.Windows.Forms.Cursors.WaitCursor
-		self._btt_OK.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
-		self._btt_OK.ForeColor = System.Drawing.Color.Red
-		self._btt_OK.Location = System.Drawing.Point(317, 464)
-		self._btt_OK.Name = "btt_OK"
-		self._btt_OK.Size = System.Drawing.Size(49, 30)
-		self._btt_OK.TabIndex = 8
-		self._btt_OK.Text = "OK"
-		self._btt_OK.UseVisualStyleBackColor = False
-		self._btt_OK.Click += self.Btt_OKClick
+		# self._btt_CREATE.BackColor = System.Drawing.SystemColors.ScrollBar
+		self._btt_CREATE.Cursor = System.Windows.Forms.Cursors.WaitCursor
+		self._btt_CREATE.FlatAppearance.BorderColor = System.Drawing.Color.Red		
+		self._btt_CREATE.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Yellow
+		self._btt_CREATE.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Cyan		
+		self._btt_CREATE.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
+		self._btt_CREATE.ForeColor = System.Drawing.Color.Red
+		self._btt_CREATE.Location = System.Drawing.Point(262, 464)
+		self._btt_CREATE.Name = "btt_CREATE"
+		self._btt_CREATE.Size = System.Drawing.Size(104, 30)
+		self._btt_CREATE.TabIndex = 8
+		self._btt_CREATE.Text = "CREATE"
+		self._btt_CREATE.UseVisualStyleBackColor = False
+		self._btt_CREATE.Click += self.Btt_CREATEClick
 		# 
 		# btt_CANCLE
 		# 
-		self._btt_CANCLE.BackColor = System.Drawing.SystemColors.ScrollBar
+		# self._btt_CANCLE.BackColor = System.Drawing.SystemColors.ScrollBar
 		self._btt_CANCLE.Cursor = System.Windows.Forms.Cursors.WaitCursor
+		self._btt_CANCLE.FlatAppearance.BorderColor = System.Drawing.Color.Red		
+		self._btt_CANCLE.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Yellow
+		self._btt_CANCLE.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Cyan	
 		self._btt_CANCLE.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
 		self._btt_CANCLE.ForeColor = System.Drawing.Color.Red
 		self._btt_CANCLE.Location = System.Drawing.Point(372, 464)
@@ -370,6 +382,7 @@ class MainForm(Form):
 		self._clb_XYValue.Size = System.Drawing.Size(213, 115)
 		self._clb_XYValue.TabIndex = 0
 		self._clb_XYValue.SelectedIndexChanged += self.Clb_XYValueSelectedIndexChanged
+
 		# 
 		# clb_ZValue
 		# 
@@ -383,6 +396,7 @@ class MainForm(Form):
 		self._clb_ZValue.Size = System.Drawing.Size(216, 115)
 		self._clb_ZValue.TabIndex = 1
 		self._clb_ZValue.SelectedIndexChanged += self.Clb_ZValueSelectedIndexChanged
+		
 		# 
 		# cbb_AllXY
 		# 
@@ -393,6 +407,7 @@ class MainForm(Form):
 		self._cbb_AllXY.TabIndex = 2
 		self._cbb_AllXY.Text = "All/None"
 		self._cbb_AllXY.UseVisualStyleBackColor = True
+		# self._cbb_AllXY.Checked = True
 		self._cbb_AllXY.CheckedChanged += self.Cb_AllXYCheckedChanged
 		# 
 		# cbb_AllZ
@@ -404,6 +419,7 @@ class MainForm(Form):
 		self._cbb_AllZ.TabIndex = 2
 		self._cbb_AllZ.Text = "All/None"
 		self._cbb_AllZ.UseVisualStyleBackColor = True
+		# self._cbb_AllZ.Checked = True
 		self._cbb_AllZ.CheckedChanged += self.Cbb_AllZCheckedChanged
 		# 
 		# total_XYValue
@@ -442,8 +458,11 @@ class MainForm(Form):
 		# 
 		# btt_LoopZ
 		# 
-		self._btt_LoopZ.BackColor = System.Drawing.SystemColors.ScrollBar
+		# self._btt_LoopZ.BackColor = System.Drawing.SystemColors.ScrollBar
 		self._btt_LoopZ.Cursor = System.Windows.Forms.Cursors.AppStarting
+		self._btt_LoopZ.FlatAppearance.BorderColor = System.Drawing.Color.Red		
+		self._btt_LoopZ.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Yellow
+		self._btt_LoopZ.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Cyan		
 		self._btt_LoopZ.Font = System.Drawing.Font("MS UI Gothic", 10, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
 		self._btt_LoopZ.ForeColor = System.Drawing.Color.Red
 		self._btt_LoopZ.Location = System.Drawing.Point(383, 8)
@@ -491,7 +510,7 @@ class MainForm(Form):
 		self.Controls.Add(self._groupBox5)
 		self.Controls.Add(self._label5)
 		self.Controls.Add(self._btt_CANCLE)
-		self.Controls.Add(self._btt_OK)
+		self.Controls.Add(self._btt_CREATE)
 		self.Controls.Add(self._groupBox4)
 		self.Controls.Add(self._groupBox3)
 		self.Controls.Add(self._groupBox2)
@@ -503,7 +522,8 @@ class MainForm(Form):
 		self.MinimizeBox = False
 		self.Name = "MainForm"
 		self.Text = "PipeCreate"
-		self.TopMost = True		
+		self.TopMost = True
+		self.TransparencyKey = System.Drawing.Color.FromArgb(255, 192, 192)		
 		self._groupBox1.ResumeLayout(False)
 		self._groupBox2.ResumeLayout(False)
 		self._groupBox3.ResumeLayout(False)
@@ -511,6 +531,8 @@ class MainForm(Form):
 		self._groupBox4.PerformLayout()
 		self._groupBox5.ResumeLayout(False)
 		self._groupBox5.PerformLayout()
+		self.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+		self.Cursor = System.Windows.Forms.Cursors.Hand
 		self.ResumeLayout(False)
 	#____________________________________________________________________________________________#
 	def Btt_getXYClick(self, sender, e):
@@ -558,16 +580,8 @@ class MainForm(Form):
 		for j in pointsXY:
 			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304.8, j.Z*304.8)
 			self._clb_XYValue.Items.Add(rpM)
-			pointsXY_modelText.append(rpM)
-			
-		# all_modelTextType = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_ModelText).OfClass(ModelTextType).ToElements()
-		# sketch_plane = sketchPlane# Obtain or create a SketchPlane
-		# model_text_type = all_modelTextType[0]# Obtain or create a ModelTextType
-		# position = pointsXY_modelText  # Specify the position
-		# text = "Selected Point"  # Specify the text
-		# horizontal_align = HorizontalAlign.Left  # Specify the horizontal alignment
-		# depth = 1.0  # Specify the depth
-		# modelTexts = create_model_text(doc, text, model_text_type, sketch_plane, position,horizontal_align,  depth)		
+			pointsXY_modelText.append(rpM)	
+		self._cbb_AllXY.Checked = True	
 		TransactionManager.Instance.TransactionTaskDone()			
 		pass
 	"""_____________________________________________________________________________________"""	
@@ -577,7 +591,7 @@ class MainForm(Form):
 		if var != 0:
 			for i in range(var):
 				n += 1
-				self._total_XYValue.Text = str(n)		
+				self._total_XYValue.Text = str(n)				
 		else:
 			self._total_XYValue.Text = str(0)	
 		pass
@@ -605,6 +619,7 @@ class MainForm(Form):
 		for j in pointsZ:
 			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304.8, j.Z*304.8)
 			self._clb_ZValue.Items.Add(rpM)
+		self._cbb_AllZ.Checked = True	
 		TransactionManager.Instance.TransactionTaskDone()			
 		pass
 	"""________________________________________________________"""
@@ -618,39 +633,8 @@ class MainForm(Form):
 		else:
 			self._total_ZValue.Text = str(0)				
 		pass
-	"""_____________________________________________________________________"""
-	def Btt_LoopZClick(self, sender, e):
-		TransactionManager.Instance.EnsureInTransaction(doc)
-		activeView = doc.ActiveView
-		iRefPlane = Plane.CreateByNormalAndOrigin(activeView.ViewDirection, activeView.Origin)
-		sketchPlane = SketchPlane.Create(doc, iRefPlane)
-		doc.ActiveView.SketchPlane = sketchPlane
-		condition = True
-		pointsZ = []
-		n = 0
-		msg = "Pick only 1 Points on Current Section plane, hit ESC when finished."
-		TaskDialog.Show("^------^", msg)
-		while condition:
-			try:
-				# logger('Line383:', n)
-				pt=uidoc.Selection.PickPoint()
-				pointsZ.append(pt)
-			except :
-				condition = False
-		doc.Delete(sketchPlane.Id)	
-		loop_n = self._clb_XYValue.Items.Count
-		loopZ = []
-		for j in pointsZ:
-			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304.8, j.Z*304.8)
-			rpM1 = [rpM]*loop_n
-			for m in rpM1:
-				self._clb_ZValue.Items.Add(m)
-		TransactionManager.Instance.TransactionTaskDone()			
-		pass
-
 	"""_________________________________________________________"""
 	def Cbb_PipingSystemTypeSelectedIndexChanged(self, sender, e):
-		# self._cbb_PipingSystemType.selectedIndex = 0	
 		pass
 	"""_________________________________________________________"""
 	def Cbb_PipeTypeSelectedIndexChanged(self, sender, e):
@@ -692,7 +676,7 @@ class MainForm(Form):
 	def Total_ZValueTextChanged(self, sender, e):
 		pass	
 	"""_________________________________________________________"""
-	def Btt_OKClick(self, sender, e):
+	def Btt_CREATEClick(self, sender, e):
 		pipingSystem = self._cbb_PipingSystemType.SelectedItem
 		all_PipingSystem = getAllPipingSystems(doc)		
 		all_PipingSystemsName = getAllPipingSystemsName(doc)
@@ -719,106 +703,136 @@ class MainForm(Form):
 		else:
 			diameter = None
 		#_________________________________________________________#
-		XYValues_count = self._clb_XYValue.CheckedItems.Count
-		ZValues_count = self._clb_ZValue.CheckedItems.Count
-		
-		if XYValues_count == ZValues_count:
-			point_XYValues = []
-			point_ZValues = []
-			desPointsList = []
-			for pXY in self._clb_XYValue.CheckedItems:
-				point_XYValues.append(pXY)
-			for pZ in self._clb_ZValue.CheckedItems:
-				point_ZValues.append(pZ)
-			for pXY ,pZ  in zip(point_XYValues, point_ZValues):
-				desPoint = Autodesk.DesignScript.Geometry.Point.ByCoordinates(pXY.X, pXY.Y, pZ.Z)
-				desPointsList.append(desPoint)
-			lst_Points1 = [i for i in desPointsList]
-			lst_Points2 = [i for i in desPointsList[1:]]
-			linesList = []
-			for pt1, pt2 in zip(lst_Points1,lst_Points2):
-				line =  Autodesk.DesignScript.Geometry.Line.ByStartPointEndPoint(pt1,pt2)
-				linesList.append(line)
-			firstPoint   = [x.StartPoint for x in linesList]
-			secondPoint  = [x.EndPoint for x in linesList]
-			pipesList = []
-			pipesList1 = []
-			TransactionManager.Instance.EnsureInTransaction(doc)
-			for i,x in enumerate(firstPoint):
-				try:
-					levelId = sel_Level.Id
-					sysTypeId = sel_pipingSystem.Id
-					pipeTypeId = sel_PipeType.Id
-					diam = diameter
-					pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(doc,sysTypeId,pipeTypeId,levelId,x.ToXyz(),secondPoint[i].ToXyz())
-					param_Diameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
-					param_Diameter.SetValueString(diam.ToString())
-					param_Length = pipe.LookupParameter("True Length")
-					pipeLength = pipe.LookupParameter("Length").AsDouble()*304.8
-					TransactionManager.Instance.EnsureInTransaction(doc)
-					pipesList.append(pipe.ToDSType(False))
-					pipesList1.append(pipe)
-					param_Length.Set(str(math.ceil(pipeLength)))
-					TransactionManager.Instance.TransactionTaskDone()
-				except:
-					pipesList.append(None)				
-			TransactionManager.Instance.TransactionTaskDone()
+		point_XYValues = []
+		point_ZValues = []
+		desPointsList = []
+		for pXY in self._clb_XYValue.CheckedItems:
+			point_XYValues.append(pXY)
+		for pZ in self._clb_ZValue.CheckedItems:
+			point_ZValues.append(pZ)
+		for pXY ,pZ  in zip(point_XYValues, point_ZValues):
+			desPoint = Autodesk.DesignScript.Geometry.Point.ByCoordinates(pXY.X, pXY.Y, pZ.Z)
+			desPointsList.append(desPoint)
+		lst_Points1 = [i for i in desPointsList]
+		lst_Points2 = [i for i in desPointsList[1:]]
+		linesList = []
+		for pt1, pt2 in zip(lst_Points1,lst_Points2):
+			line =  Autodesk.DesignScript.Geometry.Line.ByStartPointEndPoint(pt1,pt2)
+			linesList.append(line)
+		firstPoint   = [x.StartPoint for x in linesList]
+		secondPoint  = [x.EndPoint for x in linesList]
+		pipesList = []
+		pipesList1 = []
+		TransactionManager.Instance.EnsureInTransaction(doc)
+		for i,x in enumerate(firstPoint):
+			try:
+				levelId = sel_Level.Id
+				sysTypeId = sel_pipingSystem.Id
+				pipeTypeId = sel_PipeType.Id
+				diam = diameter
+				pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(doc,sysTypeId,pipeTypeId,levelId,x.ToXyz(),secondPoint[i].ToXyz())
+				param_Diameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
+				param_Diameter.SetValueString(diam.ToString())
+				param_Length = pipe.LookupParameter("True Length")
+				pipeLength = pipe.LookupParameter("Length").AsDouble()*304.8
+				TransactionManager.Instance.EnsureInTransaction(doc)
+				pipesList.append(pipe.ToDSType(False))
+				pipesList1.append(pipe)
+				param_Length.Set(str(math.ceil(pipeLength)))
+				TransactionManager.Instance.TransactionTaskDone()
+			except:
+				pipesList.append(None)				
+		TransactionManager.Instance.TransactionTaskDone()
 
-			fittings = []
-			connectors = {}
-			connlist = []
-			margin = 0				
-			for ele in pipesList1:
-				conns = ele.ConnectorManager.Connectors
-				for conn in conns:
-					if conn.IsConnected:
-						continue
-					connectors[conn] = None
-					connlist.append(conn)				
-			"""________________________________________________________________"""
-			for k in connectors.keys():
-				TransactionManager.Instance.EnsureInTransaction(doc)	
-				mindist = 1000000
-				closest = None
-				for conn in connlist:
-					if conn.Owner.Id.Equals(k.Owner.Id):
-						continue
-					dist = k.Origin.DistanceTo(conn.Origin)
-					if dist < mindist:
-						mindist = dist
-						closest = conn
-				if mindist > margin:
+		fittings = []
+		connectors = {}
+		connlist = []
+		margin = 0				
+		for ele in pipesList1:
+			conns = ele.ConnectorManager.Connectors
+			for conn in conns:
+				if conn.IsConnected:
 					continue
-				connectors[k] = closest
-				connlist.remove(closest)
-				try:
-					del connectors[closest]
-				except:
-					pass			
-				TransactionManager.Instance.TransactionTaskDone()	
-			"""________________________________________________________________"""
-			for k,v in connectors.items():
-				TransactionManager.Instance.EnsureInTransaction(doc)		
-				try:
-					fitting = doc.Create.NewElbowFitting(k,v)
-					# Connector.Angle = 91
-					fittings.append(fitting.ToDSType(False))
-				except:
-					pass
-				TransactionManager.Instance.TransactionTaskDone()		
-			"""________________________________________________________________"""
-			if len(pipesList) != 0:
-				msg = "Mission passed"
-				# TaskDialog.Show("^---Congrat---^", msg)	
-			else: 	
-				msg = "cannot create pipe"
-				TaskDialog.Show("^---Try again---^", msg)				
-			# self.Close()
-			pass
-			"""_________________________________________________________________"""				
-		else:
-			msg = "XY values and Z values doesn't match"
-			TaskDialog.Show("Try Again", msg)
+				connectors[conn] = None
+				connlist.append(conn)				
+		"""________________________________________________________________"""
+		for k in connectors.keys():
+			mindist = 1000000
+			closest = None
+			for conn in connlist:
+				if conn.Owner.Id.Equals(k.Owner.Id):
+					continue
+				dist = k.Origin.DistanceTo(conn.Origin)
+				if dist < mindist:
+					mindist = dist
+					closest = conn
+			if mindist > margin:
+				continue
+			connectors[k] = closest
+			connlist.remove(closest)
+			try:
+				del connectors[closest]
+			except:
+				pass			
+		"""________________________________________________________________"""
+		for k,v in connectors.items():
+			TransactionManager.Instance.EnsureInTransaction(doc)		
+			try:
+				fitting = doc.Create.NewElbowFitting(k,v)
+				fittings.append(fitting.ToDSType(False))
+			except:
+				pass
+			TransactionManager.Instance.TransactionTaskDone()		
+		"""________________________________________________________________"""
+		if len(pipesList) != 0:
+			msg = "Mission passed"
+			TaskDialog.Show("^---Congrat---^", msg)	
+		else: 	
+			msg = "Mission Failed"
+			TaskDialog.Show("^---Try again---^", msg)	
+		TransactionManager.Instance.EnsureInTransaction(doc)		
+		self._clb_XYValue.Items.Clear()		
+		self._clb_ZValue.Items.Clear()		
+		self._total_XYValue.Clear()	
+		self._total_ZValue.Clear()
+		TransactionManager.Instance.EnsureInTransaction(doc)	
+		self._cbb_AllXY.Checked = False
+		self._cbb_AllZ.Checked = False
+		TransactionManager.Instance.TransactionTaskDone()	
+		TransactionManager.Instance.TransactionTaskDone()	
+		# self.Close()
+		pass
+	"""_____________________________________________________________________"""
+	def Btt_LoopZClick(self, sender, e):
+		TransactionManager.Instance.EnsureInTransaction(doc)
+		activeView = doc.ActiveView
+		iRefPlane = Plane.CreateByNormalAndOrigin(activeView.ViewDirection, activeView.Origin)
+		sketchPlane = SketchPlane.Create(doc, iRefPlane)
+		doc.ActiveView.SketchPlane = sketchPlane
+		condition = True
+		pointsZ = []
+		n = 0
+		msg = "Pick only 1 Points on Current Section plane, hit ESC when finished."
+		TaskDialog.Show("^------^", msg)
+		while condition:
+			try:
+				# logger('Line383:', n)
+				pt=uidoc.Selection.PickPoint()
+				pointsZ.append(pt)
+			except :
+				condition = False
+		doc.Delete(sketchPlane.Id)	
+		loop_n = self._clb_XYValue.Items.Count
+		loopZ = []
+		for j in pointsZ:
+			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304.8, j.Z*304.8)
+			rpM1 = [rpM]*loop_n
+			for m in rpM1:
+				self._clb_ZValue.Items.Add(m)
+		self._cbb_AllZ.Checked = True		
+		TransactionManager.Instance.TransactionTaskDone()			
+
+		pass
 	"""_____________________________________________________________________"""	
 	def Btt_ResetXYValueClick(self, sender, e):
 		self._clb_XYValue.Items.Clear()
@@ -834,4 +848,3 @@ class MainForm(Form):
 	"""_____________________________________________________________________"""	
 f = MainForm()
 Application.Run(f)
-
