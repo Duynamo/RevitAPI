@@ -43,6 +43,21 @@ app = uiapp.Application
 uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
 
+#Filter all pipe tags in Doc
+pipe_tags = []
+tagCollector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeTags).ToElements()
+pipe_tags.append(i for i in tagCollector)
+
+#Filter all DimStyle in Doc
+dim_Styles = []
+dimStyleCollector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Dimensions).ToElements()
+dim_Styles.append(i for i in dimStyleCollector)
+
+#Filter all pipe in ActiveView
+pipesList = []
+pipesCollector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeCurves).WhereElementIsNotElementType().ToElements()
+pipesList.append(i for i in pipesCollector)
+
 class MainForm(Form):
 	def __init__(self):
 		self.InitializeComponent()
@@ -50,76 +65,40 @@ class MainForm(Form):
 	def InitializeComponent(self):
 		self._cbb_PipeTag = System.Windows.Forms.ComboBox()
 		self._lb_PipeTag = System.Windows.Forms.Label()
-<<<<<<< HEAD
-		self._lb_TrueLength = System.Windows.Forms.Label()
-		self._txb_TrueLengthName = System.Windows.Forms.TextBox()
-		self._btt_PipeTag = System.Windows.Forms.Button()
-		self._btt_TrueLength = System.Windows.Forms.Button()
-		self._btt_CANCLE = System.Windows.Forms.Button()
-=======
 		self._lb_CenterDim = System.Windows.Forms.Label()
-		self._txb_TrueLengthName = System.Windows.Forms.TextBox()
 		self._btt_PipeTag = System.Windows.Forms.Button()
 		self._btt_CenterDim = System.Windows.Forms.Button()
 		self._btt_CANCLE = System.Windows.Forms.Button()
 		self._lb_FVC = System.Windows.Forms.Label()
->>>>>>> 5d3d670d50693ef1777f946848fcb0839d3c256f
+		self._cbb_DimStyte = System.Windows.Forms.ComboBox()
 		self.SuspendLayout()
 		# 
 		# cbb_PipeTag
 		# 
-<<<<<<< HEAD
-		self._cbb_PipeTag.FormattingEnabled = True
-		self._cbb_PipeTag.Location = System.Drawing.Point(122, 37)
-		self._cbb_PipeTag.Name = "cbb_PipeTag"
-		self._cbb_PipeTag.Size = System.Drawing.Size(229, 23)
-=======
 		self._cbb_PipeTag.Cursor = System.Windows.Forms.Cursors.Default
+		self._cbb_PipeTag.DisplayMember = "Name"
 		self._cbb_PipeTag.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
 		self._cbb_PipeTag.ForeColor = System.Drawing.Color.Red
 		self._cbb_PipeTag.FormattingEnabled = True
 		self._cbb_PipeTag.Location = System.Drawing.Point(122, 37)
 		self._cbb_PipeTag.Name = "cbb_PipeTag"
 		self._cbb_PipeTag.Size = System.Drawing.Size(229, 27)
->>>>>>> 5d3d670d50693ef1777f946848fcb0839d3c256f
 		self._cbb_PipeTag.TabIndex = 0
 		self._cbb_PipeTag.SelectedIndexChanged += self.Cbb_PipeTagSelectedIndexChanged
+		self._cbb_PipeTag.Items.AddRange(System.Array[System.Object](tagCollector)) 
+		self._cbb_PipeTag.SelectedIndex = 0				
 		# 
 		# lb_PipeTag
 		# 
 		self._lb_PipeTag.BackColor = System.Drawing.Color.FromArgb(255, 255, 192)
 		self._lb_PipeTag.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
 		self._lb_PipeTag.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
-<<<<<<< HEAD
-		self._lb_PipeTag.Location = System.Drawing.Point(13, 37)
-		self._lb_PipeTag.Name = "lb_PipeTag"
-		self._lb_PipeTag.Size = System.Drawing.Size(83, 23)
-		self._lb_PipeTag.TabIndex = 1
-		self._lb_PipeTag.Text = "Pipe Tag"
-		# 
-		# lb_TrueLength
-		# 
-		self._lb_TrueLength.BackColor = System.Drawing.Color.FromArgb(255, 255, 192)
-		self._lb_TrueLength.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-		self._lb_TrueLength.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128, True)
-		self._lb_TrueLength.Location = System.Drawing.Point(13, 96)
-		self._lb_TrueLength.Name = "lb_TrueLength"
-		self._lb_TrueLength.Size = System.Drawing.Size(94, 49)
-		self._lb_TrueLength.TabIndex = 2
-		self._lb_TrueLength.Text = "芯々寸法 Parameter"
-		# 
-		# txb_TrueLengthName
-		# 
-		self._txb_TrueLengthName.Location = System.Drawing.Point(122, 109)
-		self._txb_TrueLengthName.Name = "txb_TrueLengthName"
-		self._txb_TrueLengthName.Size = System.Drawing.Size(229, 22)
-=======
 		self._lb_PipeTag.ForeColor = System.Drawing.Color.Red
 		self._lb_PipeTag.Location = System.Drawing.Point(13, 37)
 		self._lb_PipeTag.Name = "lb_PipeTag"
 		self._lb_PipeTag.Size = System.Drawing.Size(102, 27)
 		self._lb_PipeTag.TabIndex = 1
-		self._lb_PipeTag.Text = "Pipe Tag"
+		self._lb_PipeTag.Text = "Pipe Tag"	
 		# 
 		# lb_CenterDim
 		# 
@@ -133,46 +112,8 @@ class MainForm(Form):
 		self._lb_CenterDim.TabIndex = 2
 		self._lb_CenterDim.Text = "Center Dim"
 		# 
-		# txb_TrueLengthName
-		# 
-		self._txb_TrueLengthName.ForeColor = System.Drawing.Color.Red
-		self._txb_TrueLengthName.Location = System.Drawing.Point(122, 125)
-		self._txb_TrueLengthName.Name = "txb_TrueLengthName"
-		self._txb_TrueLengthName.Size = System.Drawing.Size(229, 27)
->>>>>>> 5d3d670d50693ef1777f946848fcb0839d3c256f
-		self._txb_TrueLengthName.TabIndex = 3
-		self._txb_TrueLengthName.TextChanged += self.Txb_TrueLengthNameTextChanged
-		# 
 		# btt_PipeTag
 		# 
-<<<<<<< HEAD
-		self._btt_PipeTag.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 128)
-		self._btt_PipeTag.Location = System.Drawing.Point(22, 199)
-		self._btt_PipeTag.Name = "btt_PipeTag"
-		self._btt_PipeTag.Size = System.Drawing.Size(94, 53)
-		self._btt_PipeTag.TabIndex = 4
-		self._btt_PipeTag.Text = "Set Pipe Tag"
-		self._btt_PipeTag.UseVisualStyleBackColor = True
-		self._btt_PipeTag.Click += self.Btt_PipeTagClick
-		# 
-		# btt_TrueLength
-		# 
-		self._btt_TrueLength.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 128)
-		self._btt_TrueLength.Location = System.Drawing.Point(139, 199)
-		self._btt_TrueLength.Name = "btt_TrueLength"
-		self._btt_TrueLength.Size = System.Drawing.Size(94, 53)
-		self._btt_TrueLength.TabIndex = 5
-		self._btt_TrueLength.Text = "芯々寸法"
-		self._btt_TrueLength.UseVisualStyleBackColor = True
-		self._btt_TrueLength.Click += self.Btt_TrueLengthClick
-		# 
-		# btt_CANCLE
-		# 
-		self._btt_CANCLE.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 128)
-		self._btt_CANCLE.Location = System.Drawing.Point(254, 199)
-		self._btt_CANCLE.Name = "btt_CANCLE"
-		self._btt_CANCLE.Size = System.Drawing.Size(94, 53)
-=======
 		self._btt_PipeTag.Cursor = System.Windows.Forms.Cursors.AppStarting
 		self._btt_PipeTag.FlatAppearance.BorderColor = System.Drawing.Color.Red
 		self._btt_PipeTag.FlatAppearance.BorderSize = 2
@@ -217,43 +158,43 @@ class MainForm(Form):
 		self._btt_CANCLE.Location = System.Drawing.Point(263, 210)
 		self._btt_CANCLE.Name = "btt_CANCLE"
 		self._btt_CANCLE.Size = System.Drawing.Size(88, 28)
->>>>>>> 5d3d670d50693ef1777f946848fcb0839d3c256f
 		self._btt_CANCLE.TabIndex = 6
 		self._btt_CANCLE.Text = "CANCLE"
 		self._btt_CANCLE.UseVisualStyleBackColor = True
 		self._btt_CANCLE.Click += self.Btt_CANCLEClick
 		# 
-<<<<<<< HEAD
-		# MainForm
-		# 
-		self.ClientSize = System.Drawing.Size(365, 276)
-		self.Controls.Add(self._btt_CANCLE)
-		self.Controls.Add(self._btt_TrueLength)
-		self.Controls.Add(self._btt_PipeTag)
-		self.Controls.Add(self._txb_TrueLengthName)
-		self.Controls.Add(self._lb_TrueLength)
-		self.Controls.Add(self._lb_PipeTag)
-		self.Controls.Add(self._cbb_PipeTag)
-		self.Name = "MainForm"
-		self.Text = "Set Parameter"
-=======
 		# lb_FVC
 		# 
 		self._lb_FVC.Font = System.Drawing.Font("Meiryo UI", 5, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 128)
-		self._lb_FVC.Location = System.Drawing.Point(12, 235)
+		self._lb_FVC.Location = System.Drawing.Point(10, 235)
 		self._lb_FVC.Name = "lb_FVC"
-		self._lb_FVC.Size = System.Drawing.Size(50, 17)
+		self._lb_FVC.Size = System.Drawing.Size(38, 17)
 		self._lb_FVC.TabIndex = 7
 		self._lb_FVC.Text = "@FVC"
+		# 
+		# cbb_DimStyte
+		# 
+		self._cbb_DimStyte.Cursor = System.Windows.Forms.Cursors.Default
+		self._cbb_DimStyte.DisplayMember = "Name"
+		self._cbb_DimStyte.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+		self._cbb_DimStyte.ForeColor = System.Drawing.Color.Red
+		self._cbb_DimStyte.FormattingEnabled = True
+		self._cbb_DimStyte.Location = System.Drawing.Point(124, 123)
+		self._cbb_DimStyte.Name = "cbb_DimStyte"
+		self._cbb_DimStyte.Size = System.Drawing.Size(229, 27)
+		self._cbb_DimStyte.TabIndex = 8
+		self._cbb_DimStyte.SelectedIndexChanged += self.Cbb_DimStyteSelectedIndexChanged
+		self._cbb_DimStyte.Items.AddRange(System.Array[System.Object](dimStyleCollector)) 
+		self._cbb_DimStyte.SelectedIndex = 0				
 		# 
 		# MainForm
 		# 
 		self.ClientSize = System.Drawing.Size(365, 258)
+		self.Controls.Add(self._cbb_DimStyte)
 		self.Controls.Add(self._lb_FVC)
 		self.Controls.Add(self._btt_CANCLE)
 		self.Controls.Add(self._btt_CenterDim)
 		self.Controls.Add(self._btt_PipeTag)
-		self.Controls.Add(self._txb_TrueLengthName)
 		self.Controls.Add(self._lb_CenterDim)
 		self.Controls.Add(self._lb_PipeTag)
 		self.Controls.Add(self._cbb_PipeTag)
@@ -263,29 +204,57 @@ class MainForm(Form):
 		self.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
 		self.Text = "Set Parameter"
 		self.TopMost = True
->>>>>>> 5d3d670d50693ef1777f946848fcb0839d3c256f
 		self.ResumeLayout(False)
-		self.PerformLayout()
-
 
 	def Cbb_PipeTagSelectedIndexChanged(self, sender, e):
 		pass
 
-	def Txb_TrueLengthNameTextChanged(self, sender, e):
-		pass
-
 	def Btt_PipeTagClick(self, sender, e):
+		desTag = self._cbb_PipeTag.SelectedItem
+		pipeTags = []
+		TransactionManager.Instance.EnsureInTransaction(doc)
+		for pipe in pipesCollector:
+			pipeRef = Reference(pipe)
+			tagMode = TagMode.TM_ADDBY_CATEGORY
+			tag = IndependentTag.Create(doc, view.Id, pipeRef, True , tagMode, TagOrientation.AnyModelDirection, XYZ.BasisZ)
+			pipeLocation = pipe.Location.Curve.Evaluate(0.5, True)
+			tagLocation = XYZ(pipeLocation.X, pipeLocation.Y, pipeLocation.Z)
+			tag.TagHeadPosition = tagLocation 
+			pipeTags.append(tag)		
+		TransactionManager.Instance.TransactionTaskDone()
+		msg = "Pipes were tagged."
+		TaskDialog.Show("^------^", msg)		
+		self.Close()	
 		pass
 
 	def Btt_TrueLengthClick(self, sender, e):
+		TransactionManager.Instance.EnsureInTransaction(doc)
+		centerPointsList = []
+		desDimStyle = self._cbb_DimStyte.SelectedItem
+		for pipe in pipesCollector:
+			pipeLocationCurve = pipe.Location.Curve
+			centerPoint = pipeLocationCurve.Evaluate(0.5, True)
+			centerPointsList.append(centerPoint)
+
+		for i in range(len(centerPointsList) - 1):
+			for j in range(i + 1, len(centerPointsList)):
+				reference1 = Reference(centerPointsList[i])
+				reference2 = Reference(centerPointsList[j])
+				line = Line.CreateBound(centerPointsList[i], centerPointsList[j])
+				dimension = doc.Create.NewDimension(doc.ActiveView,line, reference1, reference2, desDimStyle)
+
+				# Set the location of the dimension text
+				# dimension.Leader.End = centerPointsList[i]
+				# dimension.Leader.End = centerPointsList[j]
+
+		TransactionManager.Instance.TransactionTaskDone()		
 		pass
 
 	def Btt_CANCLEClick(self, sender, e):
+		self.Close()
 		pass
 
+	def Cbb_DimStyteSelectedIndexChanged(self, sender, e):
+		pass
 f = MainForm()
-<<<<<<< HEAD
 Application.Run(f)
-=======
-Application.Run(f)
->>>>>>> 5d3d670d50693ef1777f946848fcb0839d3c256f
