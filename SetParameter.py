@@ -45,7 +45,7 @@ view = doc.ActiveView
 
 #Filter all pipe tags in Doc
 pipe_tags = []
-tagCollector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeTags).ToElements()
+tagCollector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeTags).WhereElementIsElementType().ToElements()
 pipe_tags.append(i for i in tagCollector)
 
 #Filter all DimStyle in Doc
@@ -185,7 +185,7 @@ class MainForm(Form):
 		self._cbb_DimStyte.TabIndex = 8
 		self._cbb_DimStyte.SelectedIndexChanged += self.Cbb_DimStyteSelectedIndexChanged
 		self._cbb_DimStyte.Items.AddRange(System.Array[System.Object](dimStyleCollector)) 
-		self._cbb_DimStyte.SelectedIndex = 0				
+		# self._cbb_DimStyte.SelectedIndex = 0				
 		# 
 		# MainForm
 		# 

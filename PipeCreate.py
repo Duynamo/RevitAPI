@@ -738,7 +738,7 @@ class MainForm(Form):
 				TransactionManager.Instance.EnsureInTransaction(doc)
 				pipesList.append(pipe.ToDSType(False))
 				pipesList1.append(pipe)
-				param_Length.Set(str(math.ceil(pipeLength)))
+				param_Length.Set(str(math.ceil((pipeLength/5))*5))
 				TransactionManager.Instance.TransactionTaskDone()
 			except:
 				pipesList.append(None)				
