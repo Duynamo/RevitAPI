@@ -733,7 +733,7 @@ class MainForm(Form):
 				pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(doc,sysTypeId,pipeTypeId,levelId,x.ToXyz(),secondPoint[i].ToXyz())
 				param_Diameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
 				param_Diameter.SetValueString(diam.ToString())
-				param_Length = pipe.LookupParameter("True Length")
+				param_Length = pipe.LookupParameter("CenterLength")
 				pipeLength = pipe.LookupParameter("Length").AsDouble()*304.8
 				TransactionManager.Instance.EnsureInTransaction(doc)
 				pipesList.append(pipe.ToDSType(False))
