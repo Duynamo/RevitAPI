@@ -147,7 +147,7 @@ class MainForm(Form):
 		for pipe in pipesCollector:
 			pipeRef = Reference(pipe)
 			tagMode = TagMode.TM_ADDBY_CATEGORY
-			tag = IndependentTag.Create(doc, view.Id, pipeRef, True , tagMode, TagOrientation.AnyModelDirection, XYZ.BasisZ)
+			tag = IndependentTag.Create(doc, view.Id, pipeRef, desTag , tagMode, TagOrientation.AnyModelDirection, XYZ.BasisZ)
 			pipeLocation = pipe.Location.Curve.Evaluate(0.5, True)
 			tagLocation = XYZ(pipeLocation.X, pipeLocation.Y, pipeLocation.Z)
 			tag.TagHeadPosition = tagLocation 

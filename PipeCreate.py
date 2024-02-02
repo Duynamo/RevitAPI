@@ -734,11 +734,11 @@ class MainForm(Form):
 				param_Diameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
 				param_Diameter.SetValueString(diam.ToString())
 				param_Length = pipe.LookupParameter("CenterLength")
-				pipeLength = pipe.LookupParameter("Length").AsDouble()*304.8
+				pipeLength = pipe.LookupParameter("Length").AsDouble()
 				TransactionManager.Instance.EnsureInTransaction(doc)
 				pipesList.append(pipe.ToDSType(False))
 				pipesList1.append(pipe)
-				param_Length.Set(str(math.ceil((pipeLength/5))*5))
+				param_Length.Set()
 				TransactionManager.Instance.TransactionTaskDone()
 			except:
 				pipesList.append(None)				
