@@ -457,6 +457,128 @@
       ],
       "Replication": "Disabled",
       "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "NodeType": "ExtensionNode",
+      "Id": "ca367f205d5e4736b4903f069610d15e",
+      "Inputs": [
+        {
+          "Id": "9b1c1430b6c648c481e19e81d0dfe9e8",
+          "Name": "script",
+          "Description": "Python script to run.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "30a63d73c38a432784b4edae01d48d81",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "36c877083a2946d781194da3fc9572df",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs a Python script from a string."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "re  = open(r\"C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\MarkupPickedPoints.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "7649a1d4d1a44e0bbd20e817e06d01cd",
+      "Inputs": [
+        {
+          "Id": "52f3e038255542faa8c1b726c618643c",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "64b6cd99fb8248fd8f6c31123e0cc6d0",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "5d648196febc4f71b0366c40e3938e9c",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": false,
+      "Id": "58bde087fc254d1b98fe96a982aef44c",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "3425cd250bad4c8b8bc1e65bbd25e549",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
+      "HintPath": "C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\MarkupPickedPoints.py",
+      "InputValue": "..\\MarkupPickedPoints.py",
+      "NodeType": "ExtensionNode",
+      "Id": "63a49074ec564447981bcdea71330c42",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "ec94a4c76c674eb4b0d7a1481ede0728",
+          "Name": "",
+          "Description": "Filename",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows you to select a file on the system to get its filename"
     }
   ],
   "Connectors": [
@@ -519,6 +641,21 @@
       "Start": "61476e044b5040cfb122ed645026e567",
       "End": "bbae75ef78ec415883e04bda3bc7cbf3",
       "Id": "baf436bc378a4dc8ac6a0be271bd8b2f"
+    },
+    {
+      "Start": "5d648196febc4f71b0366c40e3938e9c",
+      "End": "9b1c1430b6c648c481e19e81d0dfe9e8",
+      "Id": "58906dddc87c479fb18190d5c2d17922"
+    },
+    {
+      "Start": "3425cd250bad4c8b8bc1e65bbd25e549",
+      "End": "52f3e038255542faa8c1b726c618643c",
+      "Id": "df6fa302ffbd41f7b14c7142faed2ee0"
+    },
+    {
+      "Start": "ec94a4c76c674eb4b0d7a1481ede0728",
+      "End": "64b6cd99fb8248fd8f6c31123e0cc6d0",
+      "Id": "0fe0a61b24fb4e83ab1e36e323704724"
     }
   ],
   "Dependencies": [],
@@ -552,7 +689,7 @@
         "Id": "a098ecc85f074eae8c4c4f9f42f83ef0",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": false,
+        "Excluded": true,
         "X": -584.14858262584494,
         "Y": 379.91506201491268
       },
@@ -695,6 +832,46 @@
         "Excluded": false,
         "X": -473.80610570328167,
         "Y": 149.82049881173128
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script From String",
+        "Id": "ca367f205d5e4736b4903f069610d15e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -155.09763533475427,
+        "Y": 621.7793949569334
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "7649a1d4d1a44e0bbd20e817e06d01cd",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -310.52765060023626,
+        "Y": 622.16331061819437
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Boolean",
+        "Id": "58bde087fc254d1b98fe96a982aef44c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -500.51682291712632,
+        "Y": 605.62353191289048
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "File Path",
+        "Id": "63a49074ec564447981bcdea71330c42",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -567.46865104690119,
+        "Y": 677.03271415285951
       }
     ],
     "Annotations": [
@@ -720,8 +897,8 @@
         "Background": "#FFC1D676"
       }
     ],
-    "X": 567.66300538238443,
-    "Y": -36.757128268736551,
-    "Zoom": 0.59208241779006965
+    "X": 709.83456475734079,
+    "Y": -559.83665561072007,
+    "Zoom": 1.223749941917065
   }
 }
