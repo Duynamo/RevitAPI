@@ -542,7 +542,7 @@
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
       "NodeType": "BooleanInputNode",
-      "InputValue": false,
+      "InputValue": true,
       "Id": "58bde087fc254d1b98fe96a982aef44c",
       "Inputs": [],
       "Outputs": [
@@ -579,6 +579,160 @@
       ],
       "Replication": "Disabled",
       "Description": "Allows you to select a file on the system to get its filename"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "NodeType": "ExtensionNode",
+      "Id": "ff65e9a9e04d4e4999a045a1b31691b4",
+      "Inputs": [
+        {
+          "Id": "2d288afe325448ff9ad4c83fd11bcd6a",
+          "Name": "script",
+          "Description": "Python script to run.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "4e453f98e4e9493d852afad8c1ed128c",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "78611967f1b94af8870029bcbb65fa35",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs a Python script from a string."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "re  = open(r\"C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\getTransform.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "5c1d5098a9c34f089ba0b7f3f5eeb96d",
+      "Inputs": [
+        {
+          "Id": "07457e1c657341249019ee4191307ac5",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "00e67b909b6e4f799e6a7068c9127420",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "89fb2c479a30462598678bc718056ac8",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": true,
+      "Id": "5b925d5ff18440409359b03e80bad373",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "8225f8c6ad134d759e63211398638143",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
+      "HintPath": "C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\getTransform.py",
+      "InputValue": "..\\getTransform.py",
+      "NodeType": "ExtensionNode",
+      "Id": "5c76d91bc34c41afa3e8b64d13df5239",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "67f05c6d556e45b58f182f1f327c2a16",
+          "Name": "",
+          "Description": "Filename",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows you to select a file on the system to get its filename"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nimport System\r\nimport math \r\nfrom System.Collections.Generic import *\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference('RevitAPIUI')\r\nfrom Autodesk.Revit.UI import*\r\nfrom Autodesk.Revit.UI.Selection import*\r\nfrom Autodesk.Revit.UI.Selection import ObjectType\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nview = doc.ActiveView\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\ndef pickObjects():\r\n    refs = uidoc.Selection.PickObjects(ObjectType.Element)\r\n    return  [doc.GetElement(i.ElementId) for i in refs], [ref for ref in refs]\r\n\r\nOUT = pickObjects()",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "ef02604aa5654786a1dfa4d5e3e216c0",
+      "Inputs": [
+        {
+          "Id": "2be46a91106f4c4ab1f8fc6038afe594",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "4202fa6665c340649db1c5729c7453d2",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
     }
   ],
   "Connectors": [
@@ -656,6 +810,21 @@
       "Start": "ec94a4c76c674eb4b0d7a1481ede0728",
       "End": "64b6cd99fb8248fd8f6c31123e0cc6d0",
       "Id": "0fe0a61b24fb4e83ab1e36e323704724"
+    },
+    {
+      "Start": "89fb2c479a30462598678bc718056ac8",
+      "End": "2d288afe325448ff9ad4c83fd11bcd6a",
+      "Id": "0d466babf517432eb887ca669a763ef6"
+    },
+    {
+      "Start": "8225f8c6ad134d759e63211398638143",
+      "End": "07457e1c657341249019ee4191307ac5",
+      "Id": "8eec0d5c9a2b4f8b9cfa3c744c5512a2"
+    },
+    {
+      "Start": "67f05c6d556e45b58f182f1f327c2a16",
+      "End": "00e67b909b6e4f799e6a7068c9127420",
+      "Id": "b4c8e192763140ac88aea9ed7b3dc0bb"
     }
   ],
   "Dependencies": [],
@@ -860,8 +1029,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": -500.51682291712632,
-        "Y": 605.62353191289048
+        "X": -546.220043717623,
+        "Y": 607.227153695364
       },
       {
         "ShowGeometry": true,
@@ -872,6 +1041,56 @@
         "Excluded": false,
         "X": -567.46865104690119,
         "Y": 677.03271415285951
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script From String",
+        "Id": "ff65e9a9e04d4e4999a045a1b31691b4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -125.69131595748343,
+        "Y": 889.312094158141
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "5c1d5098a9c34f089ba0b7f3f5eeb96d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -281.12133122296541,
+        "Y": 889.69600981940209
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Boolean",
+        "Id": "5b925d5ff18440409359b03e80bad373",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": -542.11057895948147,
+        "Y": 849.12543635668624
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "File Path",
+        "Id": "5c76d91bc34c41afa3e8b64d13df5239",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -538.06233166963034,
+        "Y": 944.565413354068
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "pickObjects",
+        "Id": "ef02604aa5654786a1dfa4d5e3e216c0",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": 132.82301760596124,
+        "Y": 629.77907075542839
       }
     ],
     "Annotations": [
@@ -897,8 +1116,8 @@
         "Background": "#FFC1D676"
       }
     ],
-    "X": 709.83456475734079,
-    "Y": -559.83665561072007,
-    "Zoom": 1.223749941917065
+    "X": 677.99929918720022,
+    "Y": -483.24409390934949,
+    "Zoom": 0.99774149833012471
   }
 }

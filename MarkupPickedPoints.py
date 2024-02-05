@@ -192,9 +192,27 @@ class MainForm(Form):
 			noteWidth = maxWidth	
 		textNoteOpts = TextNoteOptions(defaultTextTypeId)
 		textNoteOpts.HorizontalAlignment.Center
-		for i in txtLocation:
-			XYZ_point = XYZ((i.X)/304.8, (i.Y)/304.8, (i.Z)/304.8)
-			textNote = TextNote.Create(doc, view.Id, XYZ_point, noteWidth, "Hello World!!!!1", textNoteOpts)
+		
+		textNoteType = None
+		textNoteTypes = FilteredElementCollector(doc).OfClass(TextNoteType).ToElements()
+		desiredTextSize = 200  # Set your desired text size here
+		for tnt in textNoteTypes:
+			if tnt.get_Parameter(BuiltInParameter.TEXT_SIZE).AsDouble() == desiredTextSize:
+				textNoteType = tnt
+				break
+		TransactionManager.Instance.EnsureInTransaction(doc)
+		if textNoteTypes is None:
+            # If the desired TextNoteType doesn't exist, create a new one
+			newType = TextNoteType.Create(doc, "Custom Text Note Type", desiredTextSize)
+			textNoteType = newType.Id
+			textNoteOpts.set_TypeId(textNoteType)
+		TransactionManager.Instance.TransactionTaskDone()
+
+		for index, point in enumerate (txtLocation):
+			XYZ_point = XYZ((point.X)/304.8, (point.Y)/304.8, (point.Z)/304.8)
+			txt = "Point " + str( index + 1)
+			textNote = TextNote.Create(doc, view.Id, XYZ_point, noteWidth, txt, textNoteOpts)
+          
 		pass		
 	
 	
