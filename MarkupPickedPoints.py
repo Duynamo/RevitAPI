@@ -213,6 +213,12 @@ class MainForm(Form):
 			txt = "Point " + str( index + 1)
 			textNote = TextNote.Create(doc, view.Id, XYZ_point, noteWidth, txt, textNoteOpts)
           
+		existedTextNoteTypes = FilteredElementCollector(doc).OfClass(TextNoteType).ToElements()
+		desTextNoteType = existedTextNoteTypes[0]
+		TransactionManager.Instance.EnsureInTransaction(doc)
+		desTextNoteType.get_Parameter(BuiltInParameter.TEXT_SIZE).Set(20/ 304.8)  
+		desTextNoteType.get_Parameter(BuiltInParameter.LINE_COLOR).Set(255)  
+		TransactionManager.Instance.TransactionTaskDone()
 		pass		
 	
 	
