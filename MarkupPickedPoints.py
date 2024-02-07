@@ -10,6 +10,7 @@ clr.AddReference("RevitAPI")
 import Autodesk
 from Autodesk.Revit.DB import* 
 from Autodesk.Revit.DB.Structure import*
+from Autodesk.Revit.DB import ElementTransformUtils
 
 clr.AddReference("RevitAPIUI") 
 from Autodesk.Revit.UI import*
@@ -54,6 +55,8 @@ class MainForm(Form):
 		self._btt_Markup = System.Windows.Forms.Button()
 		self._clb_pickedPoints = System.Windows.Forms.CheckedListBox()
 		self._ckb_AllNone = System.Windows.Forms.CheckBox()
+		self._btt_setMarkup = System.Windows.Forms.Button()
+		self._btt_clearMarkup = System.Windows.Forms.Button()
 		self.SuspendLayout()
 		# 
 		# btt_PickPoints
@@ -121,12 +124,13 @@ class MainForm(Form):
 		self._clb_pickedPoints.HorizontalScrollbar = True
 		self._clb_pickedPoints.Location = System.Drawing.Point(170, 13)
 		self._clb_pickedPoints.Name = "clb_pickedPoints"
-		self._clb_pickedPoints.Size = System.Drawing.Size(195, 157)
+		self._clb_pickedPoints.Size = System.Drawing.Size(195, 144)
 		self._clb_pickedPoints.TabIndex = 2
 		self._clb_pickedPoints.SelectedIndexChanged += self.Clb_pickedPointsSelectedIndexChanged
 		# 
 		# ckb_AllNone
 		# 
+		self._ckb_AllNone.AllowDrop = True
 		self._ckb_AllNone.Location = System.Drawing.Point(271, 176)
 		self._ckb_AllNone.Name = "ckb_AllNone"
 		self._ckb_AllNone.Size = System.Drawing.Size(94, 24)
@@ -135,22 +139,50 @@ class MainForm(Form):
 		self._ckb_AllNone.UseVisualStyleBackColor = True
 		self._ckb_AllNone.CheckedChanged += self.Ckb_AllNoneCheckedChanged
 		# 
+		# btt_setMarkup
+		# 
+		self._btt_setMarkup.FlatAppearance.BorderColor = System.Drawing.Color.Red
+		self._btt_setMarkup.FlatAppearance.BorderSize = 5
+		self._btt_setMarkup.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Blue
+		self._btt_setMarkup.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Yellow
+		self._btt_setMarkup.Location = System.Drawing.Point(12, 209)
+		self._btt_setMarkup.Name = "btt_setMarkup"
+		self._btt_setMarkup.Size = System.Drawing.Size(65, 38)
+		self._btt_setMarkup.TabIndex = 5
+		self._btt_setMarkup.Text = "Markup"
+		self._btt_setMarkup.UseVisualStyleBackColor = True
+		self._btt_setMarkup.Click += self.Btt_setMarkupClick
+		# 
+		# btt_clearMarkup
+		# 
+		self._btt_clearMarkup.FlatAppearance.BorderColor = System.Drawing.Color.Red
+		self._btt_clearMarkup.FlatAppearance.BorderSize = 5
+		self._btt_clearMarkup.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Blue
+		self._btt_clearMarkup.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Yellow
+		self._btt_clearMarkup.Location = System.Drawing.Point(83, 209)
+		self._btt_clearMarkup.Name = "btt_clearMarkup"
+		self._btt_clearMarkup.Size = System.Drawing.Size(65, 38)
+		self._btt_clearMarkup.TabIndex = 6
+		self._btt_clearMarkup.Text = "Clear Markup"
+		self._btt_clearMarkup.UseVisualStyleBackColor = True
+		self._btt_clearMarkup.Click += self.Btt_clearMarkupClick
+		# 
 		# MainForm
 		# 
 		self.ClientSize = System.Drawing.Size(377, 404)
+		self.Controls.Add(self._btt_clearMarkup)
+		self.Controls.Add(self._btt_setMarkup)
 		self.Controls.Add(self._ckb_AllNone)
 		self.Controls.Add(self._clb_pickedPoints)
 		self.Controls.Add(self._btt_Markup)
 		self.Controls.Add(self._btt_OK)
 		self.Controls.Add(self._btt_CANCLE)
 		self.Controls.Add(self._btt_PickPoints)
+		self.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D
 		self.Name = "MainForm"
 		self.Text = "MarkupPickedPoints"
 		self.TopMost = True
-		self.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-		self.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D
 		self.ResumeLayout(False)
-
 
 	def Btt_PickPointsClick(self, sender, e):
 		TransactionManager.Instance.EnsureInTransaction(doc)
@@ -181,43 +213,46 @@ class MainForm(Form):
 		pass
 
 	def Btt_MarkupClick(self, sender, e):
+		radius = 1000/304.8
+		xAxis = XYZ(1,0,0)
+		yAxis = XYZ(0,1,0)
 		txtLocation = self._clb_pickedPoints.CheckedItems
 		defaultTextTypeId = doc.GetDefaultElementTypeId(ElementTypeGroup.TextNoteType)
-		noteWidth = 0.2
-		minWidth = TextNote.GetMinimumAllowedWidth(doc, defaultTextTypeId)
-		maxWidth = TextNote.GetMaximumAllowedWidth(doc, defaultTextTypeId)
-		if noteWidth < minWidth :
-			noteWidth = minWidth
-		else :
-			noteWidth = maxWidth	
+		noteWidth = 0.35
 		textNoteOpts = TextNoteOptions(defaultTextTypeId)
 		textNoteOpts.HorizontalAlignment.Center
-		
-		textNoteType = None
-		textNoteTypes = FilteredElementCollector(doc).OfClass(TextNoteType).ToElements()
-		desiredTextSize = 200  # Set your desired text size here
-		for tnt in textNoteTypes:
-			if tnt.get_Parameter(BuiltInParameter.TEXT_SIZE).AsDouble() == desiredTextSize:
-				textNoteType = tnt
-				break
 		TransactionManager.Instance.EnsureInTransaction(doc)
-		if textNoteTypes is None:
-            # If the desired TextNoteType doesn't exist, create a new one
-			newType = TextNoteType.Create(doc, "Custom Text Note Type", desiredTextSize)
-			textNoteType = newType.Id
-			textNoteOpts.set_TypeId(textNoteType)
-		TransactionManager.Instance.TransactionTaskDone()
-
 		for index, point in enumerate (txtLocation):
 			XYZ_point = XYZ((point.X)/304.8, (point.Y)/304.8, (point.Z)/304.8)
 			txt = "Point " + str( index + 1)
 			textNote = TextNote.Create(doc, view.Id, XYZ_point, noteWidth, txt, textNoteOpts)
-          
+		TransactionManager.Instance.EnsureInTransaction(doc)		
+		for centerPoint in txtLocation:
+			activeView = doc.ActiveView
+			iRefPlane = Plane.CreateByNormalAndOrigin(activeView.ViewDirection, activeView.Origin)
+			sketchPlane = SketchPlane.Create(doc, iRefPlane)
+			doc.ActiveView.SketchPlane = sketchPlane		
+			circle = Arc.Create(XYZ(centerPoint.X, centerPoint.Y, centerPoint.Z), radius, 0, 2 * math.pi , xAxis , yAxis)
+			# arcCurve = circle.AsCurve()			
+			doc.Delete(sketchPlane.Id)
+		TransactionManager.Instance.TransactionTaskDone()		
+		TransactionManager.Instance.TransactionTaskDone()
+		TransactionManager.Instance.EnsureInTransaction(doc)
 		existedTextNoteTypes = FilteredElementCollector(doc).OfClass(TextNoteType).ToElements()
 		desTextNoteType = existedTextNoteTypes[0]
-		TransactionManager.Instance.EnsureInTransaction(doc)
+		"""________________________________________________________________"""
 		desTextNoteType.get_Parameter(BuiltInParameter.TEXT_SIZE).Set(20/ 304.8)  
 		desTextNoteType.get_Parameter(BuiltInParameter.LINE_COLOR).Set(255)  
+		desTextNoteType.get_Parameter(BuiltInParameter.TEXT_STYLE_BOLD).Set(True)  
+		desTextNoteType.get_Parameter(BuiltInParameter.TEXT_STYLE_UNDERLINE).Set(True)
+		desTextNoteType.get_Parameter(BuiltInParameter.LEADER_OFFSET_SHEET).Set(2/304.8)
+		desTextNoteType.get_Parameter(BuiltInParameter.TEXT_BOX_VISIBILITY).Set(True)
+		# desTextNoteType.get_Parameter(BuiltInParameter.LEADER_RIGHT_ATTACHMENT).Set(True)
+		# Middle = 1
+		# vertAlignParamProvider = ParameterValueProvider(ElementId(BuiltInParameter.TEXT_ALIGN_VERT))
+		
+		# desTextNoteType.get_Parameter(BuiltInParameter.TEXT_ALIGN_VERT).Set(vertAlignParamProvider, Middle)
+		# desTextNoteType.get_Parameter(BuiltInParameter.TEXT_ALIGN_HORZ)	
 		TransactionManager.Instance.TransactionTaskDone()
 		pass		
 	
@@ -237,12 +272,19 @@ class MainForm(Form):
 	def Clb_pickedPointsSelectedIndexChanged(self, sender, e):
 		pass
 
+	def Btt_setMarkupClick(self, sender, e): 
+		pass
+	
+	def Btt_clearMarkupClick(self, sender, e):
+		pass
+
 	def Btt_OKClick(self, sender, e):
 		pass
 
 	def Btt_CANCLEClick(self, sender, e):
 		self.Close()
 		pass
+
 		
 f = MainForm()
 Application.Run(f)	
