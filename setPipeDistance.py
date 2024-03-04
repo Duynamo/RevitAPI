@@ -43,13 +43,17 @@ app = uiapp.Application
 uidoc = uiapp.ActiveUIDocument
 view = doc.ActiveView
 """_____________________________"""
-def pickFace():
-    elements = []
-    refs = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Face, "Please select the Desired Faces")
-    for ref in refs:
-        face = doc.GetElement(ref)
-        elements.append(face)
-    return refs
+def pickObjects():
+	elements = []
+	planarFace = []
+	refs = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Face, "pick face")
+	for i in refs:
+		ele = doc.GetElement(i.ElementId)
+		face = ele.GetGeometryObjectFromReference(i)
+		DBFace = face.GetSurface()
+		elements.append(ele)
+		planarFace.append(DBFace)
+	return  refs, elements, planarFace
 """"""
 """_____________________________"""
 class MainForm(Form):
