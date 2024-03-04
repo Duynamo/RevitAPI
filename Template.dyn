@@ -1017,7 +1017,7 @@
       "Outputs": [
         {
           "Id": "8cad767130a142b1b04f6cae30b9b5a9",
-          "Name": "reference",
+          "Name": "elesRef",
           "Description": "return value",
           "UsingDefaultValue": false,
           "Level": 2,
@@ -1026,7 +1026,16 @@
         },
         {
           "Id": "d42824cf5edc49b8871b949d613f170b",
-          "Name": "element",
+          "Name": "eleList",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "affaf406a2074dfc822c8060be29e391",
+          "Name": "elesId",
           "Description": "return value",
           "UsingDefaultValue": false,
           "Level": 2,
@@ -2522,7 +2531,7 @@
         },
         {
           "Id": "5641661c6dde40b98c09717345ab615c",
-          "Name": "categories",
+          "Name": "catrgories",
           "Description": "var[]..[]",
           "UsingDefaultValue": false,
           "Level": 2,
@@ -2717,7 +2726,7 @@
       "Outputs": [
         {
           "Id": "289c27d7d3e84b339b27cdc9ac387417",
-          "Name": "reference",
+          "Name": "elesRef",
           "Description": "return value",
           "UsingDefaultValue": false,
           "Level": 2,
@@ -2726,7 +2735,16 @@
         },
         {
           "Id": "3e9ab8457e85484fb48c8dfe58d75354",
-          "Name": "element",
+          "Name": "eleList",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "82fe4e6225d649bfbf7ac47be9125e9e",
+          "Name": "elesId",
           "Description": "return value",
           "UsingDefaultValue": false,
           "Level": 2,
@@ -3124,7 +3142,7 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\PipeCreate.py",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\PipeCreate.py",
       "InputValue": ".\\PipeCreate.py",
       "NodeType": "ExtensionNode",
       "Id": "ce2f5fd13aa740e492370de3b9204c0a",
@@ -3307,7 +3325,7 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\WPF_ExportSchedule\\scheduleExport\\scheduleExport\\Export Schedule.py",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\WPF_ExportSchedule\\scheduleExport\\scheduleExport\\Export Schedule.py",
       "InputValue": "WPF_ExportSchedule\\scheduleExport\\scheduleExport\\Export Schedule.py",
       "NodeType": "ExtensionNode",
       "Id": "63151f9397fb49e18dc41d078d104e72",
@@ -3531,7 +3549,7 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\SetPipeTag.py",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\SetPipeTag.py",
       "InputValue": ".\\SetPipeTag.py",
       "NodeType": "ExtensionNode",
       "Id": "88b8dc88eaa549a6a7876c9f5385d423",
@@ -3553,7 +3571,7 @@
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
       "NodeType": "BooleanInputNode",
-      "InputValue": true,
+      "InputValue": false,
       "Id": "ee218d55212641a996d7b133bbffdb92",
       "Inputs": [],
       "Outputs": [
@@ -3573,7 +3591,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\MarkupPickedPoints.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\MarkupPickedPoints.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "6a8d07e61dd64f84b9d28178c762a8f3",
@@ -3613,7 +3631,7 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\95053\\Desktop\\Python\\RevitAPI-master\\RevitAPI\\MarkupPickedPoints.py",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\MarkupPickedPoints.py",
       "InputValue": ".\\MarkupPickedPoints.py",
       "NodeType": "ExtensionNode",
       "Id": "40be0a3d7c9247d5b3ca29678d7f583f",
@@ -3673,15 +3691,55 @@
       "Description": "Runs a Python script from a string."
     },
     {
-      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
-      "NodeType": "PythonScriptNode",
-      "Code": "import clr \r\nimport sys \r\nimport System   \r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nfrom Autodesk.Revit.DB import*\r\nfrom Autodesk.Revit.DB.Structure import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\n\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\n#Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\npoint = XYZ(0, 0, 0)  # Adjust the coordinates as needed\r\n\r\n# Start a transaction to make changes to the document\r\ntransaction = Transaction(doc, \"Create Markup\")\r\ntransaction.Start()\r\n\r\ntry:\r\n    # Create a detail curve representing the markup at the point\r\n    line = Line.CreateBound(point, point + XYZ(1, 1, 0))  # Example line from point to point + 1 in X and Y direction\r\n    detailCurve = doc.Create.NewDetailCurve(activeView, line)\r\n\r\n    # Commit the transaction to save the changes to the document\r\n    transaction.Commit()\r\n\r\n    # Print a success message\r\n    print(\"Markup created successfully.\")\r\nexcept Exception as ex:\r\n    # If an error occurs, rollback the transaction\r\n    transaction.RollBack()\r\n    # Print the error message\r\n    print(\"Error:\", ex)\r\n\r\nOUT = line",
+      "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
-      "Id": "3819ac174f1d4e9aa7a9ddbc7b8b043c",
+      "NodeType": "ExtensionNode",
+      "Id": "05e4dc06c39e4e2c86e80c81b02b62c3",
       "Inputs": [
         {
-          "Id": "0250350797e545cabe4b71a3dc9033b8",
+          "Id": "a70e9e2a902940c09017096dbd988043",
+          "Name": "script",
+          "Description": "Python script to run.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "885a8c9de7de4ee6a573c42ef023e318",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "1f1397706f0a4437ab18c30f0fe0ced2",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs a Python script from a string."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\setPipeDistance.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "60a524b7c72747a98ce08c959c95222b",
+      "Inputs": [
+        {
+          "Id": "8e945dadf4464c598f9af42292cfc1e0",
           "Name": "IN[0]",
           "Description": "Input #0",
           "UsingDefaultValue": false,
@@ -3690,7 +3748,7 @@
           "KeepListStructure": false
         },
         {
-          "Id": "e1489abbd3244dadaae3a8b0dd3139fb",
+          "Id": "c28dfc56fa7a4637aa11c335bd79cc5b",
           "Name": "IN[1]",
           "Description": "Input #1",
           "UsingDefaultValue": false,
@@ -3701,7 +3759,7 @@
       ],
       "Outputs": [
         {
-          "Id": "0e18cb0a184441ccb739e71f7ec7db09",
+          "Id": "23666f42f6e74413b82b32d0dfd7f130",
           "Name": "OUT",
           "Description": "Result of the python script",
           "UsingDefaultValue": false,
@@ -3716,12 +3774,12 @@
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
       "NodeType": "BooleanInputNode",
-      "InputValue": true,
-      "Id": "0b6a0f1dd9d546aab06e6c4f32e582bc",
+      "InputValue": false,
+      "Id": "a257721bf06846c580eae76b16737d24",
       "Inputs": [],
       "Outputs": [
         {
-          "Id": "d8251813c17d47ec9598eb6b987da981",
+          "Id": "5c16edebb7bd4aab997f7466af665fd6",
           "Name": "",
           "Description": "Boolean",
           "UsingDefaultValue": false,
@@ -3732,6 +3790,213 @@
       ],
       "Replication": "Disabled",
       "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\setPipeDistance.py",
+      "InputValue": ".\\setPipeDistance.py",
+      "NodeType": "ExtensionNode",
+      "Id": "6ab1148e905243c381a0a8fba5e8f46d",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "f3f79e8de0c84068ba5e0baaaefd13b8",
+          "Name": "",
+          "Description": "Filename",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows you to select a file on the system to get its filename"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Function, DynamoCore",
+      "FunctionSignature": "04c999eb-e740-4a29-84fb-63fd8871aad7",
+      "FunctionType": "Graph",
+      "NodeType": "FunctionNode",
+      "Id": "482f9e1345044396aa3a4f5981325699",
+      "Inputs": [
+        {
+          "Id": "8d9d6ce2ac5a49729dc2af54edf6a8e7",
+          "Name": "Reset",
+          "Description": "bool\nDefault value : true",
+          "UsingDefaultValue": true,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "fb698377ee2f4a9694860f993506b8c4",
+          "Name": "element",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "213d081cdcc34065b19b9d3d0fba9e29",
+          "Name": "reference",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "from Duynamo\r\nto select multi Faces"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nimport System\r\nimport math \r\nfrom System.Collections.Generic import *\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference('RevitAPIUI')\r\nfrom Autodesk.Revit.UI import*\r\nfrom  Autodesk.Revit.UI.Selection import*\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nview = doc.ActiveView\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\ndef pickObjects():\r\n    elements = []\r\n    refs = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Face, \"Please select the Desired Edges\")\r\n    for i in refs:\r\n        ele = doc.GetElement(i.ElementId)\r\n        elements.append(ele)\r\n    return  refs, elements\r\n\r\nOUT = pickObjects()",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "9589b0c370474d958800753195417185",
+      "Inputs": [
+        {
+          "Id": "b40391ecbae64ba39609c3b935461532",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "e87ade0a5f13442aae023ef82f03327e",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nimport sys \r\nimport System   \r\nimport math\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import* \r\nfrom Autodesk.Revit.DB.Structure import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\n\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference(\"System.Windows.Forms\")\r\nclr.AddReference(\"System.Drawing\")\r\nclr.AddReference(\"System.Windows.Forms.DataVisualization\")\r\n\r\nimport System.Windows.Forms \r\nfrom System.Windows.Forms import *\r\nimport System.Drawing\r\nfrom System.Drawing import *\r\n\r\n\"\"\"_____________________________\"\"\"\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = uiapp.ActiveUIDocument\r\nview = doc.ActiveView\r\n\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\ndef convertPlanarFaceToFace(planar_face):\r\n    # Truy cập đến geometry của PlanarFace\r\n    face_geometry = planar_face.ToFace()\r\n\r\n    # Tạo một Face mới từ geometry của PlanarFace\r\n    face = Face.CreateFromGeometryObject(face_geometry)\r\n\r\n    return face\r\ndef pickFace():\r\n    references = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Face, \"Please select the Desired Faces\")\r\n    mid_points = []\r\n    \r\n    for ref in references:\r\n        element = doc.GetElement(ref.ElementId)\r\n        planarFace = element.GetGeometryObjectFromReference(ref)\r\n        face = convertPlanarFaceToFace(planarFace)\r\n        # Tính toán điểm trung tâm của mặt phẳng\r\n        face_centroid = face.ComputeCentroid()\r\n        mid_points.append(face_centroid)\r\n        \r\n    return mid_points\r\n\r\nmid_points = pickFace()\r\n\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = mid_points",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "3672351a534547d7b7bf83193ccec030",
+      "Inputs": [
+        {
+          "Id": "ab4dfc5342a7404a87eed3e42a266e9c",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "107fc4ca55074d5a97fa3d79e4514c00",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": false,
+      "Id": "4c53749e60e14e3da6af1b08d06c6aac",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "c922cf8c2ae04cf9b5e9bdea5609338a",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nimport sys \r\nimport System   \r\nimport math\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import* \r\nfrom Autodesk.Revit.DB.Structure import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\n\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference(\"System.Windows.Forms\")\r\nclr.AddReference(\"System.Drawing\")\r\nclr.AddReference(\"System.Windows.Forms.DataVisualization\")\r\n\r\nimport System.Windows.Forms \r\nfrom System.Windows.Forms import *\r\nimport System.Drawing\r\nfrom System.Drawing import *\r\n\r\n\"\"\"_____________________________\"\"\"\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = uiapp.ActiveUIDocument\r\nview = doc.ActiveView\r\n\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\ndef convertPlanarFaceToFace(planar_face):\r\n    # Truy cập đến geometry của PlanarFace\r\n    face_geometry = planar_face.ToFace()\r\n    face = Face.CreateFromGeometryObject(face_geometry)\r\n    return face\r\ndef pickFace():\r\n    references = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Face, \"\")\r\n    for ref in references:\r\n        element = doc.GetElement(ref.ElementId)\r\n        face = element.GetGeometryObjectFromReference(ref)        \r\n    return face\r\ndef convert_dbPlane_to_plane(db_plane):\r\n    # Get the origin and normal vector from the dbPlane\r\n    origin = db_plane.Origin\r\n    normal = db_plane.Normal\r\n\r\n    # Create a new Plane object using the origin and normal\r\n    plane = Plane(normal, origin)\r\n\r\n    return plane\r\n\r\nplanarFace = pickFace()\r\nDBPlane = planarFace.GetSurface()\r\nplane = convert_dbPlane_to_plane(DBPlane)\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = plane",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "91ee76bf6e2f4cb18dc3e10825aa432b",
+      "Inputs": [
+        {
+          "Id": "6723ad70d58c41de8f3c08d399de9d5e",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "1da327f821fe4f6296f5c3b1a8afb921",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.ZeroTouch.DSFunction, DynamoCore",
+      "NodeType": "FunctionNode",
+      "FunctionSignature": "Autodesk.DesignScript.Geometry.Plane.Origin",
+      "Id": "346448a9cc924439b9e501ac1f6c2dc1",
+      "Inputs": [
+        {
+          "Id": "4f1e38ca616f4a388b4c76147b586a06",
+          "Name": "plane",
+          "Description": "Autodesk.DesignScript.Geometry.Plane",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "4969790ee59443be9af646de9fadffe8",
+          "Name": "Point",
+          "Description": "Point",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "Returns the origin of the Plane.\n\nPlane.Origin: Point"
     }
   ],
   "Connectors": [
@@ -4131,9 +4396,24 @@
       "Id": "ae33c6e10c1b4f3ab8a7a20fcb0d5ce5"
     },
     {
-      "Start": "d8251813c17d47ec9598eb6b987da981",
-      "End": "0250350797e545cabe4b71a3dc9033b8",
-      "Id": "c0cd328a209a4036b85c1bc57a286c57"
+      "Start": "23666f42f6e74413b82b32d0dfd7f130",
+      "End": "a70e9e2a902940c09017096dbd988043",
+      "Id": "4ae591b0f4cf4b1cbab94b9c9874e4c1"
+    },
+    {
+      "Start": "5c16edebb7bd4aab997f7466af665fd6",
+      "End": "8e945dadf4464c598f9af42292cfc1e0",
+      "Id": "381432717aa74a21af2ce3a5fc31cb5c"
+    },
+    {
+      "Start": "f3f79e8de0c84068ba5e0baaaefd13b8",
+      "End": "c28dfc56fa7a4637aa11c335bd79cc5b",
+      "Id": "6c79299877d64cfb9077f47f3d88e18c"
+    },
+    {
+      "Start": "c922cf8c2ae04cf9b5e9bdea5609338a",
+      "End": "6723ad70d58c41de8f3c08d399de9d5e",
+      "Id": "2f37eb9915a14ba5b631b52ffd9d279a"
     }
   ],
   "Dependencies": [
@@ -4161,7 +4441,8 @@
         "f2f88c364fe2423894234ff2ec0002f1",
         "a2e68794597e4cb390ff856d2864e26b",
         "03e0a43c69a54619a8748a65687d3664",
-        "36932540fab7456bbffeea9a8c12f7e9"
+        "36932540fab7456bbffeea9a8c12f7e9",
+        "482f9e1345044396aa3a4f5981325699"
       ]
     },
     {
@@ -5372,7 +5653,7 @@
         "Id": "ee218d55212641a996d7b133bbffdb92",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": false,
+        "Excluded": true,
         "X": -544.33381780645527,
         "Y": -1760.2097135245808
       },
@@ -5408,23 +5689,103 @@
       },
       {
         "ShowGeometry": true,
-        "Name": "Python Script",
-        "Id": "3819ac174f1d4e9aa7a9ddbc7b8b043c",
+        "Name": "Python Script From String",
+        "Id": "05e4dc06c39e4e2c86e80c81b02b62c3",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": -96.381685529264871,
-        "Y": -1991.9678848519095
+        "X": -293.95903477604554,
+        "Y": -2237.792404697228
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "60a524b7c72747a98ce08c959c95222b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -438.20468404778256,
+        "Y": -2239.6825692199382
       },
       {
         "ShowGeometry": true,
         "Name": "Boolean",
-        "Id": "0b6a0f1dd9d546aab06e6c4f32e582bc",
+        "Id": "a257721bf06846c580eae76b16737d24",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": true,
-        "X": -366.74544717702781,
-        "Y": -1999.7694213497416
+        "X": -607.43542675752064,
+        "Y": -2263.711667430638
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "File Path",
+        "Id": "6ab1148e905243c381a0a8fba5e8f46d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -636.05824497354547,
+        "Y": -2199.980186848758
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "pickMultiFaces",
+        "Id": "482f9e1345044396aa3a4f5981325699",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": -492.417966638171,
+        "Y": -2491.2573713851648
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "pickFaces",
+        "Id": "9589b0c370474d958800753195417185",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": -389.86875972674642,
+        "Y": -2625.4163037143908
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "3672351a534547d7b7bf83193ccec030",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": -295.94977416590893,
+        "Y": -3108.0069523119259
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Boolean",
+        "Id": "4c53749e60e14e3da6af1b08d06c6aac",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -597.57690234696929,
+        "Y": -3033.555178909995
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "91ee76bf6e2f4cb18dc3e10825aa432b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -370.8170413960641,
+        "Y": -2898.4704576968788
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Plane.Origin",
+        "Id": "346448a9cc924439b9e501ac1f6c2dc1",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -107.72431049034685,
+        "Y": -2876.014140028356
       }
     ],
     "Annotations": [
@@ -5619,7 +5980,7 @@
         "Left": -430.21593950935505,
         "Top": 2672.1709673729915,
         "Width": 1672.1825622523806,
-        "Height": 193.91119838603709,
+        "Height": 197.85854502705388,
         "FontSize": 36.0,
         "InitialTop": 2725.3709673729913,
         "InitialHeight": 176.37569545075121,
@@ -5695,10 +6056,29 @@
         "InitialHeight": 145.56157354119432,
         "TextblockHeight": 86.4,
         "Background": "#FF848484"
+      },
+      {
+        "Id": "264d5bda67454f579140f223a588486c",
+        "Title": "<Click here to edit the group title>",
+        "Nodes": [
+          "05e4dc06c39e4e2c86e80c81b02b62c3",
+          "60a524b7c72747a98ce08c959c95222b",
+          "a257721bf06846c580eae76b16737d24",
+          "6ab1148e905243c381a0a8fba5e8f46d"
+        ],
+        "Left": -646.05824497354547,
+        "Top": -2360.1116674306381,
+        "Width": 538.09921019749993,
+        "Height": 253.53148058188026,
+        "FontSize": 36.0,
+        "InitialTop": -2263.711667430638,
+        "InitialHeight": 208.73148058188008,
+        "TextblockHeight": 86.4,
+        "Background": "#FFC1D676"
       }
     ],
-    "X": 698.03847842929463,
-    "Y": 1907.9456736406844,
-    "Zoom": 1.0385167459799034
+    "X": 1000.3932183937919,
+    "Y": 3829.2424031010573,
+    "Zoom": 1.2165701114189957
   }
 }

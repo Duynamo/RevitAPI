@@ -209,7 +209,6 @@ class MainForm(Form):
 			self._clb_pickedPoints.Items.Add(rpM)
 		self._ckb_AllNone.Checked = True	
 		TransactionManager.Instance.TransactionTaskDone()					
-
 		pass
 
 	def Btt_MarkupClick(self, sender, e):
@@ -248,9 +247,10 @@ class MainForm(Form):
 		desTextNoteType.get_Parameter(BuiltInParameter.LEADER_OFFSET_SHEET).Set(2/304.8)
 		desTextNoteType.get_Parameter(BuiltInParameter.TEXT_BOX_VISIBILITY).Set(True)
 		# desTextNoteType.get_Parameter(BuiltInParameter.LEADER_RIGHT_ATTACHMENT).Set(True)
-		# Middle = 1
+		Middle = 1
 		# vertAlignParamProvider = ParameterValueProvider(ElementId(BuiltInParameter.TEXT_ALIGN_VERT))
-		
+		desTextNoteType.get_Parameter(BuiltInParameter.TEXT_ALIGN_VERT).Set(Middle)
+
 		# desTextNoteType.get_Parameter(BuiltInParameter.TEXT_ALIGN_VERT).Set(vertAlignParamProvider, Middle)
 		# desTextNoteType.get_Parameter(BuiltInParameter.TEXT_ALIGN_HORZ)	
 		TransactionManager.Instance.TransactionTaskDone()
