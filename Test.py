@@ -18,3 +18,5 @@ for pipe in collector:
     tagLocation = XYZ(pipeLocation.X, pipeLocation.Y, pipeLocation.Z + offset)  # Adjust the offset as needed
     tag.TagHeadPosition = tagLocation 
     pipe_tags.append(tag)
+
+
