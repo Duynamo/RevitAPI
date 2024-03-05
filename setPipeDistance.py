@@ -43,7 +43,7 @@ app = uiapp.Application
 uidoc = uiapp.ActiveUIDocument
 view = doc.ActiveView
 """_____________________________"""
-def pickObjects():
+def pickFace():
 	elements = []
 	planarFace = []
 	refs = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Face, "pick face")
@@ -107,13 +107,12 @@ class MainForm(Form):
 		# txb_disFromPickedFace
 		# 
 		self._txb_disFromPickedFace.Font = System.Drawing.Font("Meiryo UI", 8, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 128)
-		self._txb_disFromPickedFace.ForeColor = System.Drawing.Color.Blue
+		self._txb_disFromPickedFace.ForeColor = System.Drawing.Color.Red
 		self._txb_disFromPickedFace.Location = System.Drawing.Point(149, 70)
-		self._txb_disFromPickedFace.Multiline = True
 		self._txb_disFromPickedFace.Name = "txb_disFromPickedFace"
-		self._txb_disFromPickedFace.Size = System.Drawing.Size(208, 22)
-		self._txb_disFromPickedFace.TabIndex = 1
-		self._txb_disFromPickedFace.TextChanged += self.TextBox1TextChanged
+		self._txb_disFromPickedFace.Size = System.Drawing.Size(218, 24)
+		self._txb_disFromPickedFace.TabIndex = 7
+		self._txb_disFromPickedFace.TextChanged += self.Txb_disFromPickedFaceTextChanged
 		# 
 		# lb_disFromFaceToCBL
 		# 
@@ -252,10 +251,16 @@ class MainForm(Form):
 
 
 	def Btt_pickFaceClick(self, sender, e):
-		desFace = pickFace()
+		picked = pickFace()
+		desObject = picked[1]
+		for i in desObject:
+			desObjectLevel = i.LookupParameter("Base Level").AsInteger()
+			desObjectLevelName = i.LookupParameter("Base Level").AsValueString()
+		self._txb_disFromPickedFace.Text = 	desObjectLevelName
 		pass
 
-	def TextBox1TextChanged(self, sender, e):
+	def Txb_disFromPickedFaceTextChanged(self, sender, e):
+		
 		pass
 
 	def Btt_pickPipesClick(self, sender, e):
