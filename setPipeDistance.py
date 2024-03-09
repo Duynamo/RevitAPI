@@ -2,7 +2,7 @@ import clr
 import sys 
 import System   
 import math
-
+from System.Collections.Generic import *
 clr.AddReference("ProtoGeometry")
 from Autodesk.DesignScript.Geometry import *
 
@@ -14,6 +14,7 @@ from Autodesk.Revit.DB.Structure import*
 clr.AddReference("RevitAPIUI") 
 from Autodesk.Revit.UI import*
 
+from Autodesk.Revit.UI.Selection import ISelectionFilter
 clr.AddReference("System") 
 from System.Collections.Generic import List
 
@@ -30,6 +31,8 @@ from RevitServices.Transactions import TransactionManager
 clr.AddReference("System.Windows.Forms")
 clr.AddReference("System.Drawing")
 clr.AddReference("System.Windows.Forms.DataVisualization")
+clr.AddReference("DSCoreNodes")
+from DSCore.List import Flatten
 
 import System.Windows.Forms 
 from System.Windows.Forms import *
@@ -43,17 +46,37 @@ app = uiapp.Application
 uidoc = uiapp.ActiveUIDocument
 view = doc.ActiveView
 """_____________________________"""
+class selectionFilter(ISelectionFilter):
+	def __init__(self, category):
+		self.category = category
+	def AllowElement(self, element):
+		if element.Category.Name == self.category:
+			return True
+		else:
+			return False
+
+def pickPipes():
+	pipes = []
+	pipeFilter = selectionFilter("Pipes")
+
+	pipesRef = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Element, pipeFilter,"pick Pipes")
+	for ref in pipesRef:
+		pipe = doc.GetElement(ref.ElementId)
+		pipes.append(pipe)
+	return pipes		
+"""_______________________________________"""
 def pickFace():
 	elements = []
 	planarFace = []
-	refs = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Face, "pick face")
-	for i in refs:
-		ele = doc.GetElement(i.ElementId)
-		face = ele.GetGeometryObjectFromReference(i)
-		DBFace = face.GetSurface()
-		elements.append(ele)
-		planarFace.append(DBFace)
-	return  refs, elements, planarFace
+	refs = uidoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Face, "pick face")
+	
+	ele = doc.GetElement(refs.ElementId)
+	face = ele.GetGeometryObjectFromReference(refs)
+
+	DBFace = face.GetSurface()
+	elements.append(ele)
+	planarFace.append(DBFace)
+	return  refs, elements, planarFace , face
 """"""
 """_____________________________"""
 class MainForm(Form):
@@ -139,6 +162,7 @@ class MainForm(Form):
 		# 
 		# btt_pickPipes
 		# 
+		self._clb_selectedPipes.DisplayMember = "Name"
 		self._btt_pickPipes.BackColor = System.Drawing.Color.FromArgb(255, 255, 128)
 		self._btt_pickPipes.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._btt_pickPipes.ForeColor = System.Drawing.Color.Red
@@ -248,11 +272,11 @@ class MainForm(Form):
 		self._grb_Pipes.ResumeLayout(False)
 		self.ResumeLayout(False)
 
-
-
 	def Btt_pickFaceClick(self, sender, e):
 		picked = pickFace()
 		desObject = picked[1]
+		pickedEleFace = picked[2]
+		
 		for i in desObject:
 			desObjectLevel = i.LookupParameter("Base Level").AsInteger()
 			desObjectLevelName = i.LookupParameter("Base Level").AsValueString()
@@ -260,19 +284,42 @@ class MainForm(Form):
 		pass
 
 	def Txb_disFromPickedFaceTextChanged(self, sender, e):
-		
+
 		pass
 
 	def Btt_pickPipesClick(self, sender, e):
+		pipes1 = pickPipes()
+		pipes = []
+		[pipes.append(p) for p in pipes1 if p not in pipes]
+		for pipe in pipes:
+			self._clb_selectedPipes.Items.Add(pipe)
+		self._ckb_AllNone.Checked = True
 		pass
 
 	def Btt_removePipeClick(self, sender, e):
+		# Get the total number of items in the checked list box
+		var = self._clb_selectedPipes.Items.Count
+		
+		# Iterate through the items in reverse order
+		for i in range(var - 1, -1, -1):
+			if self._clb_selectedPipes.GetItemChecked(i):
+				# Remove the checked item
+				self._clb_selectedPipes.Items.RemoveAt(i)
+
+
 		pass
 
 	def Clb_selectedPipesSelectedIndexChanged(self, sender, e):
 		pass
 
 	def Ckb_AllNoneCheckedChanged(self, sender, e):
+		var = self._clb_selectedPipes.Items.Count
+		rangers = range(var)
+		for i in rangers :
+			if self._ckb_AllNone.Checked == True :
+				self._clb_selectedPipes.SetItemChecked(i , True)
+			else :
+				self._clb_selectedPipes.SetItemChecked(i , False)
 		pass
 
 	def Btt_setClick(self, sender, e):
