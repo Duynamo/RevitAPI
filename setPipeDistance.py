@@ -54,7 +54,7 @@ class selectionFilter(ISelectionFilter):
 			return True
 		else:
 			return False
-
+"""_____________________________"""
 def pickPipes():
 	pipes = []
 	pipeFilter = selectionFilter("Pipes")
@@ -64,7 +64,7 @@ def pickPipes():
 		pipe = doc.GetElement(ref.ElementId)
 		pipes.append(pipe)
 	return pipes		
-"""_______________________________________"""
+"""______________________________"""
 def pickFace():
 	elements = []
 	planarFace = []
@@ -77,7 +77,17 @@ def pickFace():
 	elements.append(ele)
 	planarFace.append(DBFace)
 	return  refs, elements, planarFace , face
-""""""
+"""_____________________________"""
+def getPipeLocationCurve(pipe):
+    # Get the location curve of the pipe
+    location_curve = pipe.Location.Curve
+    return location_curve
+"""_____________________________"""
+def getPlanarFaceNormalVector(planarFace):
+    # Get the normal vector of the planar face
+    normal_vector = planarFace.FaceNormal
+    normal = XYZ(normal_vector.X, normal_vector.Y, normal_vector.Z)
+    return normal
 """_____________________________"""
 class MainForm(Form):
 	def __init__(self):
@@ -275,16 +285,15 @@ class MainForm(Form):
 	def Btt_pickFaceClick(self, sender, e):
 		picked = pickFace()
 		desObject = picked[1]
-		pickedEleFace = picked[2]
-		
+		pickedEleFace = picked[2]	
 		for i in desObject:
 			desObjectLevel = i.LookupParameter("Base Level").AsInteger()
 			desObjectLevelName = i.LookupParameter("Base Level").AsValueString()
+		self._btt_pickFace.Tag = pickedEleFace
 		self._txb_disFromPickedFace.Text = 	desObjectLevelName
 		pass
 
 	def Txb_disFromPickedFaceTextChanged(self, sender, e):
-
 		pass
 
 	def Btt_pickPipesClick(self, sender, e):
@@ -297,16 +306,10 @@ class MainForm(Form):
 		pass
 
 	def Btt_removePipeClick(self, sender, e):
-		# Get the total number of items in the checked list box
 		var = self._clb_selectedPipes.Items.Count
-		
-		# Iterate through the items in reverse order
 		for i in range(var - 1, -1, -1):
 			if self._clb_selectedPipes.GetItemChecked(i):
-				# Remove the checked item
 				self._clb_selectedPipes.Items.RemoveAt(i)
-
-
 		pass
 
 	def Clb_selectedPipesSelectedIndexChanged(self, sender, e):
@@ -323,6 +326,17 @@ class MainForm(Form):
 		pass
 
 	def Btt_setClick(self, sender, e):
+		pipesLC = []
+		pickedPlanarFace = self._btt_pickFace.Tag
+		pipesList = self._clb_selectedPipes.CheckedItems
+		planarFaceNorVector = getPlanarFaceNormalVector(pickedPlanarFace)*-1
+
+		for pipe in pipesList:
+			pipeLC = getPipeLocationCurve(pipe)
+			pipeLCStartPoint = pipeLC.GetEndPoint(0)
+			pipesLC.append(pipeLC)
+
+
 		pass
 
 	def Btt_CANCLEClick(self, sender, e):
