@@ -71,12 +71,20 @@ def pickFace():
 	refs = uidoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Face, "pick face")
 	
 	ele = doc.GetElement(refs.ElementId)
-	face = ele.GetGeometryObjectFromReference(refs)
-
-	DBFace = face.GetSurface()
+	planarFace = ele.GetGeometryObjectFromReference(refs)
+	curveLoop = planarFace.GetEdgesAsCurveLoops()
+	lines = [j.ToProtoType() for j in i for i in curveLoop]
+	for line in lines:
+		ePList = []
+		ePUniqueList = []
+		lineSP = line.GetEndPoint(0)
+		ePList.append(lineSP)
+		[ePUniqueList.append(lineSP) for lineSP in ePList if lineSP not in ePUniqueList]
+		plane = Plane.CreateByThreePoints(ePUniqueList[0] , ePUniqueList[1], ePUniqueList[2])
+	DBFace = face1.GetSurface()
 	elements.append(ele)
 	planarFace.append(DBFace)
-	return  refs, elements, planarFace , face
+	return  refs, elements, planarFace , plane
 """_____________________________"""
 def getPipeLocationCurve(pipe):
     # Get the location curve of the pipe
@@ -88,6 +96,12 @@ def getPlanarFaceNormalVector(planarFace):
     normal_vector = planarFace.FaceNormal
     normal = XYZ(normal_vector.X, normal_vector.Y, normal_vector.Z)
     return normal
+"""_____________________________"""
+def offsetPointByVector(point, guideVector, distance):
+    norVector = guideVector.Normalize()
+    offsetVector = norVector * distance
+    offsetPoint = point + offsetVector
+    return offsetPoint
 """_____________________________"""
 class MainForm(Form):
 	def __init__(self):
@@ -334,7 +348,10 @@ class MainForm(Form):
 		for pipe in pipesList:
 			pipeLC = getPipeLocationCurve(pipe)
 			pipeLCStartPoint = pipeLC.GetEndPoint(0)
+			offsetLCStartPoint = offsetPointByVector(pipeLCStartPoint, planarFaceNorVector, 1000)
+			tempLine = Line.CreateBound(pipeLCStartPoint, offsetLCStartPoint)
 			pipesLC.append(pipeLC)
+
 
 
 		pass
