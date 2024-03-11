@@ -2,7 +2,7 @@ import clr
 import sys 
 import System   
 import math
-
+from System.Collections.Generic import *
 clr.AddReference("ProtoGeometry")
 from Autodesk.DesignScript.Geometry import *
 
@@ -14,6 +14,7 @@ from Autodesk.Revit.DB.Structure import*
 clr.AddReference("RevitAPIUI") 
 from Autodesk.Revit.UI import*
 
+from Autodesk.Revit.UI.Selection import ISelectionFilter
 clr.AddReference("System") 
 from System.Collections.Generic import List
 
@@ -30,6 +31,8 @@ from RevitServices.Transactions import TransactionManager
 clr.AddReference("System.Windows.Forms")
 clr.AddReference("System.Drawing")
 clr.AddReference("System.Windows.Forms.DataVisualization")
+clr.AddReference("DSCoreNodes")
+from DSCore.List import Flatten
 
 import System.Windows.Forms 
 from System.Windows.Forms import *
@@ -43,18 +46,62 @@ app = uiapp.Application
 uidoc = uiapp.ActiveUIDocument
 view = doc.ActiveView
 """_____________________________"""
-def pickObjects():
+class selectionFilter(ISelectionFilter):
+	def __init__(self, category):
+		self.category = category
+	def AllowElement(self, element):
+		if element.Category.Name == self.category:
+			return True
+		else:
+			return False
+"""_____________________________"""
+def pickPipes():
+	pipes = []
+	pipeFilter = selectionFilter("Pipes")
+
+	pipesRef = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Element, pipeFilter,"pick Pipes")
+	for ref in pipesRef:
+		pipe = doc.GetElement(ref.ElementId)
+		pipes.append(pipe)
+	return pipes		
+"""______________________________"""
+def pickFace():
 	elements = []
 	planarFace = []
-	refs = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Face, "pick face")
-	for i in refs:
-		ele = doc.GetElement(i.ElementId)
-		face = ele.GetGeometryObjectFromReference(i)
-		DBFace = face.GetSurface()
-		elements.append(ele)
-		planarFace.append(DBFace)
-	return  refs, elements, planarFace
-""""""
+	refs = uidoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Face, "pick face")
+	
+	ele = doc.GetElement(refs.ElementId)
+	planarFace = ele.GetGeometryObjectFromReference(refs)
+	curveLoop = planarFace.GetEdgesAsCurveLoops()
+	lines = [j.ToProtoType() for j in i for i in curveLoop]
+	for line in lines:
+		ePList = []
+		ePUniqueList = []
+		lineSP = line.GetEndPoint(0)
+		ePList.append(lineSP)
+		[ePUniqueList.append(lineSP) for lineSP in ePList if lineSP not in ePUniqueList]
+		plane = Plane.CreateByThreePoints(ePUniqueList[0] , ePUniqueList[1], ePUniqueList[2])
+	DBFace = face1.GetSurface()
+	elements.append(ele)
+	planarFace.append(DBFace)
+	return  refs, elements, planarFace , plane
+"""_____________________________"""
+def getPipeLocationCurve(pipe):
+    # Get the location curve of the pipe
+    location_curve = pipe.Location.Curve
+    return location_curve
+"""_____________________________"""
+def getPlanarFaceNormalVector(planarFace):
+    # Get the normal vector of the planar face
+    normal_vector = planarFace.FaceNormal
+    normal = XYZ(normal_vector.X, normal_vector.Y, normal_vector.Z)
+    return normal
+"""_____________________________"""
+def offsetPointByVector(point, guideVector, distance):
+    norVector = guideVector.Normalize()
+    offsetVector = norVector * distance
+    offsetPoint = point + offsetVector
+    return offsetPoint
 """_____________________________"""
 class MainForm(Form):
 	def __init__(self):
@@ -107,13 +154,12 @@ class MainForm(Form):
 		# txb_disFromPickedFace
 		# 
 		self._txb_disFromPickedFace.Font = System.Drawing.Font("Meiryo UI", 8, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 128)
-		self._txb_disFromPickedFace.ForeColor = System.Drawing.Color.Blue
+		self._txb_disFromPickedFace.ForeColor = System.Drawing.Color.Red
 		self._txb_disFromPickedFace.Location = System.Drawing.Point(149, 70)
-		self._txb_disFromPickedFace.Multiline = True
 		self._txb_disFromPickedFace.Name = "txb_disFromPickedFace"
-		self._txb_disFromPickedFace.Size = System.Drawing.Size(208, 22)
-		self._txb_disFromPickedFace.TabIndex = 1
-		self._txb_disFromPickedFace.TextChanged += self.TextBox1TextChanged
+		self._txb_disFromPickedFace.Size = System.Drawing.Size(218, 24)
+		self._txb_disFromPickedFace.TabIndex = 7
+		self._txb_disFromPickedFace.TextChanged += self.Txb_disFromPickedFaceTextChanged
 		# 
 		# lb_disFromFaceToCBL
 		# 
@@ -140,6 +186,7 @@ class MainForm(Form):
 		# 
 		# btt_pickPipes
 		# 
+		self._clb_selectedPipes.DisplayMember = "Name"
 		self._btt_pickPipes.BackColor = System.Drawing.Color.FromArgb(255, 255, 128)
 		self._btt_pickPipes.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._btt_pickPipes.ForeColor = System.Drawing.Color.Red
@@ -249,28 +296,64 @@ class MainForm(Form):
 		self._grb_Pipes.ResumeLayout(False)
 		self.ResumeLayout(False)
 
-
-
 	def Btt_pickFaceClick(self, sender, e):
-		desFace = pickFace()
+		picked = pickFace()
+		desObject = picked[1]
+		pickedEleFace = picked[2]	
+		for i in desObject:
+			desObjectLevel = i.LookupParameter("Base Level").AsInteger()
+			desObjectLevelName = i.LookupParameter("Base Level").AsValueString()
+		self._btt_pickFace.Tag = pickedEleFace
+		self._txb_disFromPickedFace.Text = 	desObjectLevelName
 		pass
 
-	def TextBox1TextChanged(self, sender, e):
+	def Txb_disFromPickedFaceTextChanged(self, sender, e):
 		pass
 
 	def Btt_pickPipesClick(self, sender, e):
+		pipes1 = pickPipes()
+		pipes = []
+		[pipes.append(p) for p in pipes1 if p not in pipes]
+		for pipe in pipes:
+			self._clb_selectedPipes.Items.Add(pipe)
+		self._ckb_AllNone.Checked = True
 		pass
 
 	def Btt_removePipeClick(self, sender, e):
+		var = self._clb_selectedPipes.Items.Count
+		for i in range(var - 1, -1, -1):
+			if self._clb_selectedPipes.GetItemChecked(i):
+				self._clb_selectedPipes.Items.RemoveAt(i)
 		pass
 
 	def Clb_selectedPipesSelectedIndexChanged(self, sender, e):
 		pass
 
 	def Ckb_AllNoneCheckedChanged(self, sender, e):
+		var = self._clb_selectedPipes.Items.Count
+		rangers = range(var)
+		for i in rangers :
+			if self._ckb_AllNone.Checked == True :
+				self._clb_selectedPipes.SetItemChecked(i , True)
+			else :
+				self._clb_selectedPipes.SetItemChecked(i , False)
 		pass
 
 	def Btt_setClick(self, sender, e):
+		pipesLC = []
+		pickedPlanarFace = self._btt_pickFace.Tag
+		pipesList = self._clb_selectedPipes.CheckedItems
+		planarFaceNorVector = getPlanarFaceNormalVector(pickedPlanarFace)*-1
+
+		for pipe in pipesList:
+			pipeLC = getPipeLocationCurve(pipe)
+			pipeLCStartPoint = pipeLC.GetEndPoint(0)
+			offsetLCStartPoint = offsetPointByVector(pipeLCStartPoint, planarFaceNorVector, 1000)
+			tempLine = Line.CreateBound(pipeLCStartPoint, offsetLCStartPoint)
+			pipesLC.append(pipeLC)
+
+
+
 		pass
 
 	def Btt_CANCLEClick(self, sender, e):
