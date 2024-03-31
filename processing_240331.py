@@ -46,25 +46,18 @@ view = doc.ActiveView
 """____"""
 
 categories = [BuiltInCategory.OST_PipeAccessory]
-
+desFamTypes = []
+key = "FU_Support"
 categoriesFilter = []
-for c in categories:
-    catCollector = FilteredElementCollector(doc).OfCategory(c).WhereElementIsElementType()
-    #catName = catCollector.FamilyName
-    categoriesFilter.append(catCollector)
+for category in categories:
+    elementTypes = FilteredElementCollector(doc).OfCategory(category).WhereElementIsElementType().ToElements()
+    for elementType in elementTypes:
+        typeName = elementType.FamilyName
+        if key in typeName:
+            desFamTypes.append(elementType)
+categoriesFilter.append(desFamTypes)
+# flat_categoriesFilter = [[item for item in sublist] for sublist in categoriesFilter]
 
-flat_categoriesFilter = [[item for item in sublist] for sublist in categoriesFilter]
-
-for cat in flat_categoriesFilter:
-    catName = cat.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsString()
-
-####filterMultiFamilySymbols
-# cateList = List[BuiltInCategory]()
-
-# cateList.Add(BuiltInCategory.OST_StructuralColumns)
-# cateList.Add(BuiltInCategory.OST_StructuralFraming)
-
-# _filter = ElementMulticategoryFilter(cateList)
-# elems = FilteredElementCollector(doc).WherePasses(_filter).WhereElementIsNotElementType().ToElements()
+flat_categoriesFilter = [ item for sublist in categoriesFilter for item in sublist]
 
 OUT = flat_categoriesFilter
