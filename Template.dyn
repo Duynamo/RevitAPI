@@ -28,6 +28,10 @@
       "Surfaces.Reference": {
         "Key": "archilab.Revit.Geometry.Surfaces",
         "Value": "archilab2023.dll"
+      },
+      "ElementFaceReference.Nam": {
+        "Key": "Revit.GeometryReferences.ElementFaceReference",
+        "Value": "RevitNodes.dll"
       }
     }
   },
@@ -3733,7 +3737,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\setPipeDistance.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\processing_240331.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "60a524b7c72747a98ce08c959c95222b",
@@ -3793,8 +3797,8 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\setPipeDistance.py",
-      "InputValue": ".\\setPipeDistance.py",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\processing_240331.py",
+      "InputValue": ".\\processing_240331.py",
       "NodeType": "ExtensionNode",
       "Id": "6ab1148e905243c381a0a8fba5e8f46d",
       "Inputs": [],
@@ -5228,6 +5232,128 @@
       ],
       "Replication": "Disabled",
       "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "a;",
+      "Id": "86ae772ec45e4a28b87567620d4f22d8",
+      "Inputs": [
+        {
+          "Id": "aadf35263fc44731a21ae533fc759231",
+          "Name": "a",
+          "Description": "a",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "16023749c27a497a863f85a95e43103d",
+          "Name": "",
+          "Description": "Value of expression at line 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows for DesignScript code to be authored directly"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "List.Flatten(x);",
+      "Id": "90634cdc3d03410c90e6bffab585bdcc",
+      "Inputs": [
+        {
+          "Id": "ec78b414b449471ab0e43e30889dbd30",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "93120cfbf54a40149a4fd2dda5572a6e",
+          "Name": "",
+          "Description": "Value of expression at line 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows for DesignScript code to be authored directly"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "e.Name;",
+      "Id": "7c724b039ec8402587f30f23b77e42b9",
+      "Inputs": [
+        {
+          "Id": "6ef8701fcc3b4c28ac1a12da85726c4e",
+          "Name": "e",
+          "Description": "e",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "0d5fe8290eed45f0badbaa0eb94f6369",
+          "Name": "",
+          "Description": "Value of expression at line 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows for DesignScript code to be authored directly"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nimport sys \r\nimport System   \r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nfrom Autodesk.Revit.DB import*\r\nfrom Autodesk.Revit.DB.Structure import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\n\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\n#Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n\r\n#Define list/unwrap list functions\r\ndef toList(inList):\r\n    result = inList if isinstance(inList, list) else [inList]\r\n    return result\r\n\r\ndef dList(inList):\r\n    result = inList if isinstance(inList, list) else [inList]\r\n    return UnwrapElement(result)\r\n\r\n# preparing input for dynamo to revit\r\nelement   = IN[0]\r\nelements  = toList(IN[0])\r\nd_List    = dList(IN[0]) \r\n\r\n# Do some action in a Transaction\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\neleName = []\r\nfor e in element:\r\n\tcatName = e.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsString()\r\n\teleName.append(e)\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = eleName",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "1eb062ee61c34474900d943ffe74ce83",
+      "Inputs": [
+        {
+          "Id": "bf6d11a640ae4ad9865b33081c98a909",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "6278536a0ca74d46977d5dfa14de835c",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
     }
   ],
   "Connectors": [
@@ -5627,6 +5753,11 @@
       "Id": "ae33c6e10c1b4f3ab8a7a20fcb0d5ce5"
     },
     {
+      "Start": "1f1397706f0a4437ab18c30f0fe0ced2",
+      "End": "aadf35263fc44731a21ae533fc759231",
+      "Id": "ecf11f855e144675ad1d17484e96e478"
+    },
+    {
       "Start": "23666f42f6e74413b82b32d0dfd7f130",
       "End": "a70e9e2a902940c09017096dbd988043",
       "Id": "4ae591b0f4cf4b1cbab94b9c9874e4c1"
@@ -5790,6 +5921,16 @@
       "Start": "cd41bb9d2c1445dc9ec544b38ca35d06",
       "End": "a365826e80b548f9bfd5c5836d9048a0",
       "Id": "53afb252aa6a4f5080aca387e7671b90"
+    },
+    {
+      "Start": "16023749c27a497a863f85a95e43103d",
+      "End": "ec78b414b449471ab0e43e30889dbd30",
+      "Id": "0d276616dfec403a904fdd33b9b74273"
+    },
+    {
+      "Start": "93120cfbf54a40149a4fd2dda5572a6e",
+      "End": "6ef8701fcc3b4c28ac1a12da85726c4e",
+      "Id": "8acfc51eac8046c5b395842932688e48"
     }
   ],
   "Dependencies": [
@@ -7102,9 +7243,9 @@
         "Id": "a257721bf06846c580eae76b16737d24",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": true,
-        "X": -601.4125399202411,
-        "Y": -2260.0142040713968
+        "Excluded": false,
+        "X": -599.96004021685656,
+        "Y": -2259.0409774450436
       },
       {
         "ShowGeometry": true,
@@ -7492,9 +7633,49 @@
         "Id": "7e33f87fb5aa4a058301aa869a918449",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": false,
+        "Excluded": true,
         "X": -1392.4720131647553,
         "Y": -3081.3007097426835
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "86ae772ec45e4a28b87567620d4f22d8",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -73.0,
+        "Y": -2182.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "90634cdc3d03410c90e6bffab585bdcc",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 162.27520539563625,
+        "Y": -2241.5097157298146
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "7c724b039ec8402587f30f23b77e42b9",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 478.21142648969055,
+        "Y": -2271.9268558938143
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "1eb062ee61c34474900d943ffe74ce83",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 160.69956161935715,
+        "Y": -2510.7076870830492
       }
     ],
     "Annotations": [
@@ -7776,18 +7957,18 @@
           "6ab1148e905243c381a0a8fba5e8f46d"
         ],
         "Left": -644.75177250512752,
-        "Top": -2356.4142040713969,
+        "Top": -2355.4409774450437,
         "Width": 538.09921019749993,
-        "Height": 249.83401722263898,
+        "Height": 248.86079059628582,
         "FontSize": 36.0,
-        "InitialTop": -2260.0142040713968,
+        "InitialTop": -2259.0409774450436,
         "InitialHeight": 205.03401722263879,
         "TextblockHeight": 86.4,
         "Background": "#FFC1D676"
       }
     ],
-    "X": 1789.3737070993134,
-    "Y": 3743.2247769261708,
-    "Zoom": 1.1356101857535918
+    "X": 77.310896644766217,
+    "Y": 1659.2999782431393,
+    "Zoom": 0.66630053882910312
   }
 }
