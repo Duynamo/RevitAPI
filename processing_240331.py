@@ -2,7 +2,7 @@ import clr
 import sys 
 import System   
 import math
-
+from System.Collections.Generic import *
 clr.AddReference("ProtoGeometry")
 from Autodesk.DesignScript.Geometry import *
 
@@ -14,6 +14,7 @@ from Autodesk.Revit.DB.Structure import*
 clr.AddReference("RevitAPIUI") 
 from Autodesk.Revit.UI import*
 
+from Autodesk.Revit.UI.Selection import ISelectionFilter
 clr.AddReference("System") 
 from System.Collections.Generic import List
 
@@ -30,34 +31,36 @@ from RevitServices.Transactions import TransactionManager
 clr.AddReference("System.Windows.Forms")
 clr.AddReference("System.Drawing")
 clr.AddReference("System.Windows.Forms.DataVisualization")
+clr.AddReference("DSCoreNodes")
+from DSCore.List import Flatten
 
 import System.Windows.Forms 
 from System.Windows.Forms import *
 import System.Drawing
 from System.Drawing import *
-"""_______________________________________________________________________________________"""
+
+"""_____________________________"""
 doc = DocumentManager.Instance.CurrentDBDocument
 uiapp = DocumentManager.Instance.CurrentUIApplication
 app = uiapp.Application
-uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
+uidoc = uiapp.ActiveUIDocument
 view = doc.ActiveView
 
 
 """____"""
+def pickPipes():
+    pipes = []
+    try:
+        pipesRef = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Element, "Pick Pipes")
+        for ref in pipesRef:
+            pipe = doc.GetElement(ref.ElementId)
+            if pipe.Category.Name == "Pipes":
+                pipes.append(pipe)
+        return pipes
+    except Exception as e:
+        # Xử lý lỗi nếu có
+        return []
 
-categories = [BuiltInCategory.OST_PipeAccessory]
-desFamTypes = []
-key = "FU_Support"
-categoriesFilter = []
-for category in categories:
-    elementTypes = FilteredElementCollector(doc).OfCategory(category).WhereElementIsElementType().ToElements()
-    for elementType in elementTypes:
-        typeName = elementType.FamilyName
-        if key in typeName:
-            desFamTypes.append(elementType)
-categoriesFilter.append(desFamTypes)
-# flat_categoriesFilter = [[item for item in sublist] for sublist in categoriesFilter]
+a = pickPipes
 
-flat_categoriesFilter = [ item for sublist in categoriesFilter for item in sublist]
-
-OUT = flat_categoriesFilter
+OUT = a
