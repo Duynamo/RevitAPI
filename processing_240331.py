@@ -48,19 +48,37 @@ view = doc.ActiveView
 
 
 """____"""
-def pickPipes():
-    pipes = []
-    try:
-        pipesRef = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Element, "Pick Pipes")
-        for ref in pipesRef:
-            pipe = doc.GetElement(ref.ElementId)
-            if pipe.Category.Name == "Pipes":
-                pipes.append(pipe)
-        return pipes
-    except Exception as e:
-        # Xử lý lỗi nếu có
-        return []
+# def pickPipes():
+#     pipes = []
+#     try:
+#         pipesRef = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Element, "Pick Pipes")
+#         for ref in pipesRef:
+#             pipe = doc.GetElement(ref.ElementId)
+#             if pipe.Category.Name == "Pipes":
+#                 pipes.append(pipe)
+#         return pipes
+#     except Exception as e:
+#         # Xử lý lỗi nếu có
+#         return []
 
-a = pickPipes
+# a = pickPipes
 
-OUT = a
+# OUT = a
+
+
+class selectionFilter(ISelectionFilter):
+    def __init__(self, category):
+        self.category = category
+    def AllowElement(self, element):
+        if element.Category.Name in [c.Name for c in self.category]:
+            return True
+        else:
+            return False
+    def AllowReference(reference, point):
+        return False
+    
+category = [UnwrapElement(IN[1])]
+selFilter = selectionFilter(category)
+ele = uidoc.Selection.PickElementByRectangle(selFilter, 'select')
+
+OUT = ele

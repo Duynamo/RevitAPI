@@ -184,3 +184,35 @@ def pickPipes():
 		pipe = doc.GetElement(ref.ElementId)
 		pipes.append(pipe)
 	return pipes	
+
+
+###def 0007
+#to pop up alert messages
+
+check = IN[0]
+content = IN[1]
+result = str(content)
+
+button = TaskDialogCommontButtons.None
+#button = TaskDialogCommontButtons.Ok
+#button = TaskDialogCommontButtons.Cancel
+#button = TaskDialogCommontButtons.Close
+#button = TaskDialogCommontButtons.Retry
+#button = TaskDialogCommontButtons.Yes
+        
+
+if check == True:
+     TaskDialog.Show('Result', result, button)
+else:
+     result = 'Set True to Run'
+
+OUT = result
+
+####def 0008
+#to get all categories in project
+categories = doc.Settings.Categories
+modelCate = []
+for c in categories:
+	if c.CategoryType == CategoryType.Model:
+		if c.SubCategories.Size > 0 or c.CanAddSubcategory:
+			modelCate.append(Revit.Elements.Category.ById(c.Id.IntegerValue))
