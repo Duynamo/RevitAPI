@@ -1,21 +1,70 @@
-class SieuNhan:
-    suc_manh_tong = 1000
-    def __init__(self, para_ten, para_vuKhi, para_sucManh):
-        self.ten = "Sieu Nhan " + para_ten
-        self.vuKhi = para_vuKhi
-        self.sucManh = para_sucManh
-    def xin_chao(self):
-        return "Xin chao " + self.ten
-     
-sieu_nhan_A = SieuNhan("Duy","Sung",8000)
+import clr
+import sys 
+import System   
+import math
 
-print(sieu_nhan_A.xin_chao())
-# print(sieu_nhan_A.ten(), sieu_nhan_A.vuKhi())
-print("Vu khi cua sieu nhan A la " + sieu_nhan_A.vuKhi)
-print(sieu_nhan_A.suc_manh_tong)
-print(SieuNhan.suc_manh_tong)
+clr.AddReference("ProtoGeometry")
+from Autodesk.DesignScript.Geometry import *
 
-SieuNhan.suc_manh_tong = 9000000
-sieu_nhan_A.sucManh = 80000000000000
-print(sieu_nhan_A.sucManh)
-print(SieuNhan.suc_manh_tong)
+clr.AddReference("RevitAPI") 
+import Autodesk
+from Autodesk.Revit.DB import* 
+from Autodesk.Revit.DB.Structure import*
+
+clr.AddReference("RevitAPIUI") 
+from Autodesk.Revit.UI import*
+
+clr.AddReference("System") 
+from System.Collections.Generic import List
+
+clr.AddReference("RevitNodes")
+import Revit
+clr.ImportExtensions(Revit.Elements)
+clr.ImportExtensions(Revit.GeometryConversion)
+
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+from RevitServices.Transactions import TransactionManager
+
+clr.AddReference("System.Windows.Forms")
+clr.AddReference("System.Drawing")
+clr.AddReference("System.Windows.Forms.DataVisualization")
+
+import System.Windows.Forms 
+from System.Windows.Forms import *
+import System.Drawing
+from System.Drawing import *
+"""_______________________________________________________________________________________"""
+doc = DocumentManager.Instance.CurrentDBDocument
+uiapp = DocumentManager.Instance.CurrentUIApplication
+app = uiapp.Application
+uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
+view = doc.ActiveView
+
+
+"""____"""
+
+categories = [BuiltInCategory.OST_PipeAccessory]
+
+categoriesFilter = []
+for c in categories:
+    catCollector = FilteredElementCollector(doc).OfCategory(c).WhereElementIsElementType()
+    #catName = catCollector.FamilyName
+    categoriesFilter.append(catCollector)
+
+flat_categoriesFilter = [[item for item in sublist] for sublist in categoriesFilter]
+
+for cat in flat_categoriesFilter:
+    catName = cat.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsString()
+
+####filterMultiFamilySymbols
+# cateList = List[BuiltInCategory]()
+
+# cateList.Add(BuiltInCategory.OST_StructuralColumns)
+# cateList.Add(BuiltInCategory.OST_StructuralFraming)
+
+# _filter = ElementMulticategoryFilter(cateList)
+# elems = FilteredElementCollector(doc).WherePasses(_filter).WhereElementIsNotElementType().ToElements()
+
+OUT = flat_categoriesFilter
