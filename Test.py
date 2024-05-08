@@ -1,22 +1,46 @@
 import clr
+import sys 
+import System   
 import math
+
+clr.AddReference("ProtoGeometry")
+from Autodesk.DesignScript.Geometry import *
+
+clr.AddReference("RevitAPI") 
+import Autodesk
+from Autodesk.Revit.DB import* 
+from Autodesk.Revit.DB.Structure import*
+
+clr.AddReference("RevitAPIUI") 
+from Autodesk.Revit.UI import*
+
+clr.AddReference("System") 
+from System.Collections.Generic import List
+
+clr.AddReference("RevitNodes")
+import Revit
+clr.ImportExtensions(Revit.Elements)
+clr.ImportExtensions(Revit.GeometryConversion)
 
 clr.AddReference("RevitServices")
 import RevitServices
 from RevitServices.Persistence import DocumentManager
 from RevitServices.Transactions import TransactionManager
+
+clr.AddReference("System.Windows.Forms")
+clr.AddReference("System.Drawing")
+clr.AddReference("System.Windows.Forms.DataVisualization")
+
+import System.Windows.Forms 
+from System.Windows.Forms import *
+import System.Drawing
+from System.Drawing import *
+"""_______________________________________________________________________________________"""
 doc = DocumentManager.Instance.CurrentDBDocument
-
-clr.AddReference("RevitAPI")
-import Autodesk
-from Autodesk.Revit.DB import *
-
-clr.AddReference("RevitNodes")
-import Revit	
-clr.ImportExtensions(Revit.Elements)
-clr.ImportExtensions(Revit.GeometryConversion)
-
-from System.Collections.Generic import List
+uiapp = DocumentManager.Instance.CurrentUIApplication
+app = uiapp.Application
+uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
+view = doc.ActiveView
 
 if isinstance(IN[0],list):
 	curve1 = UnwrapElement(IN[0])
@@ -28,28 +52,28 @@ else:
 	curve2 = [UnwrapElement(IN[1])]
 	
 	
-def closest_connectors(pipe1, pipe2,pipe3):
+def closest_connectors(pipe1, pipe2, pipe3):
 	conn1 = pipe1.ConnectorManager.Connectors
 	conn2 = pipe2.ConnectorManager.Connectors
 	conn3 = pipe3.ConnectorManager.Connectors
 	
 	dist1 = 100000000
 	dist2 = 100000000
-	connset = []
+	connSet = []
 	for c in conn1:
 		for d in conn3:
-			conndist = c.Origin.DistanceTo(d.Origin)
-			if conndist < dist1:
-				dist1 = conndist
+			connDist = c.Origin.DistanceTo(d.Origin)
+			if connDist < dist1:
+				dist1 = connDist
 				c1 = c
 				d1 = d
 		for e in conn2:
-			conndist = c.Origin.DistanceTo(e.Origin)
-			if conndist < dist2:
-				dist2 = conndist
+			connDist = c.Origin.DistanceTo(e.Origin)
+			if connDist < dist2:
+				dist2 = connDist
 				e1 = e
-		connset = [c1,d1,e1]
-	return connset
+		connSet = [c1,d1,e1]
+	return connSet
 	
 
 def newTee(conn1,conn2,conn3):
@@ -61,69 +85,66 @@ fittings = []
 TransactionManager.Instance.EnsureInTransaction(doc)
 for curve1,curve2 in zip(curve1,curve2):
 	try:
-		try:
-			width = curve2.Diameter
-		except:
-			width = curve2.Width
-		#get startpoint and endpoint of curve1
+		width = curve2.Diameter
+		#get startPoint and endpoint of curve1
 		curve1Line = curve1.Location.Curve
-		startpoint = curve1Line.GetEndPoint(0)
-		endpoint = curve1Line.GetEndPoint(1)
+		startPoint = curve1Line.GetEndPoint(0)
+		endPoint = curve1Line.GetEndPoint(1)
 		
 		#get point perpendicular of curve2
 		curve2Line = curve2.Location.Curve
 		curve2start = curve2Line.GetEndPoint(0)
-		pointmid = curve1Line.Project(curve2start).XYZPoint
-		len1 = startpoint.DistanceTo(pointmid)
+		pointMid = curve1Line.Project(curve2start).XYZPoint
+		len1 = startPoint.DistanceTo(pointMid)
 		len2 = len1 - width/2
 		len3 = len1 + width/2
 		
-		midstart = curve1Line.Evaluate((len2/curve1Line.Length),True)
-		midend = curve1Line.Evaluate((len3/curve1Line.Length),True)
+		midStart = curve1Line.Evaluate((len2/curve1Line.Length),True)
+		midEnd = curve1Line.Evaluate((len3/curve1Line.Length),True)
 		
-		#change startpoint and endpoints so the longest piece of mepcurve is retained
+		#change startPoint and endpoints so the longest piece of mepCurve is retained
 		toggle = False
-		if startpoint.DistanceTo(pointmid) < endpoint.DistanceTo(pointmid):
+		if startPoint.DistanceTo(pointMid) < endPoint.DistanceTo(pointMid):
 			toggle = True
-			temppoint = startpoint
-			startpoint = endpoint
-			endpoint = temppoint
+			tempPoint = startPoint
+			startPoint = endPoint
+			endPoint = tempPoint
 			
-			tempmid = midstart
-			midstart = midend
-			midend = tempmid
+			tempMid = midStart
+			midStart = midEnd
+			midEnd = tempMid
 		
 		#disconnect curve1:
 		connectors1 = curve1.ConnectorManager.Connectors
 		for conn in connectors1:
-			if conn.Origin.IsAlmostEqualTo(startpoint):
-				startconn = conn
-			elif conn.Origin.IsAlmostEqualTo(endpoint):
-				endconn = conn
+			if conn.Origin.IsAlmostEqualTo(startPoint):
+				startConn = conn
+			elif conn.Origin.IsAlmostEqualTo(endPoint):
+				endConn = conn
 		
-		otherfitting = None
-		for conn in endconn.AllRefs:
-			if conn.IsConnectedTo(endconn):
+		otherFitting = None
+		for conn in endConn.AllRefs:
+			if conn.IsConnectedTo(endConn):
 				if conn.Owner.GetType() == FamilyInstance:
-					otherfitting = conn.Owner
-				endconn.DisconnectFrom(conn)
+					otherFitting = conn.Owner
+				endConn.DisconnectFrom(conn)
 				
 		#shorten existing curve and copy it
 		if toggle:
-			curve1.Location.Curve = Line.CreateBound(midstart,startpoint)
+			curve1.Location.Curve = Line.CreateBound(midStart,startPoint)
 		else:
-			curve1.Location.Curve = Line.CreateBound(startpoint,midstart)
+			curve1.Location.Curve = Line.CreateBound(startPoint,midStart)
 		doc.Regenerate()
-		OffsetZ = (midstart.Z - endpoint.Z)*-1
-		OffsetX = (midstart.X - endpoint.X)*-1
-		OffsetY = (midstart.Y - endpoint.Y)*-1
+		OffsetZ = (midStart.Z - endPoint.Z)*-1
+		OffsetX = (midStart.X - endPoint.X)*-1
+		OffsetY = (midStart.Y - endPoint.Y)*-1
 		direction = XYZ(OffsetX,OffsetY,OffsetZ)
-		newelem = ElementTransformUtils.CopyElement(doc,curve1.Id,direction)
-		curve3 = doc.GetElement(newelem[0])
+		newElem = ElementTransformUtils.CopyElement(doc,curve1.Id,direction)
+		curve3 = doc.GetElement(newElem[0])
 		doc.Regenerate()
 		
 		#shorten new curve
-		curve3.Location.Curve = Line.CreateBound(endpoint,midend)
+		curve3.Location.Curve = Line.CreateBound(endPoint,midEnd)
 		doc.Regenerate()
 		
 		connectors = closest_connectors(curve1,curve2,curve3)
@@ -131,10 +152,10 @@ for curve1,curve2 in zip(curve1,curve2):
 		fitting = newTee(connectors[0],connectors[1],connectors[2])
 		fittings.append(fitting.ToDSType(False))
 		
-		if otherfitting != None:
+		if otherFitting != None:
 			connectors3 = curve3.ConnectorManager.Connectors
 			for conn in connectors3:
-				for conn2 in otherfitting.MEPModel.ConnectorManager.Connectors:
+				for conn2 in otherFitting.MEPModel.ConnectorManager.Connectors:
 					if conn.Origin.IsAlmostEqualTo(conn2.Origin):
 						conn.ConnectTo(conn2)
 						break
