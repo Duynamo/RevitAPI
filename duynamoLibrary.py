@@ -94,7 +94,7 @@ TransactionManager.Instance.TransactionTaskDone()
 
 OUT = cor_ConnectPipe1, cor_ConnectPipe2
 
-#def 0002
+#region ####def 0002
 #to pick objects and return the picked elements list, refs and Ids
 def pickObjects():
     from Autodesk.Revit.UI.Selection import ObjectType
@@ -107,8 +107,8 @@ def pickObjects():
     elesRef.append(ref for ref in refs)
     return  eles, elesId, elesRef
 OUT = pickObjects()
-
-##def 0003
+#endregion
+#region ####def 0003
 #to get piping system from string Name
 inSystemName = UnwrapElement(IN[1])
 
@@ -129,17 +129,14 @@ idOfInSystem = allPipingSystemName.index(inSystemName)
 desPipingSystem = allPipingSystem[idOfInSystem]
 
 OUT = desPipingSystem
-
+#endregion
+#region Run code in VsCode
 """________runVSCode in Dynamo___________"""
 re  = open(r"C:\Users\95053\Desktop\Python\RevitAPI-master\RevitAPI\WPF\\MainForm1.py", "r")
-
 interpret = re.read()
-
 OUT =  interpret
-
-"""__________________get All Settings Categories_________________"""
-
-#def 0004
+#endregion
+#region ####def 0004
 #to get family by name
 categories = [BuiltInCategory.OST_PipeAccessory]
 desFamTypes = []
@@ -152,19 +149,17 @@ for category in categories:
         if key in typeName:
             desFamTypes.append(elementType)
 categoriesFilter.append(desFamTypes)
-
 flat_categoriesFilter = [ item for sublist in categoriesFilter for item in sublist]
-
 OUT = flat_categoriesFilter
-
-#def 0005
+#endregion
+#region #### def 0005
 #to get pipe location curve
 def getPipeLocationCurve(pipe):
     # Get the location curve of the pipe
     location_curve = pipe.Location.Curve
     return location_curve
-
-#def 0006
+#endregion
+#region ####def 0006
 #to pick pipe only
 class selectionFilter(ISelectionFilter):
 	def __init__(self, category):
@@ -174,7 +169,6 @@ class selectionFilter(ISelectionFilter):
 			return True
 		else:
 			return False
-
 def pickPipes():
 	pipes = []
 	pipeFilter = selectionFilter("Pipes")
@@ -184,11 +178,9 @@ def pickPipes():
 		pipe = doc.GetElement(ref.ElementId)
 		pipes.append(pipe)
 	return pipes	
-
-
-###def 0007
+#endregion
+#region ####def 0007
 #to pop up alert messages
-
 check = IN[0]
 content = IN[1]
 result = str(content)
@@ -199,16 +191,14 @@ button = TaskDialogCommontButtons.None
 #button = TaskDialogCommontButtons.Close
 #button = TaskDialogCommontButtons.Retry
 #button = TaskDialogCommontButtons.Yes
-        
 
 if check == True:
      TaskDialog.Show('Result', result, button)
 else:
      result = 'Set True to Run'
-
 OUT = result
-
-####def 0008
+#endregion
+#region ####def 0008
 #to get all categories in project
 categories = doc.Settings.Categories
 modelCate = []
@@ -216,3 +206,36 @@ for c in categories:
 	if c.CategoryType == CategoryType.Model:
 		if c.SubCategories.Size > 0 or c.CanAddSubcategory:
 			modelCate.append(Revit.Elements.Category.ById(c.Id.IntegerValue))
+#endregion
+#region ####def 0009
+#to Define list/unwrap list functions
+def uwlist(input):
+    result = input if isinstance(input, list) else [input]
+    return UnwrapElement(input)
+#endregion
+#region ####def 0010
+#to retrieve pipe type, piping system, diameter and reference level
+paramDiameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM).AsDouble()*304.8
+paramPipeTypeId = pipe.GetTypeId()
+paramPipeType = doc.GetElement(paramPipeTypeId)
+paramPipingSystemId = pipe.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
+paramPipingSystem = doc.GetElement(paramPipingSystemId)
+paramLevelId = pipe.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
+paramLevel = doc.GetElement(paramLevelId)
+#endregion
+#region ####def 0011
+#to delete elements
+TransactionManager.Instance.EnsureInTransaction(doc)
+results,fails = [],[]
+for e in elements:
+	id = None
+	try:
+		id = e.Id
+		del_id = doc.Delete(id)
+		results.append(True)
+	except:
+		if id is not None:
+			fails.append(e)		
+		results.append(False)
+TransactionManager.Instance.TransactionTaskDone()
+#endregion
