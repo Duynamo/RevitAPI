@@ -170,14 +170,28 @@ def uwlist(input):
 
 #region ___to retrieve selected pipe type, piping system, diameter and reference level
 def getPipeParameter(pipe):
-    paramDiameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM).AsDouble()*304.8
-    paramPipeTypeId = pipe.GetTypeId()
-    paramPipeType = doc.GetElement(paramPipeTypeId)
-    paramPipingSystemId = pipe.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
-    paramPipingSystem = doc.GetElement(paramPipingSystemId)
-    paramLevelId = pipe.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
-    paramLevel = doc.GetElement(paramLevelId)
-    return  paramDiameter, paramPipingSystem, paramLevel, paramPipeType
+    paramDiameters = []
+    paramPipingSystems = []
+    paramLevels = []
+    paramPipeTypes = []
+
+    for p in pipe:
+        paramDiameter = p.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM).AsDouble() * 304.8
+        paramDiameters.append(paramDiameter)
+
+        paramPipeTypeId = p.GetTypeId()
+        paramPipeType = doc.GetElement(paramPipeTypeId)
+        paramPipeTypes.append(paramPipeType)
+
+        paramPipingSystemId = p.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
+        paramPipingSystem = doc.GetElement(paramPipingSystemId)
+        paramPipingSystems.append(paramPipingSystem)
+
+        paramLevelId = p.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
+        paramLevel = doc.GetElement(paramLevelId)
+        paramLevels.append(paramLevel)
+
+    return paramDiameters, paramPipingSystems, paramLevels, paramPipeTypes
 #endregion
 
 #region ___to delete elements
@@ -379,5 +393,36 @@ allPipes = allPipesInActiveView()
 
 #endregion
 
+#region ___to pick multi points in floors plane or section planes
+def PickPoints(doc):
+	TransactionManager.Instance.EnsureInTransaction(doc)
+	activeView = doc.ActiveView
+	iRefPlane = Plane.CreateByNormalAndOrigin(activeView.ViewDirection, activeView.Origin)
+	sketchPlane = SketchPlane.Create(doc, iRefPlane)
+	doc.ActiveView.SketchPlane = sketchPlane
+	condition = True
+	pointsList = []
+	dynPList = []
+	n = 0
+	msg = "Pick Points on Current Section plane, hit ESC when finished."
+	TaskDialog.Show("^------^", msg)
+	while condition:
+		try:
+			pt=uidoc.Selection.PickPoint()
+			n += 1
+			pointsList.append(pt)				
+		except :
+			condition = False
+	doc.Delete(sketchPlane.Id)	
+	for j in pointsList:
+		dynP = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304.8, j.Z*304.8)	
+		dynPList.append(dynP)
+	TransactionManager.Instance.TransactionTaskDone()			
+	return dynPList, pointsList
+#endregion
 
-
+#region ___to pick objects
+def pickObjects():
+    refs = uidoc.Selection.PickObjects(ObjectType.Element)
+    return  [doc.GetElement(i.ElementId) for i in refs], [ref for ref in refs]
+#endregion

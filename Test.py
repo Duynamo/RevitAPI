@@ -13,7 +13,7 @@ from Autodesk.Revit.DB.Structure import*
 
 clr.AddReference("RevitAPIUI") 
 from Autodesk.Revit.UI import*
-
+from Autodesk.Revit.UI.Selection import ObjectType
 clr.AddReference("System") 
 from System.Collections.Generic import List
 
@@ -42,130 +42,104 @@ app = uiapp.Application
 uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
 
-if isinstance(IN[0],list):
-	curve1 = UnwrapElement(IN[0])
-else:
-	curve1 = [UnwrapElement(IN[0])]
-if isinstance(IN[1],list):
-	curve2 = UnwrapElement(IN[1])
-else:
-	curve2 = [UnwrapElement(IN[1])]
-	
-	
-def closest_connectors(pipe1, pipe2, pipe3):
-	conn1 = pipe1.ConnectorManager.Connectors
-	conn2 = pipe2.ConnectorManager.Connectors
-	conn3 = pipe3.ConnectorManager.Connectors
-	
-	dist1 = 100000000
-	dist2 = 100000000
-	connSet = []
-	for c in conn1:
-		for d in conn3:
-			connDist = c.Origin.DistanceTo(d.Origin)
-			if connDist < dist1:
-				dist1 = connDist
-				c1 = c
-				d1 = d
-		for e in conn2:
-			connDist = c.Origin.DistanceTo(e.Origin)
-			if connDist < dist2:
-				dist2 = connDist
-				e1 = e
-		connSet = [c1,d1,e1]
-	return connSet
-	
+# def PickPoints(doc):
+# 	TransactionManager.Instance.EnsureInTransaction(doc)
+# 	activeView = doc.ActiveView
+# 	iRefPlane = Plane.CreateByNormalAndOrigin(activeView.ViewDirection, activeView.Origin)
+# 	sketchPlane = SketchPlane.Create(doc, iRefPlane)
+# 	doc.ActiveView.SketchPlane = sketchPlane
+# 	condition = True
+# 	pointsList = []
+# 	dynPList = []
+# 	n = 0
+# 	msg = "Pick Points on Current Section plane, hit ESC when finished."
+# 	TaskDialog.Show("^------^", msg)
+# 	while condition:
+# 		try:
+# 			pt=uidoc.Selection.PickPoint()
+# 			n += 1
+# 			pointsList.append(pt)				
+# 		except :
+# 			condition = False
+# 	doc.Delete(sketchPlane.Id)	
+# 	for j in pointsList:
+# 		dynP = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304.8, j.Z*304.8)	
+# 		dynPList.append(dynP)
+# 	TransactionManager.Instance.TransactionTaskDone()			
+# 	return dynPList, pointsList
+# pickedPoints = PickPoints(doc)
 
-def newTee(conn1,conn2,conn3):
-	fitting = doc.Create.NewTeeFitting(conn1,conn2,conn3)
-	return fitting
+# def pickPipePoint():
+#     try:
+#         TransactionManager.Instance.EnsureInTransaction(doc)
+#         ref = ReferenceWithContext()
+#         ref = uidoc.Selection.PickObject(ObjectType.Element, "Pick a pipe")
+#         pipe = doc.GetElement(ref)
+#         pipeCurve = pipe.Location.Curve
+#         options = Options()
+#         options.ComputeReferences = True
+#         options.IncludeNonVisibleObjects = True
+#         options.View = doc.ActiveView
+#         intersectPoint = pipeCurve.ProjectTo(options, uidoc.Selection.PickPoint()).XYZPoint
+#         TransactionManager.Instance.TransactionTaskDone()
+#         return intersectPoint
+#     except Exception as e:
+#         return None
 
-fittings = []
-	
-TransactionManager.Instance.EnsureInTransaction(doc)
-for curve1,curve2 in zip(curve1,curve2):
-	try:
-		width = curve2.Diameter
-		#get startPoint and endpoint of curve1
-		curve1Line = curve1.Location.Curve
-		startPoint = curve1Line.GetEndPoint(0)
-		endPoint = curve1Line.GetEndPoint(1)
-		
-		#get point perpendicular of curve2
-		curve2Line = curve2.Location.Curve
-		curve2start = curve2Line.GetEndPoint(0)
-		pointMid = curve1Line.Project(curve2start).XYZPoint
-		len1 = startPoint.DistanceTo(pointMid)
-		len2 = len1 - width/2
-		len3 = len1 + width/2
-		
-		midStart = curve1Line.Evaluate((len2/curve1Line.Length),True)
-		midEnd = curve1Line.Evaluate((len3/curve1Line.Length),True)
-		
-		#change startPoint and endpoints so the longest piece of mepCurve is retained
-		toggle = False
-		if startPoint.DistanceTo(pointMid) < endPoint.DistanceTo(pointMid):
-			toggle = True
-			tempPoint = startPoint
-			startPoint = endPoint
-			endPoint = tempPoint
-			
-			tempMid = midStart
-			midStart = midEnd
-			midEnd = tempMid
-		
-		#disconnect curve1:
-		connectors1 = curve1.ConnectorManager.Connectors
-		for conn in connectors1:
-			if conn.Origin.IsAlmostEqualTo(startPoint):
-				startConn = conn
-			elif conn.Origin.IsAlmostEqualTo(endPoint):
-				endConn = conn
-		
-		otherFitting = None
-		for conn in endConn.AllRefs:
-			if conn.IsConnectedTo(endConn):
-				if conn.Owner.GetType() == FamilyInstance:
-					otherFitting = conn.Owner
-				endConn.DisconnectFrom(conn)
-				
-		#shorten existing curve and copy it
-		if toggle:
-			curve1.Location.Curve = Line.CreateBound(midStart,startPoint)
-		else:
-			curve1.Location.Curve = Line.CreateBound(startPoint,midStart)
-		doc.Regenerate()
-		OffsetZ = (midStart.Z - endPoint.Z)*-1
-		OffsetX = (midStart.X - endPoint.X)*-1
-		OffsetY = (midStart.Y - endPoint.Y)*-1
-		direction = XYZ(OffsetX,OffsetY,OffsetZ)
-		newElem = ElementTransformUtils.CopyElement(doc,curve1.Id,direction)
-		curve3 = doc.GetElement(newElem[0])
-		doc.Regenerate()
-		
-		#shorten new curve
-		curve3.Location.Curve = Line.CreateBound(endPoint,midEnd)
-		doc.Regenerate()
-		
-		connectors = closest_connectors(curve1,curve2,curve3)
-	#	try:
-		fitting = newTee(connectors[0],connectors[1],connectors[2])
-		fittings.append(fitting.ToDSType(False))
-		
-		if otherFitting != None:
-			connectors3 = curve3.ConnectorManager.Connectors
-			for conn in connectors3:
-				for conn2 in otherFitting.MEPModel.ConnectorManager.Connectors:
-					if conn.Origin.IsAlmostEqualTo(conn2.Origin):
-						conn.ConnectTo(conn2)
-						break
-	except:
-		fittings.append(None)
+# pickedPoint = pickPipePoint()
 
-	
-TransactionManager.Instance.TransactionTaskDone()
+# def pickObjects():
+#     pipes = []
+#     refs = uidoc.Selection.PickObjects(ObjectType.Element)
+#     for r in refs:
+#         pipe = doc.GetElement(r.ElementId)
+#         lC = pipe.Location.Curve
+#         options = Options()
+#         options.ComputeReferences = True
+#         options.IncludeNonVisibleObjects = True
+#         options.View = doc.ActiveView
+#         intersectPoint = lC.ProjectTo(options, uidoc.Selection.PickPoint()).XYZPoint       
+#         pipes.append(pipe)
+#     return  pipes, intersectPoint
+# picked = pickObjects()
 
+def pickFaceSetWorkPlaneAndPickPoints(doc):
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    ref = uidoc.Selection.PickObject(ObjectType.Face, "Vu Dinh Duy")
+    element = doc.GetElement(ref.ElementId)
+    pointList =[]
+    dynList = []
+    if element is not None:
+        face = element.GetGeometryObjectFromReference(ref)
+        if face is not None:
+            if isinstance(face, CylindricalFace):
+                axis = face.Axis  
+                normal = XYZ.BasisZ.CrossProduct(axis.Direction)
+                origin = face.Origin
+                #newPlane = Plane(normal, origin)
+            if isinstance(face, PlanarFace):
+                normal = face.FaceNormal
+                origin = face.Origin
+                #newPlane = Plane(normal, origin)                  
+                TransactionManager.Instance.EnsureInTransaction(doc)
+                newPlane = Plane(normal, origin) 
+                skPlane = SketchPlane.Create(doc, newPlane)
+                uidoc.ActiveView.SketchPlane = skPlane
+                uidoc.ActiveView.ShowActiveWorkPlane()   
+                condition = True
+                while condition:
+                        try:
+                                p3D = uidoc.Selection.PickPoint()
+                                pointList.append(p3D)
+                        except:
+                                condition = False
+                doc.Delete(skPlane.Id)
+                for p in pointList:
+                    dynP = Autodesk.DesignScript.Geometry.Point.ByCoordinates(p.X*304.8, p.Y*304.8, p.Z*304.8)
+                    dynList.append(dynP)
+                TransactionManager.Instance.TransactionTaskDone()
+                return pointList, dynList               
+    TransactionManager.Instance.TransactionTaskDone()
+picked = pickFaceSetWorkPlaneAndPickPoints(doc)
 
-
-#Assign your output to the OUT variable.
-OUT = fittings
+OUT = picked
