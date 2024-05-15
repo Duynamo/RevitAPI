@@ -5012,7 +5012,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nimport System\r\nimport math \r\nfrom System.Collections.Generic import *\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference('RevitAPIUI')\r\nfrom Autodesk.Revit.UI import*\r\nfrom Autodesk.Revit.UI.Selection import*\r\nfrom Autodesk.Revit.UI.Selection import ObjectType\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nview = doc.ActiveView\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\ndef pickObjects():\r\n    refs = uidoc.Selection.PickObjects(ObjectType.Element)\r\n    return  [doc.GetElement(i.ElementId) for i in refs], [ref for ref in refs]\r\n\r\nOUT = pickObjects()",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\nimport clr \r\nimport System\r\nimport math \r\nfrom System.Collections.Generic import *\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference('RevitAPIUI')\r\nfrom Autodesk.Revit.UI import*\r\nfrom Autodesk.Revit.UI.Selection import*\r\nfrom Autodesk.Revit.UI.Selection import ObjectType\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nview = doc.ActiveView\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\ndef pickFaceSetWorkPlaneAndPickPoints(doc):\r\n    elements = []\r\n    ref = uidoc.Selection.PickObject(ObjectType.Edge, \"Vu Dinh Duy\")\r\n    element = doc.GetElement(ref.ElementId)\r\n    edge = element.GetGeometryObjectFromReference(ref)\r\n\r\nelements = pickFaceSetWorkPlaneAndPickPoints(doc)\r\n\r\nOUT = elements\r\n",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "379996b71f8a4124819a8bc84a2d9b00",
@@ -5657,11 +5657,6 @@
       "Start": "cd41bb9d2c1445dc9ec544b38ca35d06",
       "End": "a365826e80b548f9bfd5c5836d9048a0",
       "Id": "53afb252aa6a4f5080aca387e7671b90"
-    },
-    {
-      "Start": "16023749c27a497a863f85a95e43103d",
-      "End": "ec78b414b449471ab0e43e30889dbd30",
-      "Id": "0d276616dfec403a904fdd33b9b74273"
     },
     {
       "Start": "bb3861556ed5415ab94b395613c4bfb7",
@@ -7377,8 +7372,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": -126.7020279385074,
-        "Y": -2526.7300211594438
+        "X": -62.454253472575715,
+        "Y": -2704.333864110105
       },
       {
         "ShowGeometry": true,
@@ -7397,8 +7392,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 33.749115696943818,
-        "Y": -2505.5671425910464
+        "X": 139.79729274415604,
+        "Y": -2661.8486666606227
       }
     ],
     "Annotations": [
@@ -7690,8 +7685,8 @@
         "Background": "#FFC1D676"
       }
     ],
-    "X": 605.24743622772053,
-    "Y": 1936.7775935430755,
-    "Zoom": 0.77168302399016164
+    "X": 589.1018552495334,
+    "Y": 1595.1702374992296,
+    "Zoom": 0.59126811118536826
   }
 }

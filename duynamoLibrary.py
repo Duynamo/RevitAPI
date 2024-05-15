@@ -422,7 +422,83 @@ def PickPoints(doc):
 #endregion
 
 #region ___to pick objects
+from Autodesk.Revit.UI.Selection import ObjectType
 def pickObjects():
     refs = uidoc.Selection.PickObjects(ObjectType.Element)
     return  [doc.GetElement(i.ElementId) for i in refs], [ref for ref in refs]
+#endregion
+
+#region ___convert from Revit to Dynamo
+//Elements
+Element.ToDSType(bool);
+//Geometry
+XYZ.ToPoint() > Point
+XYZ.ToVector() > Vector
+Point.ToProtoType() > Point
+List<XYZ>.ToPoints() > List<Point>
+UV.ToProtoType() > UV
+Curve.ToProtoType() > Curve
+CurveArray.ToProtoType() > PolyCurve
+PolyLine.ToProtoType() > PolyCurve
+Plane.ToPlane() > Plane
+Solid.ToProtoType() > Solid
+Mesh.ToProtoType() > Mesh
+IEnumerable<Mesh>.ToProtoType() > Mesh[]
+Face.ToProtoType() > IEnumerable<Surface>
+Transform.ToCoordinateSystem() > CoordinateSystem
+BoundingBoxXYZ.ToProtoType() > BoundingBox
+#endregion
+
+#region ___convert from Dynamo to Revit
+//Elements
+Element.InternalElement
+//Geometry
+Point.ToRevitType() > XYZ
+Vector.ToRevitType() > XYZ
+Plane.ToPlane() > Plane
+List<Point>.ToXyz() > List<XYZ>
+Curve.ToRevitType() > Curve
+PolyCurve.ToRevitType() > CurveLoop
+Surface.ToRevitType() > IList<GeometryObject>
+Solid.ToRevitType() > IList<GeometryObject>
+Mesh.ToRevitType() > IList<GeometryObject>
+CoordinateSystem.ToTransform() > Transform
+CoordinateSystem.ToRevitBoundingBox() > BoundingBoxXYZ
+BoundingBox.ToRevitType() > BoundingBoxXYZ
+#endregion
+
+#region ___change input to List
+def toList(input):
+      if isinstance(input, list):
+            return UnwrapElement(input)
+      else:
+            return [UnwrapElement(input)]
+#endregion
+
+#region ___to flatten list
+##need to import "collections" library
+def flatten(l):
+    for el in l:
+        if isinstance(el, collections.Iterable) and not isinstance(el, basestring):
+            for sub in flatten(el):
+                yield sub
+        else:
+            yield el
+#endregion
+
+#region ___to check point in between line or not
+def pointOnLine(p,a,b):
+	if not (p-a).CrossProduct(b-a).IsAlmostEqualTo(XYZ.Zero):
+		return False
+	if a.X!=b.X:
+		if a.X<p.X<b.X:
+			return True
+		if a.X>p.X>b.X:
+			return True
+	else:
+		if a.Y<p.Y<b.Y:
+			return True
+		if a.Y>p.Y>b.Y:
+			return True
+	return False
 #endregion
