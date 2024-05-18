@@ -264,23 +264,30 @@ def pullPointToCurve(inPoint, inCurve):
     return pulledPoint
 #endregion
 
-#region ___pull end point of pipe to its perpendicular pipe
+#region ___pull end point of BPipe to mPipe
 def pullPointToCurve(mPipe, bPipe):
     K = 304.8
     mPCurve = mPipe.Location.Curve
-    mPCurveSP = mPCurve.GetEndPoint(0)
-    diam = mPipe.Diameter
-    bPCurve = bPipe.Location.Curve
-    bPCurveSP = bPCurve.GetEndPoint(0)
-    bPCurveEP = bPCurve.GetEndPoint(1)
-
-    pMid = mPCurve.Project(bPCurveSP).XYZPoint
-    len1 = pMid.DistanceTo(mPCurveSP)
-    len2 = len1 - diam/2
-    if len2 < 0:
-        pMid = mPCurve.Project(bPCurveEP).XYZPoint
+    nearestConOfBPipe =  closetConn(mPipe, bPipe)
+    pMid = mPCurve.Project(nearestConOfBPipe).XYZPoint
     dynMP = Autodesk.DesignScript.Geometry.Point.ByCoordinates(pMid.X*K, pMid.Y*K, pMid.Z*K) 
     return dynMP
+
+def NearestConnector(ConnectorSet, curCurve):
+    MinLength = float("inf")
+    result = None  # Initialize result to None
+    for n in ConnectorSet:
+        distance = curCurve.Location.Curve.Distance(n.Origin)
+        if distance < MinLength:
+            MinLength = distance
+            result = n
+    return result
+
+def closetConn(mPipe, bPipe):
+    connectors1 = list(bPipe.ConnectorManager.Connectors.GetEnumerator())
+    Connector1 = NearestConnector(connectors1, mPipe)
+    XYZconn	= Connector1.Origin
+    return XYZconn
 #endregion
 
 #region ___generate dynamo point and line from revit point and line
