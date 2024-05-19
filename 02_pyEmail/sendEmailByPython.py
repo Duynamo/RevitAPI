@@ -8,18 +8,21 @@ emailPassword = 'nmgx vjtz eshc tbvu'
 #emailReceiver = 'vudinhduybm@gmail.com'
 emailReceivers = ['vudinhduybm@gmail.com', 'duyvultv@gmai.com', 'vuducvubm123@gmail.com']
 emailCCList = []
-subject = 'Check my auto email'
+subject = 'Remind sending PJ Status to FUSO customers'
 bodyList = ["""
 You need to send an email to FUSO customers to inform the status of the following PJ:
-PJ_1, PJ_2
+PJ_1, PJ_2.
+This email is automatically sent, no reply.
 """,
 """
 You need to send an email to FUSO customers to inform the status of the following PJ:
-PJ_14, PJ_24
+PJ_14, PJ_24.
+This email is automatically sent, no reply.
 """,
 """
 You need to send an email to FUSO customers to inform the status of the following PJ:
-PJ_12, PJ_2222
+PJ_12, PJ_2222.
+This email is automatically sent, no reply.
 """]
 
 #body = "\n".join(bodyList)
