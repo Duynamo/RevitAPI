@@ -17,7 +17,7 @@ from DSCore.List import Flatten
 
 clr.AddReference("RevitAPIUI") 
 from Autodesk.Revit.UI import*
-
+from Autodesk.Revit.UI.Selection import ISelectionFilter
 clr.AddReference("System") 
 from System.Collections.Generic import List
 

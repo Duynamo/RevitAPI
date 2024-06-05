@@ -509,3 +509,30 @@ def pointOnLine(p,a,b):
 			return True
 	return False
 #endregion
+
+#region ___to retrieve vector of pipe
+def getDirectionVector(pipe):
+    curve = pipe.Location.Curve
+    directionVector = curve.GetEndPoint(1) - curve.GetEndPoint(0)
+    return directionVector.Normalize()
+#endregion
+
+#region ___to calculate the angle between two pipe
+#need to import "from math import acos, degrees"
+def getDirectionVector(pipe):
+    curve = pipe.Location.Curve
+    directionVector = curve.GetEndPoint(1) - curve.GetEndPoint(0)
+    return directionVector.Normalize()
+
+def calculateAngleBetweenPipes(mPipe, bPipe):
+    dir1 = getDirectionVector(mPipe)
+    dir2 = getDirectionVector(bPipe)
+    dotProduct = dir1.DotProduct(dir2)
+    mag1 = dir1.GetLength()
+    mag2 = dir2.GetLength()
+    cosAngle = dotProduct / (mag1 * mag2)
+    angleRadians = acos(cosAngle)
+    angleDegrees = degrees(angleRadians)
+    return angleDegrees
+
+#endregion
