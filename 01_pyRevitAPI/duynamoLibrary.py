@@ -266,12 +266,12 @@ def pullPointToCurve(inPoint, inCurve):
 
 #region ___pull end point of BPipe to mPipe
 def pullPointToCurve(mPipe, bPipe):
-    K = 304.8
+    #K = 304.8
     mPCurve = mPipe.Location.Curve
     nearestConOfBPipe =  closetConn(mPipe, bPipe)
-    pMid = mPCurve.Project(nearestConOfBPipe).XYZPoint
-    dynMP = Autodesk.DesignScript.Geometry.Point.ByCoordinates(pMid.X*K, pMid.Y*K, pMid.Z*K) 
-    return dynMP
+    pMid = mPCurve.Project(nearestConOfBPipe).XYZPoint.ToPoint()
+    #dynMP = Autodesk.DesignScript.Geometry.Point.ByCoordinates(pMid.X*K, pMid.Y*K, pMid.Z*K) 
+    return pMid
 
 def NearestConnector(ConnectorSet, curCurve):
     MinLength = float("inf")
@@ -533,6 +533,33 @@ def calculateAngleBetweenPipes(mPipe, bPipe):
     cosAngle = dotProduct / (mag1 * mag2)
     angleRadians = acos(cosAngle)
     angleDegrees = degrees(angleRadians)
-    return angleDegrees
+    angle1 = 180-angleDegrees
+    minAngle = 0
+    maxAngle = 0
+    if angle1 < angleDegrees:
+          minAngle = angle1
+          maxAngle = angleDegrees
+    else: 
+          minAngle = angleDegrees
+          maxAngle = angle1
+    return minAngle,maxAngle
 
+#endregion
+
+#region ___to generate plane from point and line
+def create_plane_from_point_and_line(point, line):
+    direction = line.Direction
+    up_vector = XYZ.BasisZ
+    normal = direction.CrossProduct(up_vector).Normalize()
+    plane = Plane.CreateByNormalAndOrigin(normal, point) 
+    return plane
+#endregion 
+
+#region ___to generate plane from 3 points
+def create_plane_from_three_points(point1, point2, point3):
+    vector1 = point2 - point1
+    vector2 = point3 - point1
+    normal = vector1.CrossProduct(vector2).Normalize()
+    plane = Plane.CreateByNormalAndOrigin(normal, point1)  
+    return plane
 #endregion
