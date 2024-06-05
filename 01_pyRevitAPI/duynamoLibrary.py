@@ -169,29 +169,30 @@ def uwList(input):
 #endregion
 
 #region ___to retrieve selected pipe type, piping system, diameter and reference level
-def getPipeParameter(pipe):
+def getPipeParameter(p):
     paramDiameters = []
     paramPipingSystems = []
     paramLevels = []
     paramPipeTypes = []
 
-    for p in pipe:
-        paramDiameter = p.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM).AsDouble() * 304.8
-        paramDiameters.append(paramDiameter)
+    paramDiameter = p.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM).AsDouble() * 304.8
+    
 
-        paramPipeTypeId = p.GetTypeId()
-        paramPipeType = doc.GetElement(paramPipeTypeId)
-        paramPipeTypes.append(paramPipeType)
+    paramPipeTypeId = p.GetTypeId()
+    paramPipeType = doc.GetElement(paramPipeTypeId)
+    paramPipeTypes.append(paramPipeType)
+    pipeTypeName = paramPipeType.LookupParameter("Type Name").AsString()
+	
+    paramPipingSystemId = p.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
+    paramPipingSystem = doc.GetElement(paramPipingSystemId)
+    paramPipingSystems.append(paramPipingSystem)
+    pipingSystemName = paramPipingSystem.LookupParameter("System Classification").AsValueString()
 
-        paramPipingSystemId = p.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
-        paramPipingSystem = doc.GetElement(paramPipingSystemId)
-        paramPipingSystems.append(paramPipingSystem)
+    paramLevelId = p.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
+    paramLevel = doc.GetElement(paramLevelId)
+    paramLevels.append(paramLevel)
 
-        paramLevelId = p.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
-        paramLevel = doc.GetElement(paramLevelId)
-        paramLevels.append(paramLevel)
-
-    return paramDiameters, paramPipingSystems, paramLevels, paramPipeTypes
+    return [paramDiameter, paramPipingSystem, paramPipeType, paramLevel],[paramDiameter,pipingSystemName,pipeTypeName,paramLevel]
 #endregion
 
 #region ___to delete elements

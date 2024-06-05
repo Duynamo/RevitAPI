@@ -66,3 +66,13 @@ TransactionManager.Instance.EnsureInTransaction(doc)
 TransactionManager.Instance.TransactionTaskDone()
 
 OUT = eleList
+
+
+def generateParallelVector(point, vector):
+    point1 = point.ToRevitType()
+    vector1 = vector.ToRevitType()
+    normal = XYZ.BasisZ.CrossProduct(vector1)
+    plane = Plane.CreateByNormalAndOrigin(normal, point1)
+    projectedVector = vector1 - vector1.DotProduct(normal) * normal
+    parallelVector = projectedVector.Normalize() * vector1.GetLength()
+    return parallelVector
