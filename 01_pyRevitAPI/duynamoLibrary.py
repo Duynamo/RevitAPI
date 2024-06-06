@@ -193,6 +193,7 @@ def getPipeParameter(p):
     paramLevels.append(paramLevel)
 
     return [paramDiameter, paramPipingSystem, paramPipeType, paramLevel],[paramDiameter,pipingSystemName,pipeTypeName,paramLevel]
+
 #endregion
 
 #region ___to delete elements
@@ -564,3 +565,116 @@ def create_plane_from_three_points(point1, point2, point3):
     plane = Plane.CreateByNormalAndOrigin(normal, point1)  
     return plane
 #endregion
+
+#region ___to offset the point along the vector
+def offsetPointAlongVector(point, vector, offsetDistance):
+    direction = vector.Normalize()
+    scaledVector = direction.Multiply(offsetDistance)
+    offsetPoint = point.Add(scaledVector)
+    return offsetPoint
+#endregion
+
+#region ___to offset the point along the vector
+def offsetPointAlongVector(point, vector, offsetDistance):
+    point = point.ToPoint()
+    direction = vector.ToVector().Normalize()
+    scaledVector = direction.Multiply(offsetDistance)
+    offsetPoint = point.ToRevitType().Add(scaledVector)
+    return offsetPoint
+#endregion
+
+#region ___to short the connector of bPipe and retreive the vector
+def NearestConnector(ConnectorSet, curCurve):
+    MinLength = float("inf")
+    result = None  # Initialize result to None
+    for n in ConnectorSet:
+        distance = curCurve.Location.Curve.Distance(n.Origin)
+        if distance < MinLength:
+            MinLength = distance
+            result = n
+    return result
+
+def closetConn(mPipe, bPipe):
+    connLst = []
+    connectors = list(bPipe.ConnectorManager.Connectors.GetEnumerator())
+    nearConn1 = [NearestConnector(connectors, mPipe)]
+    farConn1  = [conn for conn in connectors if conn not in nearConn1]
+    shortedConnLst = [ele for ele in nearConn1] + [ele for ele in farConn1]
+    connLst = [conn.Origin.ToPoint() for conn in shortedConnLst]
+    vector = connLst[1].ToRevitType()-connLst[0].ToRevitType()
+    return Flatten(connLst), vector.ToVector()
+#endregion
+
+#region ______to create pipe from list points
+def pipeCreateFromPoints(desPointsList, sel_pipingSystem, sel_PipeType, sel_Level, diameter):
+    lst_Points1 = [i for i in desPointsList]
+    lst_Points2 = [i for i in desPointsList[1:]]
+    linesList = []
+    for pt1, pt2 in zip(lst_Points1,lst_Points2):
+        line =  Autodesk.DesignScript.Geometry.Line.ByStartPointEndPoint(pt1,pt2)
+        linesList.append(line)
+    firstPoint   = [x.StartPoint for x in linesList]
+    secondPoint  = [x.EndPoint for x in linesList]
+    pipesList = []
+    pipesList1 = []
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    for i,x in enumerate(firstPoint):
+        try:
+            levelId = sel_Level.Id
+            sysTypeId = sel_pipingSystem.Id
+            pipeTypeId = sel_PipeType.Id
+            diam = diameter
+            pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(doc,sysTypeId,pipeTypeId,levelId,x.ToXyz(),secondPoint[i].ToXyz())
+            param_Diameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
+            param_Diameter.SetValueString(diam.ToString())
+            TransactionManager.Instance.EnsureInTransaction(doc)
+            pipesList.append(pipe.ToDSType(False))
+            pipesList1.append(pipe)
+            # param_Length.Set()
+            TransactionManager.Instance.TransactionTaskDone()
+        except:
+            pipesList.append(None)				
+    TransactionManager.Instance.TransactionTaskDone()
+    return pipesList
+#endregion
+
+#region ______to connect pipes by Elbows
+def createElbows(pipes):
+    fittings = []
+    connectors = {}
+    connlist = []    
+    for pipe in pipes:
+        conns = pipe.ConnectorManager.Connectors
+        for conn in conns:
+            if conn.IsConnected:
+                continue
+            connectors[conn] = None
+            connlist.append(conn)
+    for k in connectors.keys():
+        mindist = 1000000
+        closest = None
+        for conn in connlist:
+            if conn.Owner.Id.Equals(k.Owner.Id):
+                continue
+            dist = k.Origin.DistanceTo(conn.Origin)
+            if dist < mindist:
+                mindist = dist
+                closest = conn
+        if mindist > margin:
+            continue
+        connectors[k] = closest
+        connlist.remove(closest)
+        try:
+            del connectors[closest]
+        except:
+            pass
+    for k,v in connectors.items():
+        TransactionManager.Instance.EnsureInTransaction(doc)		
+        try:
+            fitting = doc.Create.NewElbowFitting(k,v)
+            fittings.append(fitting.ToDSType(False))
+        except:
+            pass
+        TransactionManager.Instance.TransactionTaskDone()
+    return fittings
+    #endregion
