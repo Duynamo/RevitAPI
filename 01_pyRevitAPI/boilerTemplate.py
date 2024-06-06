@@ -6,6 +6,8 @@ import System
 import math
 import collections
 
+from math import cos,sin,tan,radians
+
 clr.AddReference("ProtoGeometry")
 from Autodesk.DesignScript.Geometry import *
 
@@ -13,6 +15,8 @@ clr.AddReference("RevitAPI")
 import Autodesk
 from Autodesk.Revit.DB import* 
 from Autodesk.Revit.DB.Structure import*
+
+clr.AddReference("DSCoreNodes")
 from DSCore.List import Flatten
 
 clr.AddReference("RevitAPIUI") 
