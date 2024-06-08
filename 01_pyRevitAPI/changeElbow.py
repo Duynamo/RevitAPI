@@ -58,15 +58,30 @@ def uwList(input):
     result = input if isinstance(input, list) else [input]
     return UnwrapElement(input)
 
-#endregion
-
-
-eleList   = uwList(IN[0])
-
-# Do some action in a Transaction
-TransactionManager.Instance.EnsureInTransaction(doc)
-
-
-TransactionManager.Instance.TransactionTaskDone()
-
-OUT = eleList
+def get_elbow_fitting_between_pipes(doc, pipeLst):
+	conns = []
+	ref = []
+	fittingsLst = []
+	for p in pipeLst:
+		connLst = []
+		refs = []
+		fittings = []
+		try:
+			connectors = p.MEPModel.ConnectorManager.Connectors
+		except:
+			try:
+				connectors = p.ConnectorManager.Connectors
+			except:
+				conns.append(None)
+		for conn in connectors:
+			connLst.append(conn)
+			for c in conn.AllRefs:
+				refs.append(c.Owner)
+				for item in refs:
+					IDS = List[ElementId]()
+					IDS.Add(item.Id)
+					fittings = FilteredElementCollector(doc, IDS).OfCategory(BuiltInCategory.OST_PipeFitting).WhereElementIsNotElementType().ToElements()
+		conns.append(connLst)
+		ref.append(refs)
+		fittingsLst.append(fittings)
+	return conns, ref , fittingsLst

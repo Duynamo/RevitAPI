@@ -119,3 +119,4 @@ categoriesFilter.append(desFamTypes)
 
 flat_categoriesFilter = [ item for sublist in categoriesFilter for item in sublist]
 """___________________"""
+
