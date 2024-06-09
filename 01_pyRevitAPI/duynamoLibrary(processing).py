@@ -397,7 +397,7 @@ def allPipesInActiveView():
 	pipesCollector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeCurves).WhereElementIsNotElementType().ToElements()
 	pipesList.append(i for i in pipesCollector)
 	return pipesList
-allPipes = allPipesInActiveView()
+
 
 #endregion
 
@@ -700,10 +700,25 @@ def uniEle(inList):
             uniLst.append(ele)
     return uniLst
 
-for f in allElbowFittings:
-     IDS = List(ElementId)[]
-     IDS.Add(f.Id)
-     uniFittings = []
-     for id in IDS:
-          if id not in uniId:
-               uniFittings.append(id)
+
+def getFittingsName(fittings):
+	elbows = []
+	elbowsName = []
+	tees = []
+	teesName = []
+	reducers = []
+	reducersName = []
+
+	for fitting in fittings:
+		name = fitting.Symbol.LookupParameter('Family Name').AsString()
+		if 'Elbow' in name: 
+			elbows.append(fitting)
+			elbowsName.append(name)
+		if 'Tee' in name : 
+			tees.append(fitting)
+			teesName.append(name)
+		if 'Reducer' in name : 
+			reducers.append(fitting)
+			reducersName.append(name)
+
+	return [elbows,elbowsName], [tees,teesName], [reducers,reducersName]

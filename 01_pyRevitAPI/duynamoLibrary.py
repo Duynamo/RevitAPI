@@ -191,7 +191,7 @@ def getPipeParameter(p):
 
     return [paramDiameter, paramPipingSystem, paramPipeType, paramLevel],[paramDiameter,pipingSystemName,pipeTypeName,paramLevel]
 
-def PickPoints(doc):
+def pickPoints(doc):
 	TransactionManager.Instance.EnsureInTransaction(doc)
 	activeView = doc.ActiveView
 	iRefPlane = Plane.CreateByNormalAndOrigin(activeView.ViewDirection, activeView.Origin)
@@ -218,6 +218,7 @@ def PickPoints(doc):
 	return dynPList, pointsList
 
 def pickObjects():
+    from Autodesk.Revit.UI.Selection import ObjectType
     refs = uidoc.Selection.PickObjects(ObjectType.Element)
     return  [doc.GetElement(i.ElementId) for i in refs], [ref for ref in refs]
 
@@ -241,13 +242,21 @@ class selectionFilter(ISelectionFilter):
 		else:
 			return False
 def pickPipes():
-	pipes = []
-	pipeFilter = selectionFilter("Pipes")
-	pipesRef = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Element, pipeFilter,"pick Pipes")
-	for ref in pipesRef:
-		pipe = doc.GetElement(ref.ElementId)
-		pipes.append(pipe)
-	return pipes	
+    class selectionFilter(ISelectionFilter):
+        def __init__(self, category):
+            self.category = category
+        def AllowElement(self, element):
+            if element.Category.Name == self.category:
+                return True
+            else:
+                return False
+    pipes = []
+    pipeFilter = selectionFilter("Pipes")
+    pipesRef = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Element, pipeFilter,"pick Pipes")
+    for ref in pipesRef:
+        pipe = doc.GetElement(ref.ElementId)
+        pipes.append(pipe)
+        return pipes	
 #endregion
 
 def calculateAngleBetweenPipes(mPipe, bPipe):
@@ -274,17 +283,3 @@ def calculateAngleBetweenPipes(mPipe, bPipe):
           minAngle = angleDegrees
           maxAngle = angle1
     return minAngle,maxAngle
-
-def uniEle(inList):
-    uniLst = []
-    for ele in inList:
-        if ele not in uniLst:
-            uniLst.append(ele)
-    return uniLst
-
-def getFittingsName(fittingsList):
-	fittingsName = []
-	for fitting in fittingsList:
-		name = fitting.Symbol.LookupParameter('Family Name').AsString()
-		fittingsName.append(name)
-	return fittingsName

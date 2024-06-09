@@ -151,4 +151,24 @@ else:
 	OUT = p,fd,ref, dir, conns, descript, H, W, R, MEP, Sys, Shap, sysClass
 	
 
+def getFittingsName(fittings):
+	elbows = []
+	elbowsName = []
+	tees = []
+	teesName = []
+	reducers = []
+	reducersName = []
 
+	for fitting in fittings:
+		name = fitting.Symbol.LookupParameter('Family Name').AsString()
+		if 'Elbow' in name: 
+			elbows.append(fitting)
+			elbowsName.append(name)
+		if 'Tee' in name : 
+			tees.append(fitting)
+			teesName.append(name)
+		if 'Reducer' in name : 
+			reducers.append(fitting)
+			reducersName.append(name)
+
+	return [elbows,elbowsName], [tees,teesName], [reducers,reducersName]

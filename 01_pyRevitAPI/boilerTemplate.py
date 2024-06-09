@@ -7,6 +7,7 @@ import math
 import collections
 import duynamoLibrary as dLib
 
+sys.path.append('')
 from math import cos,sin,tan,radians
 
 clr.AddReference("ProtoGeometry")
