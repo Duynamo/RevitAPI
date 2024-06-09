@@ -274,3 +274,17 @@ def calculateAngleBetweenPipes(mPipe, bPipe):
           minAngle = angleDegrees
           maxAngle = angle1
     return minAngle,maxAngle
+
+def uniEle(inList):
+    uniLst = []
+    for ele in inList:
+        if ele not in uniLst:
+            uniLst.append(ele)
+    return uniLst
+
+def getFittingsName(fittingsList):
+	fittingsName = []
+	for fitting in fittingsList:
+		name = fitting.Symbol.LookupParameter('Family Name').AsString()
+		fittingsName.append(name)
+	return fittingsName

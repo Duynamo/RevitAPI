@@ -693,3 +693,17 @@ def getAllPipeAccessoriesInActiveView(doc):
     return pipeAccessories
 #endregion
 
+def uniEle(inList):
+    uniLst = []
+    for ele in inList:
+        if ele not in uniLst:
+            uniLst.append(ele)
+    return uniLst
+
+for f in allElbowFittings:
+     IDS = List(ElementId)[]
+     IDS.Add(f.Id)
+     uniFittings = []
+     for id in IDS:
+          if id not in uniId:
+               uniFittings.append(id)

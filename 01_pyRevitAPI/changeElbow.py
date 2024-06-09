@@ -85,3 +85,10 @@ def get_elbow_fitting_between_pipes(doc, pipeLst):
 		ref.append(refs)
 		fittingsLst.append(fittings)
 	return conns, ref , fittingsLst
+
+def getFittingsName(fittingsList):
+	fittingsName = []
+	for fitting in fittingsList:
+		name = fitting.Symbol.LookupParameter('Family Name').AsString()
+		fittingsName.append(name)
+	return fittingsName
