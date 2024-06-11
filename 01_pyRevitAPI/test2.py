@@ -1,174 +1,92 @@
-
+"""Copyright by: vudinhduybm@gmail.com"""
+#region ___import all Library
 import clr
+import sys 
+import System   
 import math
-import duynamoLibrary as dLib
+import collections
 
-clr.AddReference("RevitServices")
-import RevitServices
-from RevitServices.Persistence import DocumentManager
-from RevitServices.Transactions import TransactionManager
-doc = DocumentManager.Instance.CurrentDBDocument
+sys.path.append('C:\Program Files\Autodesk\Revit 2022\AddIns\DynamoForRevit\IronPython.StdLib.2.7.9\duynamoLibrary')
+from duynamoLibrary import *
+clr.AddReference("ProtoGeometry")
 
-clr.AddReference("RevitAPI")
+from Autodesk.DesignScript.Geometry import *
+
+clr.AddReference("RevitAPI") 
 import Autodesk
-from Autodesk.Revit.DB import *
+from Autodesk.Revit.DB import* 
+from Autodesk.Revit.DB.Structure import*
+
+clr.AddReference('DSCoreNodes')
+from DSCore.List import Flatten
+
+clr.AddReference("RevitAPIUI") 
+from Autodesk.Revit.UI import*
+
+clr.AddReference("System") 
+from System.Collections.Generic import List
 
 clr.AddReference("RevitNodes")
 import Revit
 clr.ImportExtensions(Revit.Elements)
 clr.ImportExtensions(Revit.GeometryConversion)
-#The inputs to this node will be stored as a list in the IN variables.
-if isinstance(IN[0], list):
-	fittings = UnwrapElement(IN[0])
-	toggle = 0
-else:
-	toggle = 1
-	fittings = [UnwrapElement(IN[0])]
-	
-	
-def getConnSysType(connector):
-	domain = connector.Domain
-	if domain == Domain.DomainHvac:
-		return connector.DuctSystemType.ToString()
-	elif domain == Domain.DomainPiping:
-		return connector.PipeSystemType.ToString()
-	elif domain == Domain.DomainElectrical:
-		return connector.ElectricalSystemType.ToString()
-	else:
-		return None
-	
 
-p = []
-dir = []
-fd = []
-ref = []
-conns = []
-descript = []
-H = []
-W = []
-R = []
-MEP = []
-Sys = []
-Shap = []
-sysClass = []
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+from RevitServices.Transactions import TransactionManager
 
-for fitting in fittings:
-	
-	
-	points = []
-	direction = []
-	flowdir = []
-	refs = []
-	connlist = []
-	description = []
-	height = []
-	width = []
-	radius = []
-	MEPSystem = []
-	systemType = []
-	shape = []
-	systemclass = []
-	
-	try:
-		connectors = fitting.MEPModel.ConnectorManager.Connectors
-	except:
-		try:
-			connectors = fitting.ConnectorManager.Connectors
-		except:			
-			p.append(None)
-			dir.append(None)
-			fd.append(None)
-			ref.append(None)
-			conns.append(None)
-			descript.append(None)
-			H.append(None)
-			W.append(None)
-			R.append(None)
-			Shap.append(None)
-			MEP.append(None)
-			Sys.append(None)
-			sysClass.append(None)
-			continue
-	for conn in connectors:
-		connlist.append(conn)
-		description.append(conn.Description)
-		try:
-			height.append(conn.Height)
-			width.append(conn.Width)
-			radius.append(None)
-		except:
-			try:
-				radius.append(conn.Radius)
-				height.append(None)
-				width.append(None)
-			except:
-				radius.append(None)
-				height.append(None)
-				width.append(None)
-		shape.append((conn.Shape).ToString())
-		
-		try:
-			MEPSystem.append(conn.MEPSystem.Name)
-			systype = doc.GetElement(conn.MEPSystem.GetTypeId())
-			systemType.append(systype)			
-		except:
-			MEPSystem.append(None)
-			systemType.append(None)
-		
-		try:		
-			systemclass.append(getConnSysType(conn))
-		except:
-			systemclass.append(None)
-		
-		points.append(conn.Origin.ToPoint())
-		direction.append(conn.CoordinateSystem.BasisZ.ToVector())
-		
-		try:
-			flowdir.append(conn.Direction.ToString())
-		except:
-			flowdir.append(None)
-		for c in conn.AllRefs:
-			refs.append(c.Owner)
-	p.append(points)
-	dir.append(direction)
-	fd.append(flowdir)
-	ref.append(refs)
-	conns.append(connlist)
-	descript.append(description)
-	H.append(height)
-	W.append(width)
-	R.append(radius)
-	MEP.append(MEPSystem)
-	Sys.append(systemType)
-	Shap.append(shape)
-	sysClass.append(systemclass)
+clr.AddReference("System.Windows.Forms")
+clr.AddReference("System.Drawing")
+clr.AddReference("System.Windows.Forms.DataVisualization")
+
+import System.Windows.Forms 
+from System.Windows.Forms import *
+import System.Drawing
+from System.Drawing import *
+#endregion
+
+#region ___Current doc/app/ui
+doc = DocumentManager.Instance.CurrentDBDocument
+uiapp = DocumentManager.Instance.CurrentUIApplication
+app = uiapp.Application
+uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
+view = doc.ActiveView
+#endregion
+
+#region ___someFunctions
+def uwList(input):
+    result = input if isinstance(input, list) else [input]
+    return UnwrapElement(input)
+def getPipeParameter(pipes):
+    paramDiameters = []
+    paramPipingSystems = []
+    paramLevels = []
+    paramPipeTypes = []
+    for p in pipes:
+        paramDiameter = p.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM).AsDouble() * 304.8
+        paramPipeTypeId = p.GetTypeId()
+        paramPipeType = doc.GetElement(paramPipeTypeId)
+        paramPipeTypes.append(paramPipeType)
+        pipeTypeName = paramPipeType.LookupParameter("Type Name").AsString()
+        paramPipingSystemId = p.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
+        paramPipingSystem = doc.GetElement(paramPipingSystemId)
+        paramPipingSystems.append(paramPipingSystem)
+        pipingSystemName = paramPipingSystem.LookupParameter("System Classification").AsValueString()
+        paramLevelId = p.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
+        paramLevel = doc.GetElement(paramLevelId)
+        paramLevels.append(paramLevel)
+
+    return [paramDiameter, paramPipingSystem, paramPipeType, paramLevel],[paramDiameter,pipingSystemName,pipeTypeName,paramLevel]
+#endregion
 
 
-#Assign your output to the OUT variable.
-if toggle:
-	OUT = points, flowdir, refs, direction, connlist, description, height, width, radius, MEPSystem, systemType, shape, systemclass
-else:
-	OUT = p,fd,ref, dir, conns, descript, H, W, R, MEP, Sys, Shap, sysClass
-	
+eleList   = uwList(IN[0])
 
-def getFittingsName(fittings):
-	elbows = []
-	elbowsName = []
-	tees = []
-	teesName = []
-	reducers = []
-	reducersName = []
+# Do some action in a Transaction
+TransactionManager.Instance.EnsureInTransaction(doc)
 
-	for fitting in fittings:
-		name = fitting.Symbol.LookupParameter('Family Name').AsString()
-		if 'Elbow' in name: 
-			elbows.append(fitting)
-			elbowsName.append(name)
-		if 'Tee' in name : 
-			tees.append(fitting)
-			teesName.append(name)
-		if 'Reducer' in name : 
-			reducers.append(fitting)
-			reducersName.append(name)
 
-	return [elbows,elbowsName], [tees,teesName], [reducers,reducersName]
+TransactionManager.Instance.TransactionTaskDone()
+
+OUT = eleList
