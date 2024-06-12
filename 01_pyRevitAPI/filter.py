@@ -55,7 +55,7 @@ for c in categories:
     categoriesFilter.append(collector)
 flat_categoriesFilter = [[item for item in sublist] for sublist in categoriesFilter]
 
-####filterMultiFamilySymbols
+#region_ filterMultiFamilySymbols
 cateList = List[BuiltInCategory]()
 
 cateList.Add(BuiltInCategory.OST_StructuralColumns)
@@ -65,7 +65,7 @@ _filter = ElementMulticategoryFilter(cateList)
 elems = FilteredElementCollector(doc).WherePasses(_filter).WhereElementIsNotElementType().ToElements()
 
 OUT = elems
-
+#endregion
 
 ####filterCurveElements
 filter3 = CurveElementFilter(CurveElementType.ModelCurve)

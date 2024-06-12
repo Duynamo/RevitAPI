@@ -722,3 +722,11 @@ def getFittingsName(fittings):
 			reducersName.append(name)
 
 	return [elbows,elbowsName], [tees,teesName], [reducers,reducersName]
+
+
+def getConnectTo(connector):
+    elemOwner = connector.Owner
+    for refCon in connector.AllRefs:
+        if  refCon.Owner.Id != elemOwner.Id and refCon.ConnectorType == ConnectorType.End:
+            return refCon
+    return None 
