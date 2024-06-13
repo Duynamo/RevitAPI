@@ -126,8 +126,38 @@ OUT = chunkList(lineList),minPoint,minPointB,minYPoint
 
 
 
+def minXPoints(points):
+    if len(points) < 2:
+        return points
+    points = sorted(points, key=lambda pt: pt.X)
+
+def minXPoints(points):
+    if len(points) < 2:
+        return points
+    else:
+        points = sorted(points, key=lambda pt: pt.X)
+        return points[:2]
+def minYPoints(points):
+    if len(points) < 2:
+        return points
+    else:
+        points = sorted(points, key=lambda pt: pt.Y)
+        return points[:2]
+def getRoundedDisFrom2Points(point1, point2, k):
+    distance = point1.DistanceTo(point2)
+    roundedDis = math.ceil(distance/k) * k
+    return roundedDis
+#endregion
 
 
+inPoints   = uwList(IN[0])
+# Do some action in a Transaction
+TransactionManager.Instance.EnsureInTransaction(doc)
+sort1 = minXPoints(inPoints)
+columnB = getRoundedDisFrom2Points(sort1[0],sort1[1],5)
+sort2 = minYPoints(inPoints)
+columnH = getRoundedDisFrom2Points(sort2[0],sort2[1],5)
 
+TransactionManager.Instance.TransactionTaskDone()
 
-
+OUT = sort1,sort2,columnB, columnH  

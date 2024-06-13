@@ -402,7 +402,7 @@ def allPipesInActiveView():
 #endregion
 
 #region ___to pick multi points in floors plane or section planes
-def PickPoints(doc):
+def pickPoints(doc):
 	TransactionManager.Instance.EnsureInTransaction(doc)
 	activeView = doc.ActiveView
 	iRefPlane = Plane.CreateByNormalAndOrigin(activeView.ViewDirection, activeView.Origin)
@@ -423,7 +423,7 @@ def PickPoints(doc):
 			condition = False
 	doc.Delete(sketchPlane.Id)	
 	for j in pointsList:
-		dynP = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304.8, j.Z*304.8)	
+		dynP = j.ToPoint()
 		dynPList.append(dynP)
 	TransactionManager.Instance.TransactionTaskDone()			
 	return dynPList, pointsList
