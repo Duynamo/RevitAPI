@@ -730,3 +730,30 @@ def getConnectTo(connector):
         if  refCon.Owner.Id != elemOwner.Id and refCon.ConnectorType == ConnectorType.End:
             return refCon
     return None 
+
+
+def duplicateColumns(baseColumn, bList, hList):
+    newColumns = []
+    sizeList = []
+    ss = []
+    for b, h in zip(bList, hList):
+        size = "{} x {}mm".format(b, h)
+        sizeList.append(size)
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    try:
+        for b, h, size in zip(bList, hList, sizeList):
+            idList = List[ElementId]([c.Id for c in baseColumn])
+            copyIds = ElementTransformUtils.CopyElements(doc, idList, doc, Transform.Identity, CopyPasteOptions())
+            for id in copyIds:
+                newCol = doc.GetElement(id)
+                newCol.Name = size
+                bParam = newCol.LookupParameter('b')
+                hParam = newCol.LookupParameter('h')
+                if bParam and hParam:
+                    bParam.Set(b/304.8)
+                    hParam.Set(h/304.8)
+                newColumns.append(newCol)
+    except Exception as e:
+        pass
+    TransactionManager.Instance.TransactionTaskDone()
+    return newColumns
