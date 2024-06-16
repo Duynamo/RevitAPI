@@ -737,7 +737,7 @@ def duplicateColumns(baseColumn, bList, hList):
     sizeList = []
     ss = []
     for b, h in zip(bList, hList):
-        size = "{} x {}mm".format(b, h)
+        size = "{} x {}mm".format(int(b), int(h))
         sizeList.append(size)
     TransactionManager.Instance.EnsureInTransaction(doc)
     try:
@@ -757,7 +757,6 @@ def duplicateColumns(baseColumn, bList, hList):
         pass
     TransactionManager.Instance.TransactionTaskDone()
     return newColumns
-
 
 def chunkList(inputList, chunkSize):
     """Chop a list into chunks of specified size."""
