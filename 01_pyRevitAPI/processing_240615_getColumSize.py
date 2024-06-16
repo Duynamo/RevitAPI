@@ -133,10 +133,9 @@ def duplicateColumns(baseColumn, bList, hList):
         sizeList.append(size)
     TransactionManager.Instance.EnsureInTransaction(doc)
     try:
-        for size in sizeList:
+        for b, h, size in zip(bList, hList, sizeList):
             idList = List[ElementId]([c.Id for c in baseColumn])
             copyIds = ElementTransformUtils.CopyElements(doc, idList, doc, Transform.Identity, CopyPasteOptions())
-
             for id in copyIds:
                 newCol = doc.GetElement(id)
                 newCol.Name = size
@@ -145,7 +144,7 @@ def duplicateColumns(baseColumn, bList, hList):
                 if bParam and hParam:
                     bParam.Set(b/304.8)
                     hParam.Set(h/304.8)
-        newColumns.append(newCol)
+                newColumns.append(newCol)
     except Exception as e:
         pass
     TransactionManager.Instance.TransactionTaskDone()

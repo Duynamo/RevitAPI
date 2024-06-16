@@ -757,3 +757,24 @@ def duplicateColumns(baseColumn, bList, hList):
         pass
     TransactionManager.Instance.TransactionTaskDone()
     return newColumns
+
+
+def chunkList(inputList, chunkSize):
+    """Chop a list into chunks of specified size."""
+    return [inputList[i:i+chunkSize] for i in range(0, len(inputList), chunkSize)]
+
+def centerOf4Points(points):
+    centerPoint = XYZ
+    try:
+        if len(points) == 4:
+           for pt in points:
+               sumX += pt.X 
+               sumY += pt.Y 
+               sumZ += pt.Z
+        centerX = sumX /4
+        centerY = sumY /4
+        centerZ = sumZ /4
+        centerPoint = XYZ(centerX, centerY, centerZ)
+    except Exception as e:
+        pass
+    return centerPoint

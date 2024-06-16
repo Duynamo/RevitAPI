@@ -161,3 +161,7 @@ columnH = getRoundedDisFrom2Points(sort2[0],sort2[1],5)
 TransactionManager.Instance.TransactionTaskDone()
 
 OUT = sort1,sort2,columnB, columnH  
+
+
+
+
