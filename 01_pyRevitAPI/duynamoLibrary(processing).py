@@ -777,3 +777,33 @@ def centerOf4Points(points):
     except Exception as e:
         pass
     return centerPoint
+
+
+def placeFamilyInstances(doc, listCol, listPoints, level1):
+    newInstances = []
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    try:
+        for symbol, point in zip(listCol, listPoints):
+            if isinstance(symbol, FamilySymbol):
+                if not symbol.IsActive:
+                    symbol.Activate()
+                    doc.Regenerate()
+                
+                newInst = doc.Create.NewFamilyInstance(XYZ(point.X, point.Y, point.Z), symbol, level, StructuralType.NonStructural)
+                newInstances.append(newInst)
+
+    except Exception as e:
+        pass
+    return newInstances
+
+
+def allConcreteColumns(doc):
+    cate = BuiltInCategory.OST_StructuralColumns
+    colCollector = FilteredElementCollector(doc).OfCategory(cate).WhereElementIsElementType()
+    allConCols = []
+    name = []
+    for c in colCollector:
+        name = c.Family.LookupParameter('Material for Model Behavior').AsValueString()
+        if name is not None and 'Concrete' in name :
+            allConCols.append(c)
+    return allConCols

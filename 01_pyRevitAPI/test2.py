@@ -5,11 +5,12 @@ import sys
 import System   
 import math
 import collections
+import duynamoLibrary as dLib
 
-sys.path.append('C:\Program Files\Autodesk\Revit 2022\AddIns\DynamoForRevit\IronPython.StdLib.2.7.9\duynamoLibrary')
-from duynamoLibrary import *
+sys.path.append('')
+from math import cos,sin,tan,radians
+
 clr.AddReference("ProtoGeometry")
-
 from Autodesk.DesignScript.Geometry import *
 
 clr.AddReference("RevitAPI") 
@@ -17,12 +18,12 @@ import Autodesk
 from Autodesk.Revit.DB import* 
 from Autodesk.Revit.DB.Structure import*
 
-clr.AddReference('DSCoreNodes')
+clr.AddReference("DSCoreNodes")
 from DSCore.List import Flatten
 
 clr.AddReference("RevitAPIUI") 
 from Autodesk.Revit.UI import*
-
+from Autodesk.Revit.UI.Selection import ISelectionFilter
 clr.AddReference("System") 
 from System.Collections.Generic import List
 
@@ -52,70 +53,90 @@ uiapp = DocumentManager.Instance.CurrentUIApplication
 app = uiapp.Application
 uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
-#endregion
 
-#region ___someFunctions
-def uwList(input):
-    result = input if isinstance(input, list) else [input]
-    return UnwrapElement(input)
-def chunkList(inputList, chunkSize = 4):
-    """Chop a list into chunks of specified size."""
-    return [inputList[i:i+chunkSize] for i in range(0, len(inputList), chunkSize)]
-def minXPoints(points):
-    if len(points) < 2:
-        return points
-    else:
-        points = sorted(points, key=lambda pt: pt.X)
-        return points[:2]
-def minYPoints(points):
-    if len(points) < 2:
-        return points
-    else:
-        points = sorted(points, key=lambda pt: pt.Y)
-        return points[:2]
-def getRoundedDisFrom2Points(point1, point2, k):
-    distance = point1.DistanceTo(point2)
-    roundedDis = math.ceil(distance/k) * k
-    return roundedDis
-
-def centerOf4Points(points):
-    centerPoint = XYZ
-    sumX = 0
-    sumY = 0
-    sumZ = 0
+def placeFamilyInstances(doc, listCol, listPoints, level1):
+    newInstances = []
+    TransactionManager.Instance.EnsureInTransaction(doc)
     try:
-        if len(points) == 4:
-           for pt in points:
-               sumX += pt.X 
-               sumY += pt.Y 
-               sumZ += pt.Z
-        centerX = sumX /4
-        centerY = sumY /4
-        centerZ = sumZ /4
-        centerPoint = XYZ(centerX, centerY, centerZ)
+        for symbol, point in zip(listCol, listPoints):
+            if isinstance(symbol, FamilySymbol):
+                if not symbol.IsActive:
+                    symbol.Activate()
+                    doc.Regenerate()
+                
+                newInst = doc.Create.NewFamilyInstance(XYZ(point.X, point.Y, point.Z), symbol, level, StructuralType.NonStructural)
+                newInstances.append(newInst)
+
     except Exception as e:
         pass
-    return centerPoint
-#endregion
+    return newInstances
 
 
-curveList   = uwList(IN[0])
+def duplicateColumns(baseColumn, bList, hList):
+    newColumns = []
+    sizeList = []
+    existingSizes = set()
 
-# Do some action in a Transaction
-TransactionManager.Instance.EnsureInTransaction(doc)
-chunkedList = chunkList(curveList, 4)
-startPoints = []
-chunked4LineSP = []
-for chunked4Line in chunkedList: 
-	for c in chunked4Line:
-		sp = c.ToRevitType().GetEndPoint(0).ToPoint()
-		chunked4LineSP.append(sp)
-startPoints = chunkList(chunked4LineSP, 4)
-centerPointsLst = []
-for recPoints in startPoints:
-	cp = centerOf4Points(recPoints)
-	centerPointsLst.append(cp)
-chunkedCPList = chunkList(centerPointsLst, 1)
-TransactionManager.Instance.TransactionTaskDone()
+    for b, h in zip(bList, hList):
+        size = "{} x {}mm".format(int(b), int(h))
+        sizeList.append(size)
+    for col in baseColumn:
+        existingSizes.add(col.Name)
+		
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    try:
+        for b, h, size in zip(bList, hList, sizeList):
+            if size in existingSizes:
+                continue
+            idList = List[ElementId]([c.Id for c in baseColumn])
+            copyIds = ElementTransformUtils.CopyElements(doc, idList, doc, Transform.Identity, CopyPasteOptions())
+            for id in copyIds:
+                newCol = doc.GetElement(id)
+                newCol.Name = size
+                bParam = newCol.LookupParameter('b')
+                hParam = newCol.LookupParameter('h')
+                if bParam and hParam:
+                    bParam.Set(b/304.8)
+                    hParam.Set(h/304.8)
+                newColumns.append(newCol)
+    except Exception as e:
+        pass
+    TransactionManager.Instance.TransactionTaskDone()
+    return newColumns
 
-OUT = chunkedList, startPoints, chunkedCPList
+
+
+def getSizeString(colList):
+    bParam = c.LookupParameter('b')
+    hParam = c.LookupParameter('h')
+    if bParam and hParam:
+        b = int(round(bParam.AsDouble() * 304.8))
+        h = int(round(hParam.AsDouble() * 304.8))
+    return None
+
+
+def duplicateColumns(baseColumn, bList, hList):
+    newColumns = []
+    sizeList = []
+    ss = []
+    for b, h in zip(bList, hList):
+        size = "{} x {}mm".format(int(b), int(h))
+        sizeList.append(size)
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    try:
+        for b, h, size in zip(bList, hList, sizeList):
+            idList = List[ElementId]([c.Id for c in baseColumn])
+            copyIds = ElementTransformUtils.CopyElements(doc, idList, doc, Transform.Identity, CopyPasteOptions())
+        for id in copyIds:
+            newCol = doc.GetElement(id)
+            newCol.Name = size
+            bParam = newCol.LookupParameter('b')
+            hParam = newCol.LookupParameter('h')
+            if bParam and hParam:
+                bParam.Set(b/304.8)
+                hParam.Set(h/304.8)
+                newColumns.append(newCol)
+    except Exception as e:
+        pass
+    TransactionManager.Instance.TransactionTaskDone()
+    return newColumns
