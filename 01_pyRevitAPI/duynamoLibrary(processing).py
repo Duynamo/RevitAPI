@@ -807,3 +807,38 @@ def allConcreteColumns(doc):
         if name is not None and 'Concrete' in name :
             allConCols.append(c)
     return allConCols
+
+
+
+def getCurvesFromCADLayer(doc, cadLinkInstance, layerName):
+    # Initialize a list to store curves from the specified layer
+    curvesFromLayer = []
+
+    # Get the geometry options to retrieve geometry from CAD link
+    options = Options()
+    options.ComputeReferences = True
+    options.IncludeNonVisibleObjects = True
+
+    for c in cadLinkInstance:
+        cadGeometry = c.get_Geometry(options)
+
+        # Traverse the geometry to find the curves on the specified layer
+        for geometryObj in cadGeometry:
+            if isinstance(geometryObj, GeometryInstance):
+                geometryElement = geometryObj.GetInstanceGeometry()
+                for geom in geometryElement:
+                    if isinstance(geom, (Line, Arc, PolyLine)):
+                        if geom.GraphicsStyleId:
+                            graphicsStyle = doc.GetElement(geom.GraphicsStyleId)
+                            if graphicsStyle.GraphicsStyleCategory.Name == layerName:
+                                if isinstance(geom, Line) or isinstance(geom, Arc):
+                                    curvesFromLayer.append(geom)
+                                elif isinstance(geom, PolyLine):
+                                    # Convert PolyLine to individual Line segments
+                                    pts = geom.GetCoordinates()
+                                    for i in range(len(pts) - 1):
+                                        start = pts[i]
+                                        end = pts[i + 1]
+                                        line = Line.CreateBound(start, end)
+                                        curvesFromLayer.append(line.ToProtoType())
+    return curvesFromLayer

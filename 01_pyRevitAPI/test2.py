@@ -140,3 +140,57 @@ def duplicateColumns(baseColumn, bList, hList):
         pass
     TransactionManager.Instance.TransactionTaskDone()
     return newColumns
+
+
+def allConcreteColumns(doc):
+    cate = BuiltInCategory.OST_StructuralColumns
+    colCollector = FilteredElementCollector(doc).OfCategory(cate).WhereElementIsElementType()
+    allConCols = []
+    for c in colCollector:
+        material_param = c.Family.LookupParameter('Material for Model Behavior')
+        if material_param and 'Concrete' in material_param.AsValueString():
+            allConCols.append(c)
+    return allConCols
+
+def duplicateColumns(doc, bList, hList):
+    newColumns = []
+    sizeList = []
+    baseColumn = allConcreteColumns(doc)
+    
+    # Create a dictionary to store existing sizes in the family with corresponding columns
+    existingSizes = {}
+    for col in baseColumn:
+        bParam = col.LookupParameter('b')
+        hParam = col.LookupParameter('h')
+        if bParam and hParam:
+            size = "{} x {}mm".format(int(bParam.AsDouble() * 304.8), int(hParam.AsDouble() * 304.8))
+            existingSizes[size] = col
+
+    # Generate the list of sizes based on bList and hList
+    for b, h in zip(bList, hList):
+        size = "{} x {}mm".format(int(b), int(h))
+        sizeList.append(size)
+
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    try:
+        for b, h, size in zip(bList, hList, sizeList):
+            # Check if the size already exists
+            if size not in existingSizes:
+                # Duplicate the base column
+                idList = List[ElementId]([c.Id for c in baseColumn])
+                copyIds = ElementTransformUtils.CopyElements(doc, idList, doc, Transform.Identity, CopyPasteOptions())
+                
+                for id in copyIds:
+                    newCol = doc.GetElement(id)
+                    newCol.Name = size
+                    bParam = newCol.LookupParameter('b')
+                    hParam = newCol.LookupParameter('h')
+                    if bParam and hParam:
+                        bParam.Set(b / 304.8)  # Convert from mm to feet
+                        hParam.Set(h / 304.8)  # Convert from mm to feet
+                    newColumns.append(newCol)
+                    #existingSizes[size] = newCol  # Add the new size to the dictionary of existing sizes
+    except Exception as e:
+        pass
+    TransactionManager.Instance.TransactionTaskDone()
+    return newColumns
