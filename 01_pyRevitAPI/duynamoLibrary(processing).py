@@ -842,3 +842,33 @@ def getCurvesFromCADLayer(doc, cadLinkInstance, layerName):
                                         line = Line.CreateBound(start, end)
                                         curvesFromLayer.append(line.ToProtoType())
     return curvesFromLayer
+
+
+def flatten(nestedList):
+    flatList = []
+    for item in nestedList:
+        if isinstance(item, list):
+            flatList.extend(flatten(item))
+        else:
+            flatList.append(item)
+    return flatList
+
+def calculateDistance(pointA, pointB):
+    dx = pointA.X - pointB.X
+    dy = pointA.Y - pointB.Y
+    dz = pointA.Z - pointB.Z
+    distance = math.sqrt(dx**2 + dy**2 + dz**2)
+    return distance
+def roundToNearestFive(number):
+    remainder = number % 5
+    if remainder == 0:
+        return number
+    return number + (5 - remainder)
+
+def processNumber(number):
+	roundedNumber = []
+	if number % 5 != 0:
+		roundedNumber.append(roundToNearestFive(number))
+	else:
+		roundedNumber.append(number)
+	return roundedNumber

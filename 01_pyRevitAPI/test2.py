@@ -341,3 +341,17 @@ TransactionManager.Instance.TransactionTaskDone()
 TransactionManager.Instance.TransactionTaskDone()
 
 OUT = chunkedList, startPoints, centerPointsLst, hList, bList
+
+def closetConn(mPipe, bPipe):
+    sortConnList = []
+    originConns  = []
+    tmp = []
+    connList = list(bPipe.ConnectorManager.Connectors.GetEnumerator())
+    nearConn = NearestConnector(connList, mPipe)
+    sortConnList.append(nearConn)
+    farConn =  [c for c in connList  if c not in sortConnList]
+    sortConnList.append([c for c in connList if c != nearConn])
+    tmp = flatten(sortConnList)
+    originConns.append([c.Origin.ToPoint() for c in tmp])
+    #XYZconn	= nearConn.Origin
+    return sortConnList,originConns
