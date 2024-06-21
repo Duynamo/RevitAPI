@@ -572,8 +572,8 @@ def create_plane_from_three_points(point1, point2, point3):
 
 #region ___to offset the point along the vector
 def offsetPointAlongVector(point, vector, offsetDistance):
-    direction = vector.Normalize()
-    scaledVector = direction.Multiply(offsetDistance)
+    direction = vector.ToRevitType().Normalize()
+    scaledVector = direction.Multiply(offsetDistance).ToVector()
     offsetPoint = point.Add(scaledVector)
     return offsetPoint
 #endregion
