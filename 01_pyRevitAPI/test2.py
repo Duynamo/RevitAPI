@@ -1,357 +1,271 @@
-"""Copyright by: vudinhduybm@gmail.com"""
-#region ___import all Library
 import clr
-import sys 
-import System   
 import math
-import collections
-import duynamoLibrary as dLib
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+from RevitServices.Transactions import TransactionManager
+doc = DocumentManager.Instance.CurrentDBDocument
 
-sys.path.append('')
-from math import cos,sin,tan,radians
-
-clr.AddReference("ProtoGeometry")
-from Autodesk.DesignScript.Geometry import *
-
-clr.AddReference("RevitAPI") 
-import Autodesk
-from Autodesk.Revit.DB import* 
-from Autodesk.Revit.DB.Structure import*
-
-clr.AddReference("DSCoreNodes")
-from DSCore.List import Flatten
-
-clr.AddReference("RevitAPIUI") 
-from Autodesk.Revit.UI import*
-from Autodesk.Revit.UI.Selection import ISelectionFilter
-clr.AddReference("System") 
-from System.Collections.Generic import List
+clr.AddReference("RevitAPI")
+from Autodesk.Revit.DB import *
 
 clr.AddReference("RevitNodes")
 import Revit
 clr.ImportExtensions(Revit.Elements)
 clr.ImportExtensions(Revit.GeometryConversion)
 
-clr.AddReference("RevitServices")
-import RevitServices
-from RevitServices.Persistence import DocumentManager
-from RevitServices.Transactions import TransactionManager
+from System.Collections.Generic import List
 
-clr.AddReference("System.Windows.Forms")
-clr.AddReference("System.Drawing")
-clr.AddReference("System.Windows.Forms.DataVisualization")
+if isinstance(IN[0], list):
+	ducts = UnwrapElement(IN[0])
+else:
+	ducts = [UnwrapElement(IN[0])]
+	
+if isinstance(IN[1], list):
+	points = IN[1]
+else:
+	points = [IN[1]]
 
-import System.Windows.Forms 
-from System.Windows.Forms import *
-import System.Drawing
-from System.Drawing import *
-#endregion
+if isinstance(IN[2], list):
+	famtype = UnwrapElement(IN[2])
+else:
+	famtype = [UnwrapElement(IN[2])]
+ftl = len(famtype)
 
-#region ___Current doc/app/ui
-doc = DocumentManager.Instance.CurrentDBDocument
-uiapp = DocumentManager.Instance.CurrentUIApplication
-app = uiapp.Application
-uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
-view = doc.ActiveView
+def IsParallel(dir1,dir2):
+	if dir1.Normalize().IsAlmostEqualTo(dir2.Normalize()):
+		return True
+	if dir1.Normalize().Negate().IsAlmostEqualTo(dir2.Normalize()):
+		return True
+	return False
+	
+def measure(startpoint, point):
+	return startpoint.DistanceTo(point)
+	
+def copyElement(element, oldloc, loc):
+	TransactionManager.Instance.EnsureInTransaction(doc)
+	elementlist = List[ElementId]()
+	elementlist.Add(element.Id)
+	OffsetZ = (oldloc.Z - loc.Z)*-1
+	OffsetX = (oldloc.X - loc.X)*-1
+	OffsetY = (oldloc.Y - loc.Y)*-1
+	direction = XYZ(OffsetX,OffsetY,OffsetZ)
+	newelementId = ElementTransformUtils.CopyElements(doc,elementlist,direction)
+	newelement = doc.GetElement(newelementId[0])
+	TransactionManager.Instance.TransactionTaskDone()
+	return newelement
 
-def placeFamilyInstances(doc, listCol, listPoints, level1):
-    newInstances = []
-    TransactionManager.Instance.EnsureInTransaction(doc)
-    try:
-        for symbol, point in zip(listCol, listPoints):
-            if isinstance(symbol, FamilySymbol):
-                if not symbol.IsActive:
-                    symbol.Activate()
-                    doc.Regenerate()
-                
-                newInst = doc.Create.NewFamilyInstance(XYZ(point.X, point.Y, point.Z), symbol, level, StructuralType.NonStructural)
-                newInstances.append(newInst)
+def GetDirection(faminstance):
+	for c in faminstance.MEPModel.ConnectorManager.Connectors:
+		conn = c
+		break
+	return conn.CoordinateSystem.BasisZ
 
-    except Exception as e:
-        pass
-    return newInstances
+def GetClosestDirection(faminstance, lineDirection):
+	conndir = None
+	flat_linedir = XYZ(lineDirection.X,lineDirection.Y,0).Normalize()
+	for conn in faminstance.MEPModel.ConnectorManager.Connectors:
+		conndir = conn.CoordinateSystem.BasisZ
+		if flat_linedir.IsAlmostEqualTo(conndir):
+			return conndir
+	return conndir
+	
 
 
-def duplicateColumns(baseColumn, bList, hList):
-    newColumns = []
-    sizeList = []
-    existingSizes = set()
-
-    for b, h in zip(bList, hList):
-        size = "{} x {}mm".format(int(b), int(h))
-        sizeList.append(size)
-    for col in baseColumn:
-        existingSizes.add(col.Name)
+#global variables for rotating new families
+tempfamtype = None
+xAxis = XYZ(1,0,0)
+def placeFitting(duct,point,familytype,lineDirection):
+	toggle = False
+	isVertical = False
+	global tempfamtype
+	if tempfamtype == None:
+		tempfamtype = familytype
+		toggle = True
+	elif tempfamtype != familytype:
+		toggle = True
+		tempfamtype = familytype
+	level = duct.ReferenceLevel
+	
+	width = 4
+	height = 4
+	radius = 2
+	round = False
+	connectors = duct.ConnectorManager.Connectors
+	for c in connectors:
+		if c.ConnectorType != ConnectorType.End:
+			continue
+		shape = c.Shape
+		if shape == ConnectorProfileType.Round:
+			radius = c.Radius
+			round = True	
+			break
+		elif shape == ConnectorProfileType.Rectangular or shape == ConnectorProfileType.Oval:
+			if abs(lineDirection.Z) == 1:
+				isVertical = True
+				yDir = c.CoordinateSystem.BasisY
+			width = c.Width
+			height = c.Height
+			break
 		
-    TransactionManager.Instance.EnsureInTransaction(doc)
-    try:
-        for b, h, size in zip(bList, hList, sizeList):
-            if size in existingSizes:
-                continue
-            idList = List[ElementId]([c.Id for c in baseColumn])
-            copyIds = ElementTransformUtils.CopyElements(doc, idList, doc, Transform.Identity, CopyPasteOptions())
-            for id in copyIds:
-                newCol = doc.GetElement(id)
-                newCol.Name = size
-                bParam = newCol.LookupParameter('b')
-                hParam = newCol.LookupParameter('h')
-                if bParam and hParam:
-                    bParam.Set(b/304.8)
-                    hParam.Set(h/304.8)
-                newColumns.append(newCol)
-    except Exception as e:
-        pass
-    TransactionManager.Instance.TransactionTaskDone()
-    return newColumns
+	TransactionManager.Instance.EnsureInTransaction(doc)		
+	point = XYZ(point.X,point.Y,point.Z-level.Elevation)
+	newfam = doc.Create.NewFamilyInstance(point,familytype,level,Structure.StructuralType.NonStructural)
+	doc.Regenerate()
+	transform = newfam.GetTransform()
+	axis = Line.CreateUnbound(transform.Origin, transform.BasisZ)
+	global xAxis
+	if toggle:
+		xAxis = GetDirection(newfam)
+	zAxis = XYZ(0,0,1)
+	
+	if isVertical:
+		angle = xAxis.AngleOnPlaneTo(yDir,zAxis)
+	else:
+		angle = xAxis.AngleOnPlaneTo(lineDirection,zAxis)
+	
+	
+	ElementTransformUtils.RotateElement(doc,newfam.Id,axis,angle)
+	doc.Regenerate()
+	
+	if lineDirection.Z != 0:
+		newAxis = GetClosestDirection(newfam,lineDirection)
+		yAxis = newAxis.CrossProduct(zAxis)
+		angle2 = newAxis.AngleOnPlaneTo(lineDirection,yAxis)
+		axis2 = Line.CreateUnbound(transform.Origin, yAxis)
+		ElementTransformUtils.RotateElement(doc,newfam.Id,axis2,angle2)
+	
+	result = {}
+	connpoints = []
+	famconns = newfam.MEPModel.ConnectorManager.Connectors
+	
+	if round:
+		for conn in famconns:
+			if IsParallel(lineDirection,conn.CoordinateSystem.BasisZ) == False:
+				continue
+			if conn.Shape != shape:
+				continue
+			conn.Radius = radius
+			connpoints.append(conn.Origin)
+	else:
+		for conn in famconns:
+			if IsParallel(lineDirection,conn.CoordinateSystem.BasisZ) == False:
+				continue
+			if conn.Shape != shape:
+				continue
+			conn.Width = width
+			conn.Height = height
+			connpoints.append(conn.Origin)
+	TransactionManager.Instance.TransactionTaskDone()
+	result[newfam] = connpoints
+	return result
+	
+	
+def ConnectElements(duct, fitting):
+	ductconns = duct.ConnectorManager.Connectors
+	fittingconns = fitting.MEPModel.ConnectorManager.Connectors
+	
+	TransactionManager.Instance.EnsureInTransaction(doc)
+	for conn in fittingconns:
+		for ductconn in ductconns:
+			result = ductconn.Origin.IsAlmostEqualTo(conn.Origin)
+			if result:
+				ductconn.ConnectTo(conn)
+				break
+	TransactionManager.Instance.TransactionTaskDone()
+	return result
 
+def SortedPoints(fittingspoints,ductStartPoint):
+	sortedpoints = sorted(fittingspoints, key=lambda x: measure(ductStartPoint, x))
+	return sortedpoints
+	
 
-
-def getSizeString(colList):
-    bParam = c.LookupParameter('b')
-    hParam = c.LookupParameter('h')
-    if bParam and hParam:
-        b = int(round(bParam.AsDouble() * 304.8))
-        h = int(round(hParam.AsDouble() * 304.8))
-    return None
-
-
-def duplicateColumns(baseColumn, bList, hList):
-    newColumns = []
-    sizeList = []
-    ss = []
-    for b, h in zip(bList, hList):
-        size = "{} x {}mm".format(int(b), int(h))
-        sizeList.append(size)
-    TransactionManager.Instance.EnsureInTransaction(doc)
-    try:
-        for b, h, size in zip(bList, hList, sizeList):
-            idList = List[ElementId]([c.Id for c in baseColumn])
-            copyIds = ElementTransformUtils.CopyElements(doc, idList, doc, Transform.Identity, CopyPasteOptions())
-        for id in copyIds:
-            newCol = doc.GetElement(id)
-            newCol.Name = size
-            bParam = newCol.LookupParameter('b')
-            hParam = newCol.LookupParameter('h')
-            if bParam and hParam:
-                bParam.Set(b/304.8)
-                hParam.Set(h/304.8)
-                newColumns.append(newCol)
-    except Exception as e:
-        pass
-    TransactionManager.Instance.TransactionTaskDone()
-    return newColumns
-
-
-def allConcreteColumns(doc):
-    cate = BuiltInCategory.OST_StructuralColumns
-    colCollector = FilteredElementCollector(doc).OfCategory(cate).WhereElementIsElementType()
-    allConCols = []
-    for c in colCollector:
-        material_param = c.Family.LookupParameter('Material for Model Behavior')
-        if material_param and 'Concrete' in material_param.AsValueString():
-            allConCols.append(c)
-    return allConCols
-
-def duplicateColumns(doc, bList, hList):
-    newColumns = []
-    sizeList = []
-    baseColumn = allConcreteColumns(doc)
-    
-    # Create a dictionary to store existing sizes in the family with corresponding columns
-    existingSizes = {}
-    for col in baseColumn:
-        bParam = col.LookupParameter('b')
-        hParam = col.LookupParameter('h')
-        if bParam and hParam:
-            size = "{} x {}mm".format(int(bParam.AsDouble() * 304.8), int(hParam.AsDouble() * 304.8))
-            existingSizes[size] = col
-
-    # Generate the list of sizes based on bList and hList
-    for b, h in zip(bList, hList):
-        size = "{} x {}mm".format(int(b), int(h))
-        sizeList.append(size)
-
-    TransactionManager.Instance.EnsureInTransaction(doc)
-    try:
-        for b, h, size in zip(bList, hList, sizeList):
-            # Check if the size already exists
-            if size not in existingSizes:
-                # Duplicate the base column
-                idList = List[ElementId]([c.Id for c in baseColumn])
-                copyIds = ElementTransformUtils.CopyElements(doc, idList, doc, Transform.Identity, CopyPasteOptions())
-                
-                for id in copyIds:
-                    newCol = doc.GetElement(id)
-                    newCol.Name = size
-                    bParam = newCol.LookupParameter('b')
-                    hParam = newCol.LookupParameter('h')
-                    if bParam and hParam:
-                        bParam.Set(b / 304.8)  # Convert from mm to feet
-                        hParam.Set(h / 304.8)  # Convert from mm to feet
-                    newColumns.append(newCol)
-                    #existingSizes[size] = newCol  # Add the new size to the dictionary of existing sizes
-    except Exception as e:
-        pass
-    TransactionManager.Instance.TransactionTaskDone()
-    return newColumns
-
-
-"""Copyright by: vudinhduybm@gmail.com"""
-#region ___import all Library
-import clr
-import sys 
-import System   
-import math
-import collections
-
-
-clr.AddReference("ProtoGeometry")
-
-from Autodesk.DesignScript.Geometry import *
-
-clr.AddReference("RevitAPI") 
-import Autodesk
-from Autodesk.Revit.DB import* 
-from Autodesk.Revit.DB.Structure import*
-
-
-clr.AddReference("RevitAPIUI") 
-from Autodesk.Revit.UI import*
-
-clr.AddReference("System") 
-from System.Collections.Generic import List
-
-clr.AddReference("RevitNodes")
-import Revit
-clr.ImportExtensions(Revit.Elements)
-clr.ImportExtensions(Revit.GeometryConversion)
-
-clr.AddReference("RevitServices")
-import RevitServices
-from RevitServices.Persistence import DocumentManager
-from RevitServices.Transactions import TransactionManager
-
-clr.AddReference("System.Windows.Forms")
-clr.AddReference("System.Drawing")
-clr.AddReference("System.Windows.Forms.DataVisualization")
-
-import System.Windows.Forms 
-from System.Windows.Forms import *
-import System.Drawing
-from System.Drawing import *
-#endregion
-
-#region ___Current doc/app/ui
-doc = DocumentManager.Instance.CurrentDBDocument
-uiapp = DocumentManager.Instance.CurrentUIApplication
-app = uiapp.Application
-uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
-view = doc.ActiveView
-#endregion
-
-#region ___someFunctions
-def uwList(input):
-    result = input if isinstance(input, list) else [input]
-    return UnwrapElement(input)
-def chunkList(inputList, chunkSize = 4):
-    return [inputList[i:i+chunkSize] for i in range(0, len(inputList), chunkSize)]
-def minXPoints(points):
-    if len(points) < 2:
-        return points
-    else:
-        points = sorted(points, key=lambda pt: pt.X)
-        return points[:2]
-def minYPoints(points):
-    if len(points) < 2:
-        return points
-    else:
-        points = sorted(points, key=lambda pt: pt.Y)
-        return points[:2]
-def getRoundedDisFrom2Points(point1, point2, k):
-    distance = point1.DistanceTo(point2)
-    roundedDis = math.ceil(distance/k) * k
-    return roundedDis
-
-def centerOf4Points(points):
-    centerPoint = XYZ
-    sumX = 0
-    sumY = 0
-    sumZ = 0
-    try:
-        if len(points) == 4:
-           for pt in points:
-               sumX += pt.X/304.8 
-               sumY += pt.Y/304.8
-               sumZ += pt.Z/304.8
-        centerX = sumX /4
-        centerY = sumY /4
-        centerZ = sumZ /4
-        centerPoint = XYZ(centerX, centerY, centerZ)
-    except Exception as e:
-        pass
-    return centerPoint
-def minXPoints(points):
-    if len(points) < 2:
-        return points
-    else:
-        points = sorted(points, key=lambda pt: pt.X)
-        return points[:2]
-def minYPoints(points):
-    if len(points) < 2:
-        return points
-    else:
-        points = sorted(points, key=lambda pt: pt.Y)
-        return points[:2]
-def getRoundedDisFrom2Points(point1, point2, k):
-    distance = point1.DistanceTo(point2)
-    roundedDis = math.ceil(distance/k) * k
-    return roundedDis
-#endregion
-
-
-curveList   = uwList(IN[0])
-
-# Do some action in a Transaction
-TransactionManager.Instance.EnsureInTransaction(doc)
-chunkedList = chunkList(curveList, 4)
-startPoints = []
-chunked4LineSP = []
-for chunked4Line in chunkedList: 
-	for c in chunked4Line:
-		sp = c.ToRevitType().GetEndPoint(0).ToPoint()
-		chunked4LineSP.append(sp)
-startPoints = chunkList(chunked4LineSP, 4)
-centerPointsLst = []
-for recPoints in startPoints:
-	cp = centerOf4Points(recPoints)
-	centerPointsLst.append(cp)
-chunkedCPList = chunkList(centerPointsLst, 1)
+ductsout = []
+fittingsout = []
+combilist = []
 
 TransactionManager.Instance.EnsureInTransaction(doc)
-hList = []
-bList = []
-for fPoints in startPoints:
-	sort1 = minXPoints(fPoints)
-	columnB = getRoundedDisFrom2Points(sort1[0],sort1[1],5)
-	sort2 = minYPoints(fPoints)
-	columnH = getRoundedDisFrom2Points(sort2[0],sort2[1],5)
-	bList.append(columnB)
-	hList.append(columnH)
-TransactionManager.Instance.TransactionTaskDone()
+for typ in famtype:
+	if typ.IsActive == False:
+		typ.Activate()
+		doc.Regenerate()
 TransactionManager.Instance.TransactionTaskDone()
 
-OUT = chunkedList, startPoints, centerPointsLst, hList, bList
+for i,duct in enumerate(ducts):
+	ListOfPoints = [x.ToXyz() for x in points[i]]
+	familytype = famtype[i%ftl]
+	#create duct location line
+	ductline = duct.Location.Curve
+	ductStartPoint = ductline.GetEndPoint(0)
+	ductEndPoint = ductline.GetEndPoint(1)
+	#get end connector to reconnect later
+	endIsConnected = False
+	endrefconn = None
+	for ductconn in duct.ConnectorManager.Connectors:
+		if ductconn.Origin.DistanceTo(ductEndPoint) < 5/304.8:
+			if ductconn.IsConnected:
+				endIsConnected = True
+				for refconn in ductconn.AllRefs:
+					if refconn.ConnectorType != ConnectorType.Logical and refconn.Owner.Id.IntegerValue != duct.Id.IntegerValue:
+						endrefconn = refconn
+			
+	#sort the points from start of duct to end of duct
+	pointlist = SortedPoints(ListOfPoints,ductStartPoint)
+	
+	ductlist = []
+	newFittings = []
+	ductlist.append(duct)
+	
+	tempStartPoint = None
+	tempEndPoint = None
+	
+	lineDirection = ductline.Direction
+	
+	for i,p in enumerate(pointlist):		
+		output = placeFitting(duct,p,familytype,lineDirection)
+		newfitting = output.keys()[0]
+		newFittings.append(newfitting)
+		fittingpoints = output.values()[0]
+		
+		tempPoints = SortedPoints(fittingpoints,ductStartPoint)
+		if i == 0:
+			tempEndPoint = tempPoints[0]
+			tempStartPoint = tempPoints[1]			
+			newduct = copyElement(duct,ductStartPoint,tempStartPoint)	
+			duct.Location.Curve = Line.CreateBound(ductStartPoint,tempEndPoint)
+			ductlist.append(newduct)
+			combilist.append([duct,newfitting])
+			combilist.append([newduct,newfitting])
+		else:
+			combilist.append([newduct,newfitting])
+			tempEndPoint = tempPoints[0]
+			newduct = copyElement(duct,ductStartPoint,tempStartPoint)
+			ductlist[-1].Location.Curve = Line.CreateBound(tempStartPoint,tempEndPoint)
+			tempStartPoint = tempPoints[1]
+			ductlist.append(newduct)
+			combilist.append([newduct,newfitting])
+	
 
-def closetConn(mPipe, bPipe):
-    sortConnList = []
-    originConns  = []
-    tmp = []
-    connList = list(bPipe.ConnectorManager.Connectors.GetEnumerator())
-    nearConn = NearestConnector(connList, mPipe)
-    sortConnList.append(nearConn)
-    farConn =  [c for c in connList  if c not in sortConnList]
-    sortConnList.append([c for c in connList if c != nearConn])
-    tmp = flatten(sortConnList)
-    originConns.append([c.Origin.ToPoint() for c in tmp])
-    #XYZconn	= nearConn.Origin
-    return sortConnList,originConns
+	
+	newline = Line.CreateBound(tempStartPoint,ductEndPoint)
+	ductlist[-1].Location.Curve = newline
+	
+	ductsout.append(ductlist)
+	fittingsout.append(newFittings)
+	TransactionManager.Instance.EnsureInTransaction(doc)
+	doc.Regenerate()
+	TransactionManager.Instance.TransactionTaskDone()
+
+	if endIsConnected:
+		for conn in ductlist[-1].ConnectorManager.Connectors:
+			if conn.Origin.DistanceTo(ductEndPoint) < 5/304.8:
+				endrefconn.ConnectTo(conn)
+			
+
+
+TransactionManager.Instance.EnsureInTransaction(doc)
+for combi in combilist:
+	ConnectElements(combi[0],combi[1])
+TransactionManager.Instance.TransactionTaskDone()
+
+OUT = ductsout, fittingsout
