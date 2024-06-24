@@ -872,3 +872,7 @@ def processNumber(number):
 	else:
 		roundedNumber.append(number)
 	return roundedNumber
+
+def calculateDisplacement(inDis, inAngle):
+    displacement = inDis * math.cos(math.radians(inAngle))
+    return displacement
