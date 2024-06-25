@@ -876,3 +876,42 @@ def processNumber(number):
 def calculateDisplacement(inDis, inAngle):
     displacement = inDis * math.cos(math.radians(inAngle))
     return displacement
+
+
+def divideLineSegment(doc, pipe, pointA, LengthA):
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    lineSegment = pipe.Location.Curve
+    # Get the start and end points of the line segment
+    start_point = lineSegment.GetEndPoint(0)
+    end_point = lineSegment.GetEndPoint(1)
+    
+    # Calculate the vector from start_point to end_point
+    vector = end_point - start_point
+    
+    # Calculate the total length of the line segment
+    total_length = vector.GetLength()*304.8
+    
+    # Calculate the direction vector of the line segment
+    direction = vector.Normalize()
+    
+    # Calculate the number of segments
+    num_segments = int(total_length / LengthA)
+    
+    # Create points for each segment
+    points = []
+    desPoints =[]
+    current_point = pointA
+    
+    for i in range(num_segments + 1):
+        points.append(current_point)
+        desPoints.append(current_point.ToPoint())
+        current_point = current_point + direction.Multiply(LengthA)
+    
+    # Create new line segments from the points
+    new_lines = []
+    for i in range(len(points) - 1):
+        new_line = Line.CreateBound(points[i], points[i + 1])
+        new_lines.append(new_line.ToProtoType())
+    
+    TransactionManager.Instance.TransactionTaskDone()
+    return new_lines,desPoints

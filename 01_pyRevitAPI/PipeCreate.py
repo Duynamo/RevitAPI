@@ -69,16 +69,16 @@ def getAllPipeTypesName(doc):
 lst1 = getAllPipeTypesName(doc)
 pipeTypesCollector = [item for item in lst1 if item is not None]
 """_______________________________________________________________________________________"""
-def createModelText(doc, points, text_size, start_value=1):
-	modelTextsList = []
-	if not isinstance(points, list) or len(points) == 0:
-		raise ValueError("Invalid input for points.")
-	for i, point in enumerate(points):
-		number = start_value + i
-		textValue = "Point " + str(number)
-		textSize = 15
-		modelTextsList.append(i for i in createModelText(doc, point, textValue, textSize))
-	return modelTextsList	
+# def createModelText(doc, points, text_size, start_value=1):
+# 	modelTextsList = []
+# 	if not isinstance(points, list) or len(points) == 0:
+# 		raise ValueError("Invalid input for points.")
+# 	for i, point in enumerate(points):
+# 		number = start_value + i
+# 		textValue = "Point " + str(number)
+# 		textSize = 15
+# 		modelTextsList.append(i for i in createModelText(doc, point, textValue, textSize))
+# 	return modelTextsList	
 """_______________________________________________________________________________________"""
 def getAllPipeTypes(doc):
 	collector1 = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeCurves)
@@ -88,13 +88,13 @@ def getAllPipeTypes(doc):
 
 levelsCollector = FilteredElementCollector(doc).OfClass(Level).ToElements()
 """________________________________________________________________________________________"""
-def logger(title, content):
-	import datetime
-	date = datetime.datetime.now()
-	f = open(r"C:\Users\95053\Desktop\Python\RevitAPI-master\RevitAPI\python.log", 'a')
-	# C:\Users\95053\Desktop\Python\RevitAPI-master\RevitAPI\PipeCreate.py
-	f.write(str(date) + '\n' + title + '\n' + str(content) + '\n')
-	f.close()
+# def logger(title, content):
+# 	import datetime
+# 	date = datetime.datetime.now()
+# 	f = open(r"C:\Users\95053\Desktop\Python\RevitAPI-master\RevitAPI\python.log", 'a')
+# 	# C:\Users\95053\Desktop\Python\RevitAPI-master\RevitAPI\PipeCreate.py
+# 	f.write(str(date) + '\n' + title + '\n' + str(content) + '\n')
+# 	f.close()
 """________________________________________________________________________________________"""
 class MainForm(Form):
 	def __init__(self):
