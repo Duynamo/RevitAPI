@@ -523,7 +523,6 @@ class MainForm(Form):
 		self.Name = "MainForm"
 		self.Text = "PipeCreate"
 		self.TopMost = True
-		self.TransparencyKey = System.Drawing.Color.FromArgb(255, 192, 192)		
 		self._groupBox1.ResumeLayout(False)
 		self._groupBox2.ResumeLayout(False)
 		self._groupBox3.ResumeLayout(False)
@@ -532,7 +531,7 @@ class MainForm(Form):
 		self._groupBox5.ResumeLayout(False)
 		self._groupBox5.PerformLayout()
 		self.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-		self.Cursor = System.Windows.Forms.Cursors.Hand
+		self.Cursor = System.Windows.Forms.Cursors.Hand		
 		self.ResumeLayout(False)
 	#____________________________________________________________________________________________#
 	def Btt_getXYClick(self, sender, e):
@@ -543,11 +542,13 @@ class MainForm(Form):
 		doc.ActiveView.SketchPlane = sketchPlane
 		condition = True
 		pointsXY = []
+		pointsXY_modelText = []
 		n = 0
 		msg = "Pick Points on Current Section plane, hit ESC when finished."
 		TaskDialog.Show("^------^", msg)
 		while condition:
 			try:
+				# logger('Line383:', n)
 				pt=uidoc.Selection.PickPoint()
 				n += 1
 				pointsXY.append(pt)				
@@ -557,6 +558,7 @@ class MainForm(Form):
 		for j in pointsXY:
 			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304.8, j.Z*304.8)
 			self._clb_XYValue.Items.Add(rpM)
+			pointsXY_modelText.append(rpM)	
 		self._cbb_AllXY.Checked = True	
 		TransactionManager.Instance.TransactionTaskDone()			
 		pass
@@ -609,6 +611,36 @@ class MainForm(Form):
 		else:
 			self._total_ZValue.Text = str(0)				
 		pass
+	"""_____________________________________________________________________"""
+	def Btt_LoopZClick(self, sender, e):
+		TransactionManager.Instance.EnsureInTransaction(doc)
+		activeView = doc.ActiveView
+		iRefPlane = Plane.CreateByNormalAndOrigin(activeView.ViewDirection, activeView.Origin)
+		sketchPlane = SketchPlane.Create(doc, iRefPlane)
+		doc.ActiveView.SketchPlane = sketchPlane
+		condition = True
+		pointsZ = []
+		n = 0
+		msg = "Pick only 1 Points on Current Section plane, hit ESC when finished."
+		TaskDialog.Show("^------^", msg)
+		while condition:
+			try:
+				# logger('Line383:', n)
+				pt=uidoc.Selection.PickPoint()
+				pointsZ.append(pt)
+			except :
+				condition = False
+		doc.Delete(sketchPlane.Id)	
+		loop_n = self._clb_XYValue.Items.Count
+		loopZ = []
+		for j in pointsZ:
+			rpM = Autodesk.DesignScript.Geometry.Point.ByCoordinates(j.X*304.8, j.Y*304.8, j.Z*304.8)
+			rpM1 = [rpM]*loop_n
+			for m in rpM1:
+				self._clb_ZValue.Items.Add(m)
+		TransactionManager.Instance.TransactionTaskDone()			
+		pass
+
 	"""_________________________________________________________"""
 	def Cbb_PipingSystemTypeSelectedIndexChanged(self, sender, e):
 		pass
@@ -679,6 +711,10 @@ class MainForm(Form):
 		else:
 			diameter = None
 		#_________________________________________________________#
+		XYValues_count = self._clb_XYValue.CheckedItems.Count
+		ZValues_count = self._clb_ZValue.CheckedItems.Count
+		
+		if XYValues_count == ZValues_count:
 			point_XYValues = []
 			point_ZValues = []
 			desPointsList = []
@@ -709,12 +745,12 @@ class MainForm(Form):
 					pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(doc,sysTypeId,pipeTypeId,levelId,x.ToXyz(),secondPoint[i].ToXyz())
 					param_Diameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
 					param_Diameter.SetValueString(diam.ToString())
-					param_Length = pipe.LookupParameter("CenterLength")
-					pipeLength = pipe.LookupParameter("Length").AsDouble()
+					param_Length = pipe.LookupParameter("True Length")
+					pipeLength = pipe.LookupParameter("Length").AsDouble()*304.8
 					TransactionManager.Instance.EnsureInTransaction(doc)
 					pipesList.append(pipe.ToDSType(False))
 					pipesList1.append(pipe)
-					param_Length.Set()
+					param_Length.Set(str(math.ceil(pipeLength)))
 					TransactionManager.Instance.TransactionTaskDone()
 				except:
 					pipesList.append(None)				
@@ -765,7 +801,7 @@ class MainForm(Form):
 			TaskDialog.Show("^---Congrat---^", msg)	
 		else: 	
 			msg = "Mission Failed"
-			TaskDialog.Show("^---Try again---^", msg)	
+			TaskDialog.Show("^---Try again---^", msg)				
 		TransactionManager.Instance.EnsureInTransaction(doc)		
 		self._clb_XYValue.Items.Clear()		
 		self._clb_ZValue.Items.Clear()		
@@ -805,7 +841,7 @@ class MainForm(Form):
 			rpM1 = [rpM]*loop_n
 			for m in rpM1:
 				self._clb_ZValue.Items.Add(m)
-		self._cbb_AllZ.Checked = True		
+		self._cbb_AllZ.Checked = True
 		TransactionManager.Instance.TransactionTaskDone()			
 
 		pass
@@ -824,3 +860,4 @@ class MainForm(Form):
 	"""_____________________________________________________________________"""	
 f = MainForm()
 Application.Run(f)
+
