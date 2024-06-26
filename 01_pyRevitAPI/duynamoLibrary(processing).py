@@ -915,3 +915,30 @@ def divideLineSegment(doc, pipe, pointA, LengthA):
     
     TransactionManager.Instance.TransactionTaskDone()
     return new_lines,desPoints
+
+def setCELengthParam(pipes):
+	changedPipes =[]
+	CELengthLsit = []
+	TransactionManager.Instance.EnsureInTransaction(doc)
+	for p in pipes:
+		conns = list(p.ConnectorManager.Connectors.GetEnumerator())
+		pipeLength = p.LookupParameter('Length').AsDouble()
+		lk_CELengthParam = p.LookupParameter('CE_Length')
+		for c in conns:
+			connectedItems = []
+			lk_connsLengthParams = []
+			sum_connsLength =0
+			if c.IsConnected:
+				for ref in c.AllRefs:
+					if ref.Owner.Id != p.Id:
+						connectedItems.append(ref.Owner)
+						for item in connectedItems:
+							lk_connsLengthParam = item.LookupParameter('Cons_Length').AsDouble()
+							sum_connsLength += lk_connsLengthParam
+
+		CELengthParam = pipeLength + sum_connsLength
+		CELengthLsit.append(roundToNearestFive(CELengthParam*304.8))
+		lk_CELengthParam.Set(CELengthParam)
+	TransactionManager.Instance.TransactionTaskDone()
+
+	return pipes, CELengthLsit
