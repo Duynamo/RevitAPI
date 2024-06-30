@@ -10,6 +10,7 @@ clr.AddReference("RevitAPI")
 import Autodesk
 from Autodesk.Revit.DB import* 
 from Autodesk.Revit.DB.Structure import*
+from Autodesk.Revit.DB.Plumbing import*
 clr.AddReference("RevitAPIUI") 
 from Autodesk.Revit.UI import*
 from Autodesk.Revit.UI.Selection import ISelectionFilter
@@ -87,7 +88,7 @@ def divideLineSegment(doc, pipe, pointA, LengthA):
     current_point = pointA
     for i in range(num_segments + 1):
         points.append(current_point)
-        desPoints.append(current_point.ToPoint())
+        desPoints.append(current_point)
         # current_point = current_point + direction.Multiply(LengthA)
     # new_lines = []
     # for i in range(len(points) - 1):
@@ -95,6 +96,19 @@ def divideLineSegment(doc, pipe, pointA, LengthA):
     #     new_lines.append(new_line.ToProtoType())
     TransactionManager.Instance.TransactionTaskDone()
     return desPoints
+def splitPipeAtPoints(pipe, points):
+	TransactionManager.Instance.EnsureInTransaction(doc)
+	newPipes = []
+    # Ensure points are sorted along the pipe's line
+	points = sorted(points, key=lambda p: (pipe.Location.Curve.GetEndPoint(0) - p).DotProduct(pipe.Location.Curve.Direction))
+	for point in points:
+		pipeLocation = pipe.Location
+		if isinstance(pipeLocation, LocationCurve):
+			pipeCurve = pipeLocation.Curve
+			if pipeCurve is not None:
+				newPipeIds = PlumbingUtils.BreakCurve(doc, pipe.Id, point)
+				newPipes.append(doc.GetElement(Id) for Id in newPipeIds)
+	return newPipes
 #endregion
 class MainForm(Form):
 	def __init__(self):
@@ -201,7 +215,7 @@ class MainForm(Form):
 		# lb_FVC
 		# 
 		self._lb_FVC.Font = System.Drawing.Font("Meiryo UI", 4.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
-		self._lb_FVC.Location = System.Drawing.Point(11, 209)
+		self._lb_FVC.Location = System.Drawing.Point(-10, 215)
 		self._lb_FVC.Name = "lb_FVC"
 		self._lb_FVC.Size = System.Drawing.Size(56, 20)
 		self._lb_FVC.TabIndex = 2
@@ -264,20 +278,23 @@ class MainForm(Form):
 		pass
 
 	def Txb_LengthTextChanged(self, sender, e):
-		self.length = self._txb_Length
+		self.length = float(self._txb_Length.Text)
 		pass
 	def Btt_SPLITClick(self, sender, e):
+		originConns = []
 		pipe = self.selPipe
+		conns = list(pipe.ConnectorManager.Connectors.GetEnumerator())
+		originConns = [c.Origin for c in conns]
+		splitLength = self.length/304.8
 		if self._cb_X.Checked == True:
-			sortedConns = sorted(self.connsOrigin, key = lambda c: c.X)
+			sortedConns = sorted(originConns, key = lambda c: c.X)
 		elif self._cb_Y.Checked == True:
-			sortedConns = sorted(self.connsOrigin, key = lambda c: c.Y)
+			sortedConns = sorted(originConns, key = lambda c: c.Y)
 		elif self._cb_Z.Checked == True:
-			sortedConns = sorted(self.connsOrigin, key = lambda c: c.Z)
+			sortedConns = sorted(originConns, key = lambda c: c.Z)
 		sortedConn = sortedConns[0]
-		splitLength = float(self.length)
-		splitPoints = divideLineSegment(doc, self.selPipe, sortedConn, splitLength)
-
+		splitPoints = divideLineSegment(doc, pipe, sortedConn, splitLength)
+		newPipes = splitPipeAtPoints(pipe, splitPoints)
 		pass
 
 	def Btt_CANCLEClick(self, sender, e):

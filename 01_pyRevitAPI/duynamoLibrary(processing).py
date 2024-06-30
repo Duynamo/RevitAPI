@@ -900,3 +900,14 @@ def divideLineSegment(doc, pipe, pointA, LengthA):
     #     new_lines.append(new_line.ToProtoType())
     TransactionManager.Instance.TransactionTaskDone()
     return desPoints
+
+def divideLineSegment(line, length, startPoint, endPoint):
+    points = []
+    total_length = line.Length
+    direction = (endPoint - startPoint).Normalize()
+    current_point = startPoint
+    points.append(current_point)
+    while (current_point.DistanceTo(startPoint) + length) <= total_length:
+        current_point = current_point + direction * length
+        points.append(current_point.ToPoint())
+    return points

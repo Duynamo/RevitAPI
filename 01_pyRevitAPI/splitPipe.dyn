@@ -89,7 +89,7 @@
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
       "NodeType": "BooleanInputNode",
-      "InputValue": false,
+      "InputValue": true,
       "Id": "f40ff1a66f0d495b81d6f86c6b863489",
       "Inputs": [],
       "Outputs": [
@@ -108,7 +108,7 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\splitPipe.py",
+      "HintPath": null,
       "InputValue": ".\\splitPipe.py",
       "NodeType": "ExtensionNode",
       "Id": "2defdaf2569249fba5bec6695ea32875",
@@ -126,6 +126,315 @@
       ],
       "Replication": "Disabled",
       "Description": "Allows you to select a file on the system to get its filename"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\n#region ___import all Library\r\nimport clr\r\nimport sys \r\nimport System   \r\nimport math\r\nimport collections\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\n\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import* \r\nfrom Autodesk.Revit.DB.Structure import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\nfrom Autodesk.Revit.UI.Selection import ISelectionFilter\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference(\"System.Windows.Forms\")\r\nclr.AddReference(\"System.Drawing\")\r\nclr.AddReference(\"System.Windows.Forms.DataVisualization\")\r\n\r\nimport System.Windows.Forms \r\nfrom System.Windows.Forms import *\r\nimport System.Drawing\r\nfrom System.Drawing import *\r\n#endregion\r\n\r\n#region ___Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n#endregion\r\n\r\n#region ___someFunctions\r\ndef uwList(input):\r\n    result = input if isinstance(input, list) else [input]\r\n    return UnwrapElement(input)\r\nclass selectionFilter(ISelectionFilter):\r\n\tdef __init__(self, category):\r\n\t\tself.category = category\r\n\tdef AllowElement(self, element):\r\n\t\tif element.Category.Name == self.category:\r\n\t\t\treturn True\r\n\t\telse:\r\n\t\t\treturn False\r\ndef pickPipe():\r\n\tpipes = []\r\n\tpipeFilter = selectionFilter(\"Pipes\")\r\n\tpipeRef = uidoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element, pipeFilter,\"pick Pipes\")\r\n\tpipe = doc.GetElement(pipeRef.ElementId)\r\n\treturn pipe\t\r\n\t\r\n#endregion\r\n\r\n\r\neleList   = uwList(IN[0])\r\n\r\n# Do some action in a Transaction\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\npipe = pickPipe()\r\n\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = pipe",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "8d222a9753ae40b0945a08a8d4907390",
+      "Inputs": [
+        {
+          "Id": "3f3ac8d4eb1c4215a8171ab0ad973936",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "293ea7d526f5486d81f863ef85f74560",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": true,
+      "Id": "8dea0f815acb4093b3a2bdd013c15f9f",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "73c68b7e378a48d39826da11eacc01d4",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "a;",
+      "Id": "1f79937a30174ce4b206f0d0ae9ff729",
+      "Inputs": [
+        {
+          "Id": "2cfbfcfe7c97474a8cd0a7cfbaaf3fc1",
+          "Name": "a",
+          "Description": "a",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "f53d38e5c89c4199ad0275a98ded4076",
+          "Name": "",
+          "Description": "Value of expression at line 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows for DesignScript code to be authored directly"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\n#region ___import all Library\r\nimport clr\r\nimport sys \r\nimport System   \r\nimport math\r\nimport collections\r\n\r\nfrom math import cos,sin,tan,radians\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import* \r\nfrom Autodesk.Revit.DB.Structure import*\r\nfrom Autodesk.Revit.DB.Plumbing import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\nfrom Autodesk.Revit.UI.Selection import ISelectionFilter\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference(\"System.Windows.Forms\")\r\nclr.AddReference(\"System.Drawing\")\r\nclr.AddReference(\"System.Windows.Forms.DataVisualization\")\r\n\r\nimport System.Windows.Forms \r\nfrom System.Windows.Forms import *\r\nimport System.Drawing\r\nfrom System.Drawing import *\r\n#endregion\r\n\r\n#region ___Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n#endregion\r\n\r\n#region ___someFunctions\r\ndef uwList(input):\r\n    result = input if isinstance(input, list) else [input]\r\n    return UnwrapElement(input)\r\ndef flatten(nestedList):\r\n    flatList = []\r\n    for item in nestedList:\r\n        if isinstance(item, list):\r\n            flatList.extend(flatten(item))\r\n        else:\r\n            flatList.append(item)\r\n    return flatList\r\n\r\ndef divideLineSegment(doc, pipe, pointA, LengthA):\r\n    TransactionManager.Instance.EnsureInTransaction(doc)\r\n    lineSegment = pipe.Location.Curve\r\n    start_point = lineSegment.GetEndPoint(0)\r\n    end_point = lineSegment.GetEndPoint(1)\r\n    vector = end_point - start_point\r\n    total_length = vector.GetLength()*304.8\r\n    direction = vector.Normalize()\r\n    num_segments = int(total_length / LengthA)\r\n    points = []\r\n    desPoints =[]\r\n    current_point = pointA\r\n    for i in range(num_segments + 1):\r\n        points.append(current_point)\r\n        desPoints.append(current_point)\r\n    TransactionManager.Instance.TransactionTaskDone()\r\n    return desPoints\r\ndef splitPipeAtPoints(doc, pipe, points):\r\n    newPipes = []\r\n    points = sorted(points, key=lambda p: (pipe.Location.Curve.GetEndPoint(0) - p).DotProduct(pipe.Location.Curve.Direction))\r\n\r\n    for point in points:\r\n        pipeLocation = pipe.Location\r\n        if isinstance(pipeLocation, LocationCurve):\r\n            pipeCurve = pipeLocation.Curve\r\n            if pipeCurve is not None:\r\n                newPipeIds = PlumbingUtils.BreakCurve(doc, pipe.Id, point)\r\n                for id in newPipeIds:\r\n                    newPipes.append(doc.GetElement(id))\r\n    return newPipes\r\ndef remove_first_and_last_items(lst):\r\n    # Check if the list has more than two elements\r\n    if len(lst) > 2:\r\n        return lst[1:-1]\r\n    else:\r\n        # If the list has two or fewer elements, return an empty list\r\n        return []\r\n#endregion\r\npipe   = UnwrapElement(IN[0])\r\nsplLength = 1000\r\n# Do some action in a Transaction\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\npipeCurve = pipe.Location.Curve\r\nconns = list(pipe.ConnectorManager.Connectors.GetEnumerator())\r\norgiginConns = list(c.Origin for c in conns)\r\nsortConns = sorted(orgiginConns, key=lambda c : c.Y)\r\nsplitPoints = divideLineSegment(doc, pipe, sortConns[0], splLength)\r\nlst = list(c for c in splitPoints)\r\n#splitPipe = splitPipeAtPoints(doc, pipe, splitPoints)\r\n\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = lst",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "729c437c6a4d4b04b19a5fea29e8086d",
+      "Inputs": [
+        {
+          "Id": "77d3741320ef43f68283abd874f95b79",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "a061eed73da84db8880ca88a5da6fb6d",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Function, DynamoCore",
+      "FunctionSignature": "ce32dc69-9896-458c-abba-bc0ba07ba752",
+      "FunctionType": "Graph",
+      "NodeType": "FunctionNode",
+      "Id": "8b78c0da8cb44f4cbe28924defbc898a",
+      "Inputs": [
+        {
+          "Id": "518d9173a11c442bbb70da82e1010842",
+          "Name": "element",
+          "Description": "As many elements as points\n\nvar[]",
+          "UsingDefaultValue": false,
+          "Level": 1,
+          "UseLevels": true,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "0b5955d68e97479484b97195c960fd32",
+          "Name": "point",
+          "Description": "As many points as elements\n\nvar[]",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "44eb08afe61d4cdebd47aa538ae4d21b",
+          "Name": "Parents",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "d2a7ff5f6b754358b465e4e6867b4d16",
+          "Name": "Children",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "b0d84b647f314410b4a87c6be264f1ca",
+          "Name": "Fittings",
+          "Description": "For duct and pipes",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "Split linear elements by points (duct, pipe, column, beam and wall).\r\nAs many elements as points are required.\r\nWorks only in Revit 2017 and later."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\n#region ___import all Library\r\nimport clr\r\nimport sys \r\nimport System   \r\nimport math\r\nimport collections\r\n\r\nfrom math import cos,sin,tan,radians\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import* \r\nfrom Autodesk.Revit.DB.Structure import*\r\nfrom Autodesk.Revit.DB.Plumbing import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\nfrom Autodesk.Revit.UI.Selection import ISelectionFilter\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference(\"System.Windows.Forms\")\r\nclr.AddReference(\"System.Drawing\")\r\nclr.AddReference(\"System.Windows.Forms.DataVisualization\")\r\n\r\nimport System.Windows.Forms \r\nfrom System.Windows.Forms import *\r\nimport System.Drawing\r\nfrom System.Drawing import *\r\n#endregion\r\n\r\n#region ___Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n#endregion\r\n\r\n#region ___someFunctions\r\ndef uwList(input):\r\n    result = input if isinstance(input, list) else [input]\r\n    return UnwrapElement(input)\r\ndef flatten(nestedList):\r\n    flatList = []\r\n    for item in nestedList:\r\n        if isinstance(item, list):\r\n            flatList.extend(flatten(item))\r\n        else:\r\n            flatList.append(item)\r\n    return flatList\r\n\r\ndef divideLineSegment(doc, pipe, pointA, LengthA):\r\n    lineSegment = pipe.Location.Curve\r\n    start_point = lineSegment.GetEndPoint(0)\r\n    end_point = lineSegment.GetEndPoint(1)\r\n    vector = end_point - start_point\r\n    total_length = vector.GetLength() * 304.8\r\n    direction = vector.Normalize()\r\n    num_segments = int(total_length / LengthA)\r\n    points = []\r\n    current_point = pointA\r\n    for i in range(num_segments):\r\n        points.append(current_point)\r\n        current_point = current_point + direction.Multiply(LengthA / 304.8)\r\n    return points\r\n\r\ndef splitPipeAtPoints(doc, pipe, points):\r\n    newPipes = []\r\n    points = sorted(points, key=lambda p: (pipe.Location.Curve.GetEndPoint(0) - p).DotProduct(pipe.Location.Curve.Direction))\r\n    for point in points:\r\n        pipeLocation = pipe.Location\r\n        if isinstance(pipeLocation, LocationCurve):\r\n            pipeCurve = pipeLocation.Curve\r\n            if pipeCurve is not None:\r\n                newPipeIds = PlumbingUtils.BreakCurve(doc, pipe.Id, point)\r\n                for id in newPipeIds:\r\n                    newPipes.append(doc.GetElement(id))\r\n    return newPipes\r\n\r\n#endregion\r\n\r\npipe = UnwrapElement(IN[0])\r\nsplLength = 1000\r\n\r\n# Do some action in a Transaction\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\npipeCurve = pipe.Location.Curve\r\nconns = list(pipe.ConnectorManager.Connectors.GetEnumerator())\r\norgiginConns = list(c.Origin for c in conns)\r\nsortConns = sorted(orgiginConns, key=lambda c: c.Y)\r\nsplitPoints = divideLineSegment(doc, pipe, sortConns[0], splLength)\r\nsplitPipe = splitPipeAtPoints(doc, pipe, splitPoints)\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = splitPoints, splitPipe\r\n",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "2355b0f50f1e4ffb91b73c83c7c839d8",
+      "Inputs": [
+        {
+          "Id": "09c70b2f74494bb28dc4a3ef9cfd08c2",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "8e9e849415a1494cb741ac1bc711ecea",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\n#region ___import all Library\r\nimport clr\r\nimport sys \r\nimport System   \r\nimport math\r\nimport collections\r\n\r\nfrom math import cos,sin,tan,radians\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import* \r\nfrom Autodesk.Revit.DB.Structure import*\r\nfrom Autodesk.Revit.DB.Plumbing import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\nfrom Autodesk.Revit.UI.Selection import ISelectionFilter\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference(\"System.Windows.Forms\")\r\nclr.AddReference(\"System.Drawing\")\r\nclr.AddReference(\"System.Windows.Forms.DataVisualization\")\r\n\r\nimport System.Windows.Forms \r\nfrom System.Windows.Forms import *\r\nimport System.Drawing\r\nfrom System.Drawing import *\r\n#endregion\r\n\r\n#region ___Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n#endregion\r\n\r\n#region ___someFunctions\r\ndef uwList(input):\r\n    result = input if isinstance(input, list) else [input]\r\n    return UnwrapElement(input)\r\ndef flatten(nestedList):\r\n    flatList = []\r\n    for item in nestedList:\r\n        if isinstance(item, list):\r\n            flatList.extend(flatten(item))\r\n        else:\r\n            flatList.append(item)\r\n    return flatList\r\n\r\ndef divideLineSegment(doc, pipe, pointA, LengthA):\r\n    TransactionManager.Instance.EnsureInTransaction(doc)\r\n    lineSegment = pipe.Location.Curve\r\n    start_point = lineSegment.GetEndPoint(0)\r\n    end_point = lineSegment.GetEndPoint(1)\r\n    vector = end_point - start_point\r\n    total_length = vector.GetLength()*304.8\r\n    direction = vector.Normalize()\r\n    num_segments = int(total_length / LengthA)\r\n    points = []\r\n    desPoints =[]\r\n    current_point = pointA\r\n    for i in range(num_segments + 1):\r\n        points.append(current_point)\r\n        desPoints.append(current_point)\r\n    TransactionManager.Instance.TransactionTaskDone()\r\n    return desPoints\r\ndef splitPipeAtPoints(doc, pipe, points):\r\n    newPipes = []\r\n    points = sorted(points, key=lambda p: (pipe.Location.Curve.GetEndPoint(0) - p).DotProduct(pipe.Location.Curve.Direction))\r\n\r\n    for point in points:\r\n        pipeLocation = pipe.Location\r\n        if isinstance(pipeLocation, LocationCurve):\r\n            pipeCurve = pipeLocation.Curve\r\n            if pipeCurve is not None:\r\n                newPipeIds = PlumbingUtils.BreakCurve(doc, pipe.Id, point)\r\n                for id in newPipeIds:\r\n                    newPipes.append(doc.GetElement(id))\r\n    return newPipes\r\ndef divideLineSegment(line, length, startPoint, endPoint):\r\n    # Initialize the list of points\r\n    points = []\r\n    # Calculate the total length of the line\r\n    total_length = line.Length\r\n    # Calculate the direction vector of the line\r\n    direction = (endPoint - startPoint).Normalize()\r\n    # Initialize the current point to the start point\r\n    current_point = startPoint\r\n\r\n    # Add the start point to the list of points\r\n    points.append(current_point)\r\n\r\n    # Loop to add points at intervals of 'length'\r\n    while (current_point.DistanceTo(startPoint) + length) <= total_length:\r\n        # Calculate the next point\r\n        current_point = current_point + direction * length\r\n\r\n        # Add the next point to the list of points\r\n        points.append(current_point.ToPoint())\r\n\r\n    return points\r\n#endregion\r\npipe   = UnwrapElement(IN[0])\r\nsplLength = 1000/304.8\r\n# Do some action in a Transaction\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\npipeCurve = pipe.Location.Curve\r\nconns = list(pipe.ConnectorManager.Connectors.GetEnumerator())\r\norgiginConns = list(c.Origin for c in conns)\r\nsortConns = sorted(orgiginConns, key=lambda c : c.Y)\r\n#splitPoints = divideLineSegment(doc, pipe, sortConns[0], splLength)\r\n#lst = list(c for c in splitPoints)\r\n#splitPipe = splitPipeAtPoints(doc, pipe, splitPoints)\r\n\r\npoints = divideLineSegment(pipeCurve, splLength,sortConns[0], sortConns[1])\r\n\r\nparents,childs,fittings = [],[],[]\r\nchildren = {}\r\n\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\nfor e, p in zip(pipe,points):\r\n\tto_check = [e]\r\n\tif e.Id in children:\r\n\t\tto_check.extend(children[e.Id])\r\n\t\t\r\n\tsplitId = None\r\n\tfor ec in to_check:\r\n\t\tif isinstance(ec,Autodesk.Revit.DB.Plumbing.Pipe):\r\n\t\t\ttry:\r\n\t\t\t\tsplitId = Autodesk.Revit.DB.Plumbing.PlumbingUtils.BreakCurve(doc, ec.Id, p)\r\n\t\t\t\tbreak\r\n\t\t\texcept:\r\n\t\t\t\tpass\t\t\t\t\r\n\t\telif isinstance(ec,Autodesk.Revit.DB.Mechanical.Duct):\r\n\t\t\ttry:\r\n\t\t\t\tsplitId = Autodesk.Revit.DB.Mechanical.MechanicalUtils.BreakCurve(doc, ec.Id, p)\r\n\t\t\t\tbreak\r\n\t\t\texcept:\r\n\t\t\t\tpass\r\n\tif splitId:\r\n\t\tsplit = doc.GetElement(splitId)\r\n\t\tif hasattr(split,\"ConnectorManager\"):\r\n\t\t\tnewPipeConnectors = split.ConnectorManager.Connectors\r\n\t\t\t#Check\r\n\t\t\tconnA = None\r\n\t\t\tconnB = None\r\n\t\t\tfor c in ec.ConnectorManager.Connectors:\r\n\t\t\t\tpc = c.Origin\r\n\t\t\t\t#get connectorB near to connectorA\r\n\t\t\t\tnearest = [x for x in newPipeConnectors if pc.DistanceTo(x.Origin) < 0.01]\r\n\t\t\t\t#If exists assign\r\n\t\t\t\tif nearest:\r\n\t\t\t\t\tconnA = c\r\n\t\t\t\t\tconnB = nearest[0]\r\n\t\t\t#Create fitting\r\n\t\t\ttry:\r\n\t\t\t\tfittings.append(doc.Create.NewUnionFitting(connA, connB))\r\n\t\t\texcept:pass\r\n\t\t\r\n\t\tif e.Id in children:\r\n\t\t\tchildren[e.Id].append(split)\r\n\t\telse:\r\n\t\t\tchildren[e.Id] = [split]\r\n\t\tparents.append(ec)\r\n\t\tchilds.append(split)\r\n\telse:\r\n\t\tparents.append(None)\r\n\t\tchilds.append(None)\r\nTransactionManager.Instance.TransactionTaskDone()\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = parents,childs,fittings",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "2198c8a4e91c4c58942c5ddc5d73c450",
+      "Inputs": [
+        {
+          "Id": "44e40b2376e1404ab5e106973d628bee",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "19b5139737e74c438eecce4b3c19d3b6",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\n#region ___import all Library\r\nimport clr\r\nimport sys \r\nimport System   \r\nimport math\r\nimport collections\r\n\r\nfrom math import cos,sin,tan,radians\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import* \r\nfrom Autodesk.Revit.DB.Structure import*\r\nfrom Autodesk.Revit.DB.Plumbing import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\nfrom Autodesk.Revit.UI.Selection import ISelectionFilter\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference(\"System.Windows.Forms\")\r\nclr.AddReference(\"System.Drawing\")\r\nclr.AddReference(\"System.Windows.Forms.DataVisualization\")\r\n\r\nimport System.Windows.Forms \r\nfrom System.Windows.Forms import *\r\nimport System.Drawing\r\nfrom System.Drawing import *\r\n#endregion\r\n\r\n#region ___Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n#endregion\r\n\r\n#region ___someFunctions\r\ndef uwList(input):\r\n    result = input if isinstance(input, list) else [input]\r\n    return UnwrapElement(input)\r\ndef flatten(nestedList):\r\n    flatList = []\r\n    for item in nestedList:\r\n        if isinstance(item, list):\r\n            flatList.extend(flatten(item))\r\n        else:\r\n            flatList.append(item)\r\n    return flatList\r\n\r\ndef divideLineSegment(doc, pipe, pointA, LengthA):\r\n    TransactionManager.Instance.EnsureInTransaction(doc)\r\n    lineSegment = pipe.Location.Curve\r\n    start_point = lineSegment.GetEndPoint(0)\r\n    end_point = lineSegment.GetEndPoint(1)\r\n    vector = end_point - start_point\r\n    total_length = vector.GetLength()*304.8\r\n    direction = vector.Normalize()\r\n    num_segments = int(total_length / LengthA)\r\n    points = []\r\n    desPoints =[]\r\n    current_point = pointA\r\n    for i in range(num_segments + 1):\r\n        points.append(current_point)\r\n        desPoints.append(current_point)\r\n    TransactionManager.Instance.TransactionTaskDone()\r\n    return desPoints\r\ndef splitPipeAtPoints(doc, pipe, points):\r\n    newPipes = []\r\n    points = sorted(points, key=lambda p: (pipe.Location.Curve.GetEndPoint(0) - p).DotProduct(pipe.Location.Curve.Direction))\r\n\r\n    for point in points:\r\n        pipeLocation = pipe.Location\r\n        if isinstance(pipeLocation, LocationCurve):\r\n            pipeCurve = pipeLocation.Curve\r\n            if pipeCurve is not None:\r\n                newPipeIds = PlumbingUtils.BreakCurve(doc, pipe.Id, point)\r\n                for id in newPipeIds:\r\n                    newPipes.append(doc.GetElement(id))\r\n    return newPipes\r\ndef divideLineSegment(line, length, startPoint, endPoint):\r\n    # Initialize the list of points\r\n    points = []\r\n    # Calculate the total length of the line\r\n    total_length = line.Length\r\n    # Calculate the direction vector of the line\r\n    direction = (endPoint - startPoint).Normalize()\r\n    # Initialize the current point to the start point\r\n    current_point = startPoint\r\n\r\n    # Add the start point to the list of points\r\n    points.append(current_point)\r\n\r\n    # Loop to add points at intervals of 'length'\r\n    while (current_point.DistanceTo(startPoint) + length) <= total_length:\r\n        # Calculate the next point\r\n        current_point = current_point + direction * length\r\n\r\n        # Add the next point to the list of points\r\n        points.append(current_point.ToPoint())\r\n\r\n    return points\r\n#endregion\r\npipe   = UnwrapElement(IN[0])\r\nsplLength = 1000/304.8\r\n# Do some action in a Transaction\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\npipeCurve = pipe.Location.Curve\r\nconns = list(pipe.ConnectorManager.Connectors.GetEnumerator())\r\norgiginConns = list(c.Origin for c in conns)\r\nsortConns = sorted(orgiginConns, key=lambda c : c.Y)\r\n#splitPoints = divideLineSegment(doc, pipe, sortConns[0], splLength)\r\n#lst = list(c for c in splitPoints)\r\n#splitPipe = splitPipeAtPoints(doc, pipe, splitPoints)\r\n\r\npoints = divideLineSegment(pipeCurve, splLength,sortConns[0], sortConns[1])\r\n\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = points",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "6862d529063d4c3891adcadd20c5fb49",
+      "Inputs": [
+        {
+          "Id": "32a4dc884c3f43fd899392bb36951b5e",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "7b72688d8fdd4e47be34c4ab3bcb185b",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Thanks to Maciek Glowka and Cyril Poupin on the Dynamo Forum\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\n\nclr.AddReference('RevitNodes')\nimport Revit\nclr.ImportExtensions(Revit.GeometryConversion)\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nelements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\npoints = IN[1] if isinstance(IN[1],list) else [IN[1]]\npoints = [p.ToXyz() for p in points]\n\nparents,childs,fittings = [],[],[]\nchildren = {}\n\ndef colCurve(col):\t\n\tloc= col.Location.Point\n\tbb = col.get_BoundingBox(None).Min\n\theight=col.get_Parameter(BuiltInParameter.INSTANCE_LENGTH_PARAM).AsDouble()\n\tstart=XYZ(loc.X,loc.Y,bb.Z)\n\tend=XYZ(start.X,start.Y,start.Z+height)\n\tcurve=Line.CreateBound(start,end)\n\treturn curve\n\ndef pointOnLine(p,a,b):\n\tif not (p-a).CrossProduct(b-a).IsAlmostEqualTo(XYZ.Zero):\n\t\treturn False\n\tif a.X!=b.X:\n\t\tif a.X<p.X<b.X:\n\t\t\treturn True\n\t\tif a.X>p.X>b.X:\n\t\t\treturn True\n\telse:\n\t\tif a.Y<p.Y<b.Y:\n\t\t\treturn True\n\t\tif a.Y>p.Y>b.Y:\n\t\t\treturn True\n\treturn False\n\t\ndef splitWall(ec,p):\n\tlc = ec.Location.Curve\n\tv0 = lc.GetEndPoint(0)\n\tv1 = lc.GetEndPoint(1)\n\tisOnLine=False\n\tif pointOnLine(p,v0,v1):\n\t\tisOnLine = True\n\tif isOnLine:\n\t\tjoin_1 = WallUtils.IsWallJoinAllowedAtEnd(ec, 1)\n\t\tWallUtils.DisallowWallJoinAtEnd(ec, 1)\n\t\te1Id=ElementTransformUtils.CopyElement(doc, ec.Id, XYZ.Zero)[0]\n\t\te1 = doc.GetElement(e1Id)\n\t\tWallUtils.DisallowWallJoinAtEnd(e1, 0)\n\t\tnc0 = Autodesk.Revit.DB.Line.CreateBound(v0, p)\n\t\tnc1 = Autodesk.Revit.DB.Line.CreateBound(v1, p)\n\t\tec.Location.Curve = nc0\n\t\te1.Location.Curve = nc1\n\t\tif join_1 :\n\t\t\tWallUtils.DisallowWallJoinAtEnd(e1, 0)\n\t\tWallUtils.AllowWallJoinAtEnd(ec, 1)\n\t\tWallUtils.AllowWallJoinAtEnd(e1, 0)\n\treturn e1Id\n\nTransactionManager.Instance.EnsureInTransaction(doc)\nfor e, p in zip(elements,points):\n\tto_check = [e]\n\tif e.Id in children:\n\t\tto_check.extend(children[e.Id])\n\t\t\n\tsplitId = None\n\tfor ec in to_check:\n\t\tif isinstance(ec,Autodesk.Revit.DB.Plumbing.Pipe):\n\t\t\ttry:\n\t\t\t\tsplitId = Autodesk.Revit.DB.Plumbing.PlumbingUtils.BreakCurve(doc, ec.Id, p)\n\t\t\t\tbreak\n\t\t\texcept:\n\t\t\t\tpass\t\t\t\t\n\t\telif isinstance(ec,Autodesk.Revit.DB.Mechanical.Duct):\n\t\t\ttry:\n\t\t\t\tsplitId = Autodesk.Revit.DB.Mechanical.MechanicalUtils.BreakCurve(doc, ec.Id, p)\n\t\t\t\tbreak\n\t\t\texcept:\n\t\t\t\tpass\n\t\telif isinstance(ec,Autodesk.Revit.DB.FamilyInstance) and ec.CanSplit :\n\t\t\ttry:\n\t\t\t\tif ec.Location.ToString() == 'Autodesk.Revit.DB.LocationCurve':\n\t\t\t\t\tcurvB = ec.Location.Curve\n\t\t\t\telif ElementId(BuiltInCategory.OST_StructuralColumns) == ec.Category.Id and not ec.IsSlantedColumn :\n\t\t\t\t\tcurvB = colCurve(ec)\n\t\t\t\tlenBeam = curvB.Length \n\t\t\t\tparam = (curvB.GetEndPoint(0).DistanceTo(p)) / lenBeam\n\t\t\t\tsplitId = ec.Split(param)\n\t\t\t\tbreak\n\t\t\texcept:\n\t\t\t\tpass\n\t\telif isinstance(ec,Autodesk.Revit.DB.Wall):\n\t\t\ttry:\n\t\t\t\tsplitId = splitWall(ec,p)\n\t\t\t\tbreak\n\t\t\texcept:\n\t\t\t\tpass\n\tif splitId:\n\t\tsplit = doc.GetElement(splitId)\n\t\tif hasattr(split,\"ConnectorManager\"):\n\t\t\tnewPipeConnectors = split.ConnectorManager.Connectors\n\t\t\t#Check\n\t\t\tconnA = None\n\t\t\tconnB = None\n\t\t\tfor c in ec.ConnectorManager.Connectors:\n\t\t\t\tpc = c.Origin\n\t\t\t\t#get connectorB near to connectorA\n\t\t\t\tnearest = [x for x in newPipeConnectors if pc.DistanceTo(x.Origin) < 0.01]\n\t\t\t\t#If exists assign\n\t\t\t\tif nearest:\n\t\t\t\t\tconnA = c\n\t\t\t\t\tconnB = nearest[0]\n\t\t\t#Create fitting\n\t\t\ttry:\n\t\t\t\tfittings.append(doc.Create.NewUnionFitting(connA, connB))\n\t\t\texcept:pass\n\t\t\n\t\tif e.Id in children:\n\t\t\tchildren[e.Id].append(split)\n\t\telse:\n\t\t\tchildren[e.Id] = [split]\n\t\tparents.append(ec)\n\t\tchilds.append(split)\n\telse:\n\t\tparents.append(None)\n\t\tchilds.append(None)\nTransactionManager.Instance.TransactionTaskDone()\n\t\t\t\nOUT = parents,childs,fittings",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "ee5d13d34d8841a38ff856d5535ddea9",
+      "Inputs": [
+        {
+          "Id": "59a460dc82f545fbbd9f809a99996fbc",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "7afda449e2074468832df75983b0d097",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "024e58222a2a4a9591c493094477bdfb",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
     }
   ],
   "Connectors": [
@@ -143,10 +452,61 @@
       "Start": "079de00bac204d6aa76a517dbc581bde",
       "End": "f6005348c303443ebdaf8c474487fa28",
       "Id": "135009a5dd8a40c8a3f09ba00e77a516"
+    },
+    {
+      "Start": "293ea7d526f5486d81f863ef85f74560",
+      "End": "2cfbfcfe7c97474a8cd0a7cfbaaf3fc1",
+      "Id": "ebc9c06aaab44324b6a273812c39fab6"
+    },
+    {
+      "Start": "73c68b7e378a48d39826da11eacc01d4",
+      "End": "3f3ac8d4eb1c4215a8171ab0ad973936",
+      "Id": "78f94b72e0454fe7b029852ab43ff091"
+    },
+    {
+      "Start": "f53d38e5c89c4199ad0275a98ded4076",
+      "End": "77d3741320ef43f68283abd874f95b79",
+      "Id": "11cb34f0bd8c4723b0f02f70f31915d4"
+    },
+    {
+      "Start": "f53d38e5c89c4199ad0275a98ded4076",
+      "End": "518d9173a11c442bbb70da82e1010842",
+      "Id": "589555648dd5481992d10eb044552696"
+    },
+    {
+      "Start": "f53d38e5c89c4199ad0275a98ded4076",
+      "End": "09c70b2f74494bb28dc4a3ef9cfd08c2",
+      "Id": "6079a0ec45cb4e2a8b2da7f346957a90"
+    },
+    {
+      "Start": "f53d38e5c89c4199ad0275a98ded4076",
+      "End": "44e40b2376e1404ab5e106973d628bee",
+      "Id": "3dcd215dacb042f1b5a8f1696c00a227"
+    },
+    {
+      "Start": "f53d38e5c89c4199ad0275a98ded4076",
+      "End": "32a4dc884c3f43fd899392bb36951b5e",
+      "Id": "c74530c166d84ecc85e6c8efc8aa402b"
+    },
+    {
+      "Start": "a061eed73da84db8880ca88a5da6fb6d",
+      "End": "0b5955d68e97479484b97195c960fd32",
+      "Id": "3678d8e653b846a5a30f494f8c36d0cd"
     }
   ],
-  "Dependencies": [],
-  "NodeLibraryDependencies": [],
+  "Dependencies": [
+    "ce32dc69-9896-458c-abba-bc0ba07ba752"
+  ],
+  "NodeLibraryDependencies": [
+    {
+      "Name": "Genius Loci",
+      "Version": "2022.4.19",
+      "ReferenceType": "Package",
+      "Nodes": [
+        "8b78c0da8cb44f4cbe28924defbc898a"
+      ]
+    }
+  ],
   "Bindings": [],
   "View": {
     "Dynamo": {
@@ -154,7 +514,7 @@
       "HasRunWithoutCrash": true,
       "IsVisibleInDynamoLibrary": true,
       "Version": "2.10.1.3976",
-      "RunType": "Automatic",
+      "RunType": "Manual",
       "RunPeriod": "1000"
     },
     "Camera": {
@@ -171,49 +531,139 @@
     },
     "NodeViews": [
       {
-        "ShowGeometry": true,
-        "Name": "Python Script From String",
         "Id": "5a2470c39c7c45ceb2474329ec45070c",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Python Script From String",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": 682.5426431183862,
         "Y": 324.88080203995685
       },
       {
-        "ShowGeometry": true,
-        "Name": "Python Script",
         "Id": "f81eacff842749f9a23df221c6befe90",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": 456.57167092629447,
         "Y": 320.82606941713311
       },
       {
-        "ShowGeometry": true,
-        "Name": "Boolean",
         "Id": "f40ff1a66f0d495b81d6f86c6b863489",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Boolean",
+        "ShowGeometry": true,
         "Excluded": false,
-        "X": 264.54159646357448,
-        "Y": 241.107495440373
+        "X": 259.93533029988942,
+        "Y": 238.19428443744698
       },
       {
-        "ShowGeometry": true,
-        "Name": "File Path",
         "Id": "2defdaf2569249fba5bec6695ea32875",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": false,
+        "Name": "File Path",
+        "ShowGeometry": true,
+        "Excluded": true,
         "X": 26.615746870297812,
         "Y": 337.50904975977386
+      },
+      {
+        "Id": "8d222a9753ae40b0945a08a8d4907390",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 249.44854328617572,
+        "Y": 14.169378136921466
+      },
+      {
+        "Id": "8dea0f815acb4093b3a2bdd013c15f9f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Boolean",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 42.354999065255925,
+        "Y": 29.74091374293036
+      },
+      {
+        "Id": "1f79937a30174ce4b206f0d0ae9ff729",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Code Block",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 493.32084382962194,
+        "Y": -106.18115965425864
+      },
+      {
+        "Id": "729c437c6a4d4b04b19a5fea29e8086d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Excluded": true,
+        "X": 1420.8918052646607,
+        "Y": -221.57017434173682
+      },
+      {
+        "Id": "8b78c0da8cb44f4cbe28924defbc898a",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Split ByPoints",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 1662.9587233367233,
+        "Y": -416.3474178271378
+      },
+      {
+        "Id": "2355b0f50f1e4ffb91b73c83c7c839d8",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Excluded": true,
+        "X": 649.18918213112181,
+        "Y": -331.84093760710755
+      },
+      {
+        "Id": "2198c8a4e91c4c58942c5ddc5d73c450",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "split point OK",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 970.39557186201307,
+        "Y": -64.836992834454236
+      },
+      {
+        "Id": "6862d529063d4c3891adcadd20c5fb49",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "split point OK",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 213.84462034917044,
+        "Y": -320.20626571906143
+      },
+      {
+        "Id": "ee5d13d34d8841a38ff856d5535ddea9",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 1303.6179932455861,
+        "Y": 80.818567365814943
       }
     ],
     "Annotations": [],
-    "X": -44.525719028490641,
-    "Y": -97.7763105456923,
-    "Zoom": 0.86838229877710216
+    "X": -9.6877582203647989,
+    "Y": 403.79981670264203,
+    "Zoom": 0.91133334258141874
   }
 }

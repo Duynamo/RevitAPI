@@ -5,9 +5,7 @@ import sys
 import System   
 import math
 import collections
-import duynamoLibrary as dLib
 
-sys.path.append('')
 from math import cos,sin,tan,radians
 
 clr.AddReference("ProtoGeometry")
@@ -17,9 +15,6 @@ clr.AddReference("RevitAPI")
 import Autodesk
 from Autodesk.Revit.DB import* 
 from Autodesk.Revit.DB.Structure import*
-
-clr.AddReference("DSCoreNodes")
-from DSCore.List import Flatten
 
 clr.AddReference("RevitAPIUI") 
 from Autodesk.Revit.UI import*
@@ -59,7 +54,14 @@ view = doc.ActiveView
 def uwList(input):
     result = input if isinstance(input, list) else [input]
     return UnwrapElement(input)
-
+def flatten(nestedList):
+    flatList = []
+    for item in nestedList:
+        if isinstance(item, list):
+            flatList.extend(flatten(item))
+        else:
+            flatList.append(item)
+    return flatList
 #endregion
 
 
