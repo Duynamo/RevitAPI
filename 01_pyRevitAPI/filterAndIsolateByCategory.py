@@ -72,3 +72,22 @@ OUT = filteredFams
 
 
 
+TransactionManager.Instance.EnsureInTransaction(doc)
+collector = FilteredElementCollector(doc, view.Id).WhereElementIsNotElementType().ToElements()
+settedEles = []
+
+# Filter elements based on 'Support Type' parameter
+for ele in collector:
+    check = ele.LookupParameter('Support Type')
+    if check and check.AsString():
+        settedEles.append(ele)
+
+# Create a list of ElementIds for the elements to be hidden
+IDS = List[ElementId]()
+for ele in settedEles:
+    IDS.Add(ele.Id)
+
+# Hide elements in the view
+hideEles = view.HideElementsTemporary(IDS)
+
+TransactionManager.Instance.TransactionTaskDone()
