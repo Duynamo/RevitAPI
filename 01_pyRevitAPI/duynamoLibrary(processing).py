@@ -942,3 +942,22 @@ def setCELengthParam(pipes):
 	TransactionManager.Instance.TransactionTaskDone()
 
 	return pipes, CELengthLsit
+
+#group elements by parameters
+TransactionManager.Instance.EnsureInTransaction(doc)
+collector = FilteredElementCollector(doc, view.Id).WhereElementIsNotElementType().ToElements()
+support_type_dict = {}
+
+# Filter elements based on 'Support Type' parameter
+for ele in collector:
+    check = ele.LookupParameter('Support Type')
+    if check and check.AsString():
+        support_type = check.AsString()
+        if support_type in support_type_dict:
+            support_type_dict[support_type].append(ele)
+        else:
+            support_type_dict[support_type] = [ele]
+support_type_counts = {support_type: len(elements) for support_type, elements in support_type_dict.items()}
+sorted_support_type_counts = dict(sorted(support_type_counts.items()))
+TransactionManager.Instance.TransactionTaskDone()
+#
