@@ -911,3 +911,9 @@ def divideLineSegment(line, length, startPoint, endPoint):
         current_point = current_point + direction * length
         points.append(current_point.ToPoint())
     return points
+
+###
+	transVector = tmpPoint2 - sortNearConnsBP[0]
+	transform = Autodesk.Revit.DB.Transform.CreateTranslation(transVector)
+	ElementTransformUtils.MoveElement(doc, bPipe.Id, transVector)
+###

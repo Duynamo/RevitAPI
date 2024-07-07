@@ -117,6 +117,9 @@ class MainForm(Form):
 	def InitializeComponent(self):
 		self._btt_pickPipe = System.Windows.Forms.Button()
 		self._grb_sortConn = System.Windows.Forms.GroupBox()
+		self._cb_X = System.Windows.Forms.CheckBox()
+		self._cb_Y = System.Windows.Forms.CheckBox()
+		self._cb_Z = System.Windows.Forms.CheckBox()
 		self._btt_CANCLE = System.Windows.Forms.Button()
 		self._btt_SPLIT = System.Windows.Forms.Button()
 		self._lb_FVC = System.Windows.Forms.Label()
@@ -124,18 +127,14 @@ class MainForm(Form):
 		self._lb_Length = System.Windows.Forms.Label()
 		self._txb_K = System.Windows.Forms.TextBox()
 		self._lb_splitNumber = System.Windows.Forms.Label()
-		self._cbb_sortConnectorBy = System.Windows.Forms.ComboBox()
-		self._groupBox1 = System.Windows.Forms.GroupBox()
-		self._grb_inputData = System.Windows.Forms.GroupBox()
 		self._grb_sortConn.SuspendLayout()
-		self._grb_inputData.SuspendLayout()
 		self.SuspendLayout()
 		# 
 		# btt_pickPipe
 		# 
 		self._btt_pickPipe.Font = System.Drawing.Font("Meiryo UI", 10.2, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._btt_pickPipe.ForeColor = System.Drawing.Color.Red
-		self._btt_pickPipe.Location = System.Drawing.Point(18, 37)
+		self._btt_pickPipe.Location = System.Drawing.Point(11, 32)
 		self._btt_pickPipe.Name = "btt_pickPipe"
 		self._btt_pickPipe.Size = System.Drawing.Size(133, 41)
 		self._btt_pickPipe.TabIndex = 0
@@ -145,23 +144,57 @@ class MainForm(Form):
 		# 
 		# grb_sortConn
 		# 
-		self._grb_sortConn.Controls.Add(self._groupBox1)
-		self._grb_sortConn.Controls.Add(self._cbb_sortConnectorBy)
+		self._grb_sortConn.Controls.Add(self._cb_Z)
+		self._grb_sortConn.Controls.Add(self._cb_Y)
+		self._grb_sortConn.Controls.Add(self._cb_X)
 		self._grb_sortConn.Cursor = System.Windows.Forms.Cursors.Default
 		self._grb_sortConn.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 128)
-		self._grb_sortConn.Location = System.Drawing.Point(11, 106)
+		self._grb_sortConn.Location = System.Drawing.Point(150, 32)
 		self._grb_sortConn.Name = "grb_sortConn"
-		self._grb_sortConn.Size = System.Drawing.Size(158, 91)
+		self._grb_sortConn.Size = System.Drawing.Size(173, 141)
 		self._grb_sortConn.TabIndex = 1
 		self._grb_sortConn.TabStop = False
 		self._grb_sortConn.Text = "Sort Connector by"
 		self._grb_sortConn.UseCompatibleTextRendering = True
 		# 
+		# cb_X
+		# 
+		self._cb_X.Font = System.Drawing.Font("Meiryo UI", 7.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
+		self._cb_X.Location = System.Drawing.Point(60, 22)
+		self._cb_X.Name = "cb_X"
+		self._cb_X.Size = System.Drawing.Size(68, 24)
+		self._cb_X.TabIndex = 0
+		self._cb_X.Text = "p.X"
+		self._cb_X.UseVisualStyleBackColor = True
+		self._cb_X.CheckedChanged += self.Cb_XCheckedChanged
+		# 
+		# cb_Y
+		# 
+		self._cb_Y.Font = System.Drawing.Font("Meiryo UI", 7.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
+		self._cb_Y.Location = System.Drawing.Point(60, 66)
+		self._cb_Y.Name = "cb_Y"
+		self._cb_Y.Size = System.Drawing.Size(68, 24)
+		self._cb_Y.TabIndex = 0
+		self._cb_Y.Text = "p.Y"
+		self._cb_Y.UseVisualStyleBackColor = True
+		self._cb_Y.CheckedChanged += self.Cb_YCheckedChanged
+		# 
+		# cb_Z
+		# 
+		self._cb_Z.Font = System.Drawing.Font("Meiryo UI", 7.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
+		self._cb_Z.Location = System.Drawing.Point(60, 107)
+		self._cb_Z.Name = "cb_Z"
+		self._cb_Z.Size = System.Drawing.Size(68, 24)
+		self._cb_Z.TabIndex = 0
+		self._cb_Z.Text = "p.Z"
+		self._cb_Z.UseVisualStyleBackColor = True
+		self._cb_Z.CheckedChanged += self.Cb_ZCheckedChanged
+		# 
 		# btt_CANCLE
 		# 
 		self._btt_CANCLE.Font = System.Drawing.Font("Meiryo UI", 10.2, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._btt_CANCLE.ForeColor = System.Drawing.Color.Red
-		self._btt_CANCLE.Location = System.Drawing.Point(259, 214)
+		self._btt_CANCLE.Location = System.Drawing.Point(213, 192)
 		self._btt_CANCLE.Name = "btt_CANCLE"
 		self._btt_CANCLE.Size = System.Drawing.Size(101, 37)
 		self._btt_CANCLE.TabIndex = 0
@@ -173,7 +206,7 @@ class MainForm(Form):
 		# 
 		self._btt_SPLIT.Font = System.Drawing.Font("Meiryo UI", 10.2, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._btt_SPLIT.ForeColor = System.Drawing.Color.Red
-		self._btt_SPLIT.Location = System.Drawing.Point(152, 214)
+		self._btt_SPLIT.Location = System.Drawing.Point(106, 192)
 		self._btt_SPLIT.Name = "btt_SPLIT"
 		self._btt_SPLIT.Size = System.Drawing.Size(101, 37)
 		self._btt_SPLIT.TabIndex = 0
@@ -184,8 +217,7 @@ class MainForm(Form):
 		# lb_FVC
 		# 
 		self._lb_FVC.Font = System.Drawing.Font("Meiryo UI", 4.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
-		self._lb_FVC.ForeColor = System.Drawing.Color.Blue
-		self._lb_FVC.Location = System.Drawing.Point(12, 234)
+		self._lb_FVC.Location = System.Drawing.Point(4, 219)
 		self._lb_FVC.Name = "lb_FVC"
 		self._lb_FVC.Size = System.Drawing.Size(56, 20)
 		self._lb_FVC.TabIndex = 2
@@ -195,7 +227,7 @@ class MainForm(Form):
 		# txb_Length
 		# 
 		self._txb_Length.Font = System.Drawing.Font("Meiryo UI", 7.20000029, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
-		self._txb_Length.Location = System.Drawing.Point(30, 49)
+		self._txb_Length.Location = System.Drawing.Point(11, 101)
 		self._txb_Length.Name = "txb_Length"
 		self._txb_Length.Size = System.Drawing.Size(133, 23)
 		self._txb_Length.TabIndex = 3
@@ -204,7 +236,7 @@ class MainForm(Form):
 		# lb_Length
 		# 
 		self._lb_Length.Font = System.Drawing.Font("Meiryo UI", 7.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
-		self._lb_Length.Location = System.Drawing.Point(26, 26)
+		self._lb_Length.Location = System.Drawing.Point(7, 78)
 		self._lb_Length.Name = "lb_Length"
 		self._lb_Length.Size = System.Drawing.Size(117, 20)
 		self._lb_Length.TabIndex = 2
@@ -214,7 +246,7 @@ class MainForm(Form):
 		# txb_K
 		# 
 		self._txb_K.Font = System.Drawing.Font("Meiryo UI", 7.20000029, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
-		self._txb_K.Location = System.Drawing.Point(30, 106)
+		self._txb_K.Location = System.Drawing.Point(12, 150)
 		self._txb_K.Name = "txb_K"
 		self._txb_K.Size = System.Drawing.Size(133, 23)
 		self._txb_K.TabIndex = 5
@@ -223,52 +255,20 @@ class MainForm(Form):
 		# lb_splitNumber
 		# 
 		self._lb_splitNumber.Font = System.Drawing.Font("Meiryo UI", 7.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
-		self._lb_splitNumber.Location = System.Drawing.Point(23, 83)
+		self._lb_splitNumber.Location = System.Drawing.Point(5, 127)
 		self._lb_splitNumber.Name = "lb_splitNumber"
 		self._lb_splitNumber.Size = System.Drawing.Size(36, 20)
 		self._lb_splitNumber.TabIndex = 4
 		self._lb_splitNumber.Text = "K:"
 		self._lb_splitNumber.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
 		# 
-		# cbb_sortConnectorBy
-		# 
-		self._cbb_sortConnectorBy.AllowDrop = True
-		self._cbb_sortConnectorBy.FormattingEnabled = True
-		self._cbb_sortConnectorBy.Location = System.Drawing.Point(7, 32)
-		self._cbb_sortConnectorBy.Name = "cbb_sortConnectorBy"
-		self._cbb_sortConnectorBy.Size = System.Drawing.Size(126, 27)
-		self._cbb_sortConnectorBy.TabIndex = 0
-		self._cbb_sortConnectorBy.SelectedIndexChanged += self.Cbb_sortConnectorBySelectedIndexChanged
-		# 
-		# groupBox1
-		# 
-		self._groupBox1.Location = System.Drawing.Point(155, 61)
-		self._groupBox1.Name = "groupBox1"
-		self._groupBox1.Size = System.Drawing.Size(200, 100)
-		self._groupBox1.TabIndex = 6
-		self._groupBox1.TabStop = False
-		self._groupBox1.Text = "groupBox1"
-		# 
-		# grb_inputData
-		# 
-		self._grb_inputData.Controls.Add(self._lb_Length)
-		self._grb_inputData.Controls.Add(self._txb_K)
-		self._grb_inputData.Controls.Add(self._txb_Length)
-		self._grb_inputData.Controls.Add(self._lb_splitNumber)
-		self._grb_inputData.Cursor = System.Windows.Forms.Cursors.Default
-		self._grb_inputData.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 128)
-		self._grb_inputData.Location = System.Drawing.Point(175, 32)
-		self._grb_inputData.Name = "grb_inputData"
-		self._grb_inputData.RightToLeft = System.Windows.Forms.RightToLeft.No
-		self._grb_inputData.Size = System.Drawing.Size(185, 165)
-		self._grb_inputData.TabIndex = 6
-		self._grb_inputData.TabStop = False
-		self._grb_inputData.Text = "input"
-		# 
 		# MainForm
 		# 
-		self.ClientSize = System.Drawing.Size(369, 263)
-		self.Controls.Add(self._grb_inputData)
+		self.ClientSize = System.Drawing.Size(325, 248)
+		self.Controls.Add(self._txb_K)
+		self.Controls.Add(self._lb_splitNumber)
+		self.Controls.Add(self._txb_Length)
+		self.Controls.Add(self._lb_Length)
 		self.Controls.Add(self._lb_FVC)
 		self.Controls.Add(self._grb_sortConn)
 		self.Controls.Add(self._btt_SPLIT)
@@ -280,9 +280,8 @@ class MainForm(Form):
 		self.TopMost = True
 		self.Load += self.MainFormLoad
 		self._grb_sortConn.ResumeLayout(False)
-		self._grb_inputData.ResumeLayout(False)
-		self._grb_inputData.PerformLayout()
 		self.ResumeLayout(False)
+		self.PerformLayout()
 
 	def Btt_pickPipeClick(self, sender, e):
 		pipe = pickPipe()
@@ -290,6 +289,15 @@ class MainForm(Form):
 		lst = list(c.Origin for c in conns)
 		self.connsOrigin = list(c.ToPoint() for c in lst)
 		self.selPipe = pipe
+		pass
+
+	def Cb_XCheckedChanged(self, sender, e):
+		pass
+
+	def Cb_YCheckedChanged(self, sender, e):
+		pass
+
+	def Cb_ZCheckedChanged(self, sender, e):
 		pass
 
 	def Txb_LengthTextChanged(self, sender, e):
@@ -315,8 +323,6 @@ class MainForm(Form):
 		pass
 	def Btt_CANCLEClick(self, sender, e):
 		self.Close()
-		pass
-	def Cbb_sortConnectorBySelectedIndexChanged(self, sender, e):
 		pass
 	def MainFormLoad(self, sender, e):
 		pass	
