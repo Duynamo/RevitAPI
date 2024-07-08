@@ -73,42 +73,33 @@ def flatten(nestedList):
             flatList.append(item)
     return flatList
 #endregion
-#region ___divideLineSegment
-def divideLineSegment(doc, pipe, pointA, LengthA):
-    TransactionManager.Instance.EnsureInTransaction(doc)
-    lineSegment = pipe.Location.Curve
-    start_point = lineSegment.GetEndPoint(0)
-    end_point = lineSegment.GetEndPoint(1)
-    vector = end_point - start_point
-    total_length = vector.GetLength()*304.8
-    direction = vector.Normalize()
-    num_segments = int(total_length / LengthA)
+#region ___def devideLineSegment
+def divideLineSegment(line, length, startPoint, endPoint):
     points = []
-    desPoints =[]
-    current_point = pointA
-    for i in range(num_segments + 1):
-        points.append(current_point)
-        desPoints.append(current_point)
-        # current_point = current_point + direction.Multiply(LengthA)
-    # new_lines = []
-    # for i in range(len(points) - 1):
-    #     new_line = Line.CreateBound(points[i], points[i + 1])
-    #     new_lines.append(new_line.ToProtoType())
-    TransactionManager.Instance.TransactionTaskDone()
-    return desPoints
-def splitPipeAtPoints(pipe, points):
-	TransactionManager.Instance.EnsureInTransaction(doc)
+    total_length = line.Length
+    direction = (endPoint - startPoint).Normalize()
+    current_point = startPoint
+    points.append(current_point.ToPoint())
+    while (current_point.DistanceTo(startPoint) + length) <= total_length:
+        current_point = current_point + direction * length
+        points.append(current_point.ToPoint())
+    return points
+#endregion
+#region ____def splitPipeAtPoints
+def splitPipeAtPoints(doc, pipe, points):
 	newPipes = []
-    # Ensure points are sorted along the pipe's line
-	points = sorted(points, key=lambda p: (pipe.Location.Curve.GetEndPoint(0) - p).DotProduct(pipe.Location.Curve.Direction))
 	for point in points:
-		pipeLocation = pipe.Location
+		currentPipe = pipe
+		pipeLocation = currentPipe.Location
 		if isinstance(pipeLocation, LocationCurve):
 			pipeCurve = pipeLocation.Curve
 			if pipeCurve is not None:
-				newPipeIds = PlumbingUtils.BreakCurve(doc, pipe.Id, point)
-				newPipes.append(doc.GetElement(Id) for Id in newPipeIds)
-	return newPipes
+				newPipeIds = PlumbingUtils.BreakCurve(doc, currentPipe.Id, point)             
+				currentPipe = doc.GetElement(newPipeIds)
+				newPipes.append(doc.GetElement(newPipeIds))
+				return newPipes
+#endregion
+
 #endregion
 class MainForm(Form):
 	def __init__(self):
@@ -219,6 +210,7 @@ class MainForm(Form):
 		self._txb_K.Size = System.Drawing.Size(133, 23)
 		self._txb_K.TabIndex = 5
 		self._txb_K.TextChanged += self.Txb_KTextChanged
+		self._txb_K.Text = '1000'
 		# 
 		# lb_splitNumber
 		# 
@@ -232,6 +224,7 @@ class MainForm(Form):
 		# 
 		# cbb_sortConnectorBy
 		# 
+		items = ['p.X','p.Y','p.Z']
 		self._cbb_sortConnectorBy.AllowDrop = True
 		self._cbb_sortConnectorBy.FormattingEnabled = True
 		self._cbb_sortConnectorBy.Location = System.Drawing.Point(7, 32)
@@ -239,6 +232,8 @@ class MainForm(Form):
 		self._cbb_sortConnectorBy.Size = System.Drawing.Size(126, 27)
 		self._cbb_sortConnectorBy.TabIndex = 0
 		self._cbb_sortConnectorBy.SelectedIndexChanged += self.Cbb_sortConnectorBySelectedIndexChanged
+		self._cbb_sortConnectorBy.Items.AddRange(System.Array[System.Object](items))
+		self._cbb_sortConnectorBy.SelectedIndex = 0
 		# 
 		# groupBox1
 		# 
@@ -283,36 +278,42 @@ class MainForm(Form):
 		self._grb_inputData.ResumeLayout(False)
 		self._grb_inputData.PerformLayout()
 		self.ResumeLayout(False)
-
-	def Btt_pickPipeClick(self, sender, e):
-		pipe = pickPipe()
-		conns = list(pipe.ConnectorManager.Connectors.GetEnumerator())
-		lst = list(c.Origin for c in conns)
-		self.connsOrigin = list(c.ToPoint() for c in lst)
-		self.selPipe = pipe
-		pass
-
 	def Txb_LengthTextChanged(self, sender, e):
-		self.length = float(self._txb_Length.Text)
+		self.Length = float(self._txb_Length.Text)
+		pass
+	def Btt_pickPipeClick(self, sender, e):
+		_pipe = pickPipe()
+		self.selPipe = _pipe
 		pass
 	def Btt_SPLITClick(self, sender, e):
-		originConns = []
+		splitNumber = self.K
 		pipe = self.selPipe
-		conns = list(pipe.ConnectorManager.Connectors.GetEnumerator())
-		originConns = [c.Origin for c in conns]
-		splitLength = self.length/304.8
-		if self._cb_X.Checked == True:
-			sortedConns = sorted(originConns, key = lambda c: c.X)
-		elif self._cb_Y.Checked == True:
-			sortedConns = sorted(originConns, key = lambda c: c.Y)
-		elif self._cb_Z.Checked == True:
-			sortedConns = sorted(originConns, key = lambda c: c.Z)
-		sortedConn = sortedConns[0]
-		splitPoints = divideLineSegment(doc, pipe, sortedConn, splitLength)
-		newPipes = splitPipeAtPoints(pipe, splitPoints)
+		inKey = self._cbb_sortConnectorBy.SelectedItem
+		splitLength = self.Length
+		TransactionManager.Instance.EnsureInTransaction(doc)
+		try:
+			if splitNumber > 0:
+				if pipe is not None:
+					pipeCurve  = pipe.Location.Curve
+					conns = list(pipe.ConnectorManager.Connectors.GetEnumerator())
+					originConns = list(c.Origin for c in conns)
+					if inKey == 'p.X':
+						sortConns = sorted(originConns, key=lambda c : c.X)
+					elif inKey == 'p.Y':
+						sortConns = sorted(originConns, key=lambda c : c.Y)
+					elif inKey == 'p.Z':
+						sortConns = sorted(originConns, key=lambda c : c.Z)
+					points = divideLineSegment(pipeCurve, splitLength, sortConns[0], sortConns[1])
+					newPipes = splitPipeAtPoints(doc, pipe, points)
+
+		except Exception as e:
+			pass
 		pass
+		TransactionManager.Instance.TransactionTaskDone
 	def Txb_KTextChanged(self, sender, e):
+		self.K = float(self._txb_K.Text)
 		pass
+
 	def Btt_CANCLEClick(self, sender, e):
 		self.Close()
 		pass
