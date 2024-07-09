@@ -279,17 +279,34 @@ class MainForm(Form):
 		self._grb_inputData.PerformLayout()
 		self.ResumeLayout(False)
 	def Txb_LengthTextChanged(self, sender, e):
-		self.Length = float(self._txb_Length.Text)
 		pass
 	def Btt_pickPipeClick(self, sender, e):
 		_pipe = pickPipe()
 		self.selPipe = _pipe
 		pass
 	def Btt_SPLITClick(self, sender, e):
-		splitNumber = self.K
+		'''__________'''
+		splitNumber1 = self._txb_K.Text
+		if splitNumber1.strip():
+			try:
+				splitNumber = int(splitNumber1)
+			except vars.ValueError:
+				splitNumber = None
+		else:
+			splitNumber = None
+		'''__________'''
+		splitLength1 = self._txb_Length.Text
+		if splitLength1 is not None:
+			try:
+				splitLength = int(splitLength1)
+			except vars.ValueError:
+				splitLength = None
+		else:
+			splitLength = None
+		'''__________'''
 		pipe = self.selPipe
 		inKey = self._cbb_sortConnectorBy.SelectedItem
-		splitLength = self.Length
+		
 		TransactionManager.Instance.EnsureInTransaction(doc)
 		try:
 			if splitNumber > 0:
@@ -304,16 +321,15 @@ class MainForm(Form):
 					elif inKey == 'p.Z':
 						sortConns = sorted(originConns, key=lambda c : c.Z)
 					points = divideLineSegment(pipeCurve, splitLength, sortConns[0], sortConns[1])
+					TransactionManager.Instance.EnsureInTransaction(doc)
 					newPipes = splitPipeAtPoints(doc, pipe, points)
-
+					TransactionManager.Instance.TransactionTaskDone
 		except Exception as e:
 			pass
 		pass
 		TransactionManager.Instance.TransactionTaskDone
 	def Txb_KTextChanged(self, sender, e):
-		self.K = float(self._txb_K.Text)
 		pass
-
 	def Btt_CANCLEClick(self, sender, e):
 		self.Close()
 		pass
