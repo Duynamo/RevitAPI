@@ -126,3 +126,41 @@ points = divideLineSegment(pipeCurve, splLength, sortConns[0], sortConns[1])
 TransactionManager.Instance.TransactionTaskDone()
 
 OUT = points
+
+
+
+def connectPartToPipe(doc, pipePart, pipe):
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    pipePartConnectors = [conn for conn in pipePart.MEPModel.ConnectorManager.Connectors]
+    pipeConnectors = [conn for conn in pipe.ConnectorManager.Connectors]
+    nearestPipePartConn = findNearestConnector(pipePartConnectors, pipeConnectors[0].Origin)
+    nearestPipeConn = findNearestConnector(pipeConnectors, nearestPipePartConn.Origin)
+    nearestPipePartConn.ConnectTo(nearestPipeConn)
+    TransactionManager.Instance.TransactionTaskDone()
+    return nearestPipePartConn, nearestPipeConn
+
+def connectPartToPart(doc, pipePart1, pipePart2):
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    pipePart1Connectors = [conn for conn in pipePart1.MEPModel.ConnectorManager.Connectors]
+    pipePart2Connectors = [conn for conn in pipePart2.MEPModel.ConnectorManager.Connectors]
+    nearestPipePart1Conn = findNearestConnector(pipePart1Connectors, pipePart2Connectors[0].Origin)
+    nearestPipePart2Conn = findNearestConnector(pipePart2Connectors, pipePart1Connectors[0].Origin)
+    nearestPipePartConn.ConnectTo(nearestPipeConn)
+    TransactionManager.Instance.TransactionTaskDone()
+    return nearestPipePartConn, nearestPipeConn
+
+def connect2Connectors(doc, pipePart1, pipePart2):
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    if pipePart1.Category.Name != 'Pipes':
+        pipePart1Connectors = [conn for conn in pipePart1.MEPModel.ConnectorManager.Connectors]   
+    else:
+        pipePart1Connectors = [conn for conn in pipePart1.ConnectorManager.Connectors]     
+    if pipePart2.Category.Name != 'Pipes':
+        pipePart2Connectors = [conn for conn in pipePart2.MEPModel.ConnectorManager.Connectors]   
+    else:
+        pipePart2Connectors = [conn for conn in pipePart2.ConnectorManager.Connectors] 
+    nearestPipePart1Conn = findNearestConnector(pipePart1Connectors, pipePart2Connectors[0].Origin)
+    nearestPipePart2Conn = findNearestConnector(pipePart2Connectors, pipePart1Connectors[0].Origin)    
+    nearestPipePart1Conn.ConnectTo(nearestPipePart2Conn)
+    TransactionManager.Instance.TransactionTaskDone()
+    return nearestPipePart1Conn, nearestPipePart2Conn

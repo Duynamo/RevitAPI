@@ -917,3 +917,32 @@ def divideLineSegment(line, length, startPoint, endPoint):
 	transform = Autodesk.Revit.DB.Transform.CreateTranslation(transVector)
 	ElementTransformUtils.MoveElement(doc, bPipe.Id, transVector)
 ###
+
+#region ___to connect 2 connectors
+def findNearestConnector(connectorSet, targetPoint):
+    nearest_connector = None
+    minDistance = float('inf')
+    
+    for connector in connectorSet:
+        distance = (connector.Origin - targetPoint).GetLength()
+        if distance < minDistance:
+            minDistance = distance
+            nearestConnector = connector
+    return nearestConnector
+def connect2Connectors(doc, pipePart1, pipePart2):
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    if pipePart1.Category.Name != 'Pipes':
+        pipePart1Connectors = [conn for conn in pipePart1.MEPModel.ConnectorManager.Connectors]   
+    else:
+        pipePart1Connectors = [conn for conn in pipePart1.ConnectorManager.Connectors]     
+    if pipePart2.Category.Name != 'Pipes':
+        pipePart2Connectors = [conn for conn in pipePart2.MEPModel.ConnectorManager.Connectors]   
+    else:
+        pipePart1Connectors = [conn for conn in pipePart2.ConnectorManager.Connectors] 
+    nearestPipePart1Conn = findNearestConnector(pipePart1Connectors, pipePart2Connectors[0].Origin)
+    nearestPipePart2Conn = findNearestConnector(pipePart2Connectors, pipePart1Connectors[0].Origin)    
+    nearestPipePart1Conn.ConnectTo(nearestPipePart2Conn)
+    TransactionManager.Instance.TransactionTaskDone()
+    return nearestPipePart1Conn, nearestPipePart2Conn
+
+#endregion
