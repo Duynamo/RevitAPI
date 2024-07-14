@@ -88,16 +88,21 @@ def divideLineSegment(line, length, startPoint, endPoint):
 #region ____def splitPipeAtPoints
 def splitPipeAtPoints(doc, pipe, points):
 	newPipes = []
+	currentPipe = pipe
+	TransactionManager.Instance.EnsureInTransaction(doc)
 	for point in points:
-		currentPipe = pipe
+		#currentPipe = pipe
 		pipeLocation = currentPipe.Location
 		if isinstance(pipeLocation, LocationCurve):
 			pipeCurve = pipeLocation.Curve
 			if pipeCurve is not None:
 				newPipeIds = PlumbingUtils.BreakCurve(doc, currentPipe.Id, point)             
-				currentPipe = doc.GetElement(newPipeIds)
-				newPipes.append(doc.GetElement(newPipeIds))
-				return newPipes
+				newPipe = doc.GetElement(newPipeIds)
+				newPipes.append(newPipe)
+				currentPipe = newPipe
+	TransactionManager.Instance.TransactionTaskDone
+	return newPipes
+		
 #endregion
 
 #endregion
@@ -279,6 +284,7 @@ class MainForm(Form):
 		self._grb_inputData.PerformLayout()
 		self.ResumeLayout(False)
 	def Txb_LengthTextChanged(self, sender, e):
+		#self.length = float(self._txb_Length.Text)
 		pass
 	def Btt_pickPipeClick(self, sender, e):
 		_pipe = pickPipe()
@@ -296,9 +302,9 @@ class MainForm(Form):
 			splitNumber = None
 		'''__________'''
 		splitLength1 = self._txb_Length.Text
-		if splitLength1 is not None:
+		if splitLength1.strip():
 			try:
-				splitLength = int(splitLength1)
+				splitLength = int(splitLength1)/304.8
 			except vars.ValueError:
 				splitLength = None
 		else:
@@ -306,7 +312,6 @@ class MainForm(Form):
 		'''__________'''
 		pipe = self.selPipe
 		inKey = self._cbb_sortConnectorBy.SelectedItem
-		
 		TransactionManager.Instance.EnsureInTransaction(doc)
 		try:
 			if splitNumber > 0:
@@ -321,14 +326,25 @@ class MainForm(Form):
 					elif inKey == 'p.Z':
 						sortConns = sorted(originConns, key=lambda c : c.Z)
 					points = divideLineSegment(pipeCurve, splitLength, sortConns[0], sortConns[1])
-					TransactionManager.Instance.EnsureInTransaction(doc)
-					newPipes = splitPipeAtPoints(doc, pipe, points)
-					TransactionManager.Instance.TransactionTaskDone
+					dynPoints = list(c.ToRevitType() for c in points)
+					if splitNumber <= len(dynPoints):
+						new_dynPoints = dynPoints[1:splitNumber+1]
+					else:
+						new_dynPoints = dynPoints[1:]
+					# new_dynPoints = dynPoints[1:]
+					# TransactionManager.Instance.EnsureInTransaction(doc)	
+					# newPipes = splitPipeAtPoints(doc, pipe, new_dynPoints)
+					# TransactionManager.Instance.TransactionTaskDone
 		except Exception as e:
+			TransactionManager.Instance.ForceCloseTransaction()
 			pass
+		TransactionManager.Instance.EnsureInTransaction(doc)
+		newPipes = splitPipeAtPoints(doc, pipe, new_dynPoints)
+		TransactionManager.Instance.TransactionTaskDone
 		pass
 		TransactionManager.Instance.TransactionTaskDone
 	def Txb_KTextChanged(self, sender, e):
+		self.K = float(self._txb_K.Text)
 		pass
 	def Btt_CANCLEClick(self, sender, e):
 		self.Close()
