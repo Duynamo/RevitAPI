@@ -164,3 +164,34 @@ def connect2Connectors(doc, pipePart1, pipePart2):
     nearestPipePart1Conn.ConnectTo(nearestPipePart2Conn)
     TransactionManager.Instance.TransactionTaskDone()
     return nearestPipePart1Conn, nearestPipePart2Conn
+
+
+
+
+
+
+def offsetPointAlongVector(point, vector, offsetDistance):
+    direction = vector.ToRevitType().Normalize()
+    scaledVector = direction.Multiply(offsetDistance).ToVector()
+    offsetPoint = point.Add(scaledVector)
+    return offsetPoint
+
+def scaleCurve(pipe, offsetDistance):
+    curve = pipe.Location.Curve
+    point1 = curve.GetEndPoint(0)
+    point2 = curve.GetEndPoint(1)
+    v1 = (point1 - point2).Normalize()
+    v2 = (point2 - point1).Normalize()
+
+    scaled_v1 = point1.Multiply(offsetDistance)
+    scaled_v2 = point2.Multiply(offsetDistance)
+    offsetPoint1 = point1.Add(scaled_v1)
+    offsetPoint2 = point2.Add(scaled_v2)
+    
+    return 
+
+
+pipeCurve = pipe.Location.Curve
+startPoint = pipeCurve.GetEndPoint(0)
+startPoint = pipeCurve.GetEndPoint(1)
+v1 = 
