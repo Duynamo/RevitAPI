@@ -347,3 +347,21 @@ def connectElbowToPipe(doc, ele1, ele2):
     
     TransactionManager.Instance.TransactionTaskDone()
     return nearestEle1Conn, nearestEle2Conn
+
+
+
+def findConnectors(element):
+    connectors = []
+    if element.Category.Name == "Pipes":
+        connectors = [conn for conn in element.ConnectorManager.Connectors]
+    else:
+        connectors = [conn for conn in element.MEPModel.ConnectorManager.Connectors]
+    return connectors
+def disconnectConnectors(element):
+    desConn = []
+    connectors = findConnectors(element)
+    for connector in connectors:
+        for connected_connector in connector.AllRefs:
+            if connected_connector.IsConnected:
+                desConn.append(connected_connector)
+    return desConn
