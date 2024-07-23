@@ -35,7 +35,7 @@ import System.Windows.Forms
 from System.Windows.Forms import *
 import System.Drawing
 from System.Drawing import *
-"""_______________________________________________________________________________________"""
+"""_________________________________________"""
 doc = DocumentManager.Instance.CurrentDBDocument
 uiapp = DocumentManager.Instance.CurrentUIApplication
 app = uiapp.Application
@@ -94,12 +94,12 @@ def findStraightFamily():
 		if '短管' in fittingName or '直管' in fittingName :
 			desUnions.append(fitting)
 	return desUnions
-"""================================"""
+"""_________________________________________"""
 pipe = pickPipe()
 pipeLength = pipe.LookupParameter('Length').AsDouble()
 straightPipeFamily = findStraightFamily()[0]
 placedStraightFamily = placePipeUnionAtMidpoint(doc, pipe, straightPipeFamily)
 straightPipeLength_param = placedStraightFamily.LookupParameter('Length')
-
 straightPipeLength_param.Set(pipeLength)
+
 OUT =  straightPipeLength_param
