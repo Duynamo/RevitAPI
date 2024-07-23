@@ -53,11 +53,9 @@ class selectionFilter(ISelectionFilter):
 def pickPipe():
 	pipes = []
 	pipeFilter = selectionFilter("Pipes")
-	pipesRef = uidoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element, pipeFilter,"pick Pipes")
-	for ref in pipesRef:
-		pipe = doc.GetElement(ref.ElementId)
-		pipes.append(pipe)
-	return pipes
+	pipeRef = uidoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element, pipeFilter,"pick Pipe")
+	pipe = doc.GetElement(pipeRef.ElementId)
+	return pipe
 def findMidpoint(pipe):
     curve = pipe.Location.Curve
     startPoint = curve.GetEndPoint(0)
@@ -66,6 +64,7 @@ def findMidpoint(pipe):
     return midpoint
 def splitPipeAtPoints(doc, pipe, points):
     newPipes = []
+    ids = []
     currentPipe = pipe
     TransactionManager.Instance.EnsureInTransaction(doc)
     for point in points:
@@ -74,32 +73,42 @@ def splitPipeAtPoints(doc, pipe, points):
         newPipeIds = PlumbingUtils.BreakCurve(doc, currentPipe.Id, point)
         newPipe = doc.GetElement(newPipeIds)
         newPipes.append(newPipe)
-        currentPipe = newPipe
+        newPipes.append(pipe)
     TransactionManager.Instance.TransactionTaskDone
     return newPipes
 def placePipeUnionAtMidpoint(doc, pipe, unionType):
+    levelId = pipe.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
+    level = doc.GetElement(levelId)
+
     midpoint = findMidpoint(pipe)
-    splitPipeAtPoints(doc, pipe, [midpoint])
-    pipe1 = doc.GetElement(pipe.Id)
-    pipe2 = doc.GetElement(pipe1.ConnectorManager.Connectors[0].AllRefs[0].Owner.Id)
+    splittedPipes = splitPipeAtPoints(doc, pipe, [midpoint])
+    pipe1 = splittedPipes[0]
+    pipe2 = splittedPipes[1]
+    # pipe2 = doc.GetElement(pipe1.ConnectorManager.Connectors[0].AllRefs[0].Owner.Id)
     TransactionManager.Instance.EnsureInTransaction(doc)
-    union = doc.Create.NewFamilyInstance(midpoint, unionType, pipe1, pipe2, StructuralType.NonStructural)
+    union = doc.Create.NewFamilyInstance(midpoint, unionType, pipe1,level, StructuralType.NonStructural)
     TransactionManager.Instance.TransactionTaskDone
     return union
-def findStraightFamily():
-	desUnions = []
-	collectors = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeFitting).WhereElementIsElementType().ToElements()
-	for fitting in collectors:
-		fittingName = fitting.Name.GetValue(fitting)
-		if '短管' in fittingName or '直管' in fittingName :
-			desUnions.append(fitting)
-	return desUnions
+def findStraightFamily(doc):
+    desUnions = []
+    lst = []
+    collectors = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeFitting).WhereElementIsElementType().ToElements()
+    for fitting in collectors:
+        fittingName = fitting.LookupParameter('Family Name').AsString()
+        if '短管' in fittingName or '直管' in fittingName:
+            desUnions.append(fitting)
+    return None
 """_________________________________________"""
 pipe = pickPipe()
 pipeLength = pipe.LookupParameter('Length').AsDouble()
-straightPipeFamily = findStraightFamily()[0]
+straightPipeFamily = findStraightFamily(doc)
 placedStraightFamily = placePipeUnionAtMidpoint(doc, pipe, straightPipeFamily)
-straightPipeLength_param = placedStraightFamily.LookupParameter('Length')
-straightPipeLength_param.Set(pipeLength)
+if placedStraightFamily is not None:
+    straightPipeLength_param = placedStraightFamily.LookupParameter('Length')
+    if straightPipeLength_param is not None:
+        straightPipeLength_param.Set(pipeLength)
 
-OUT =  straightPipeLength_param
+# midpoint = findMidpoint(pipe)
+# splittedPipes = splitPipeAtPoints(doc, pipe, [midpoint])
+
+OUT =  straightPipeFamily
