@@ -84,7 +84,6 @@ def placePipeUnionAtMidpoint(doc, pipe, unionType):
     splittedPipes = splitPipeAtPoints(doc, pipe, [midpoint])
     pipe1 = splittedPipes[0]
     pipe2 = splittedPipes[1]
-    # pipe2 = doc.GetElement(pipe1.ConnectorManager.Connectors[0].AllRefs[0].Owner.Id)
     TransactionManager.Instance.EnsureInTransaction(doc)
     union = doc.Create.NewFamilyInstance(midpoint, unionType, pipe1,level, StructuralType.NonStructural)
     TransactionManager.Instance.TransactionTaskDone
@@ -98,17 +97,34 @@ def findStraightFamily(doc):
         if '短管' in fittingName or '直管' in fittingName:
             desUnions.append(fitting)
     return None
+def NearestConnector(ConnectorSet, curCurve):
+    MinLength = float("inf")
+    result = None  # Initialize result to None
+    for n in ConnectorSet:
+        distance = curCurve.Location.Curve.Distance(n.Origin)
+        if distance < MinLength:
+            MinLength = distance
+            result = n
+    return result
+
+def closetConn(mPipe, bPipe):
+    connectors1 = list(bPipe.ConnectorManager.Connectors.GetEnumerator())
+    Connector1 = NearestConnector(connectors1, mPipe)
+    XYZconn	= Connector1.Origin
+    return Connector1
 """_________________________________________"""
 pipe = pickPipe()
 pipeLength = pipe.LookupParameter('Length').AsDouble()
-straightPipeFamily = findStraightFamily(doc)
-placedStraightFamily = placePipeUnionAtMidpoint(doc, pipe, straightPipeFamily)
-if placedStraightFamily is not None:
-    straightPipeLength_param = placedStraightFamily.LookupParameter('Length')
+midPoint = findMidpoint(pipe)
+splitPipe = splitPipeAtPoints(doc, pipe, [midPoint])
+conn1 = closetConn(splitPipe[0], splitPipe[1])
+conn2 = closetConn(splitPipe[1], splitPipe[0])
+insertUnion  = doc.Create.NewUnionFitting(conn1,conn2)
+
+TransactionManager.Instance.EnsureInTransaction(doc)
+if insertUnion is not None:
+    straightPipeLength_param = insertUnion.LookupParameter('L')
     if straightPipeLength_param is not None:
         straightPipeLength_param.Set(pipeLength)
-
-# midpoint = findMidpoint(pipe)
-# splittedPipes = splitPipeAtPoints(doc, pipe, [midpoint])
-
-OUT =  straightPipeFamily
+TransactionManager.Instance.TransactionTaskDone()
+OUT =  insertUnion
