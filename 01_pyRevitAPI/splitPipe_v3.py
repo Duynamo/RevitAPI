@@ -86,23 +86,62 @@ def divideLineSegment(line, length, startPoint, endPoint):
     return points
 #endregion
 #region ____def splitPipeAtPoints
+
+# def splitPipeAtPoints(doc, pipe, points):
+# 	newPipes = []
+# 	currentPipe = pipe
+# 	TransactionManager.Instance.EnsureInTransaction(doc)
+# 	for point in points:
+# 		#currentPipe = pipe
+# 		pipeLocation = currentPipe.Location
+# 		if isinstance(pipeLocation, LocationCurve):
+# 			pipeCurve = pipeLocation.Curve
+# 			if pipeCurve is not None:
+# 				newPipeIds = PlumbingUtils.BreakCurve(doc, currentPipe.Id, point)             
+# 				newPipe = doc.GetElement(newPipeIds)
+# 				newPipes.append(newPipe)
+# 				currentPipe = newPipe
+# 				# currentPipe = pipe
+# 	TransactionManager.Instance.TransactionTaskDone
+# 	return newPipes
+
+
+
+
 def splitPipeAtPoints(doc, pipe, points):
-	newPipes = []
-	currentPipe = pipe
-	TransactionManager.Instance.EnsureInTransaction(doc)
-	for point in points:
-		#currentPipe = pipe
-		pipeLocation = currentPipe.Location
-		if isinstance(pipeLocation, LocationCurve):
-			pipeCurve = pipeLocation.Curve
-			if pipeCurve is not None:
-				newPipeIds = PlumbingUtils.BreakCurve(doc, currentPipe.Id, point)             
-				newPipe = doc.GetElement(newPipeIds)
-				newPipes.append(newPipe)
-				currentPipe = newPipe
-				# currentPipe = pipe
-	TransactionManager.Instance.TransactionTaskDone
-	return newPipes
+    newPipes = []
+    currentPipe = pipe
+    originalPipe = pipe
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    for point in points:
+        pipeLocation = currentPipe.Location
+        if isinstance(pipeLocation, LocationCurve):
+            pipeCurve = pipeLocation.Curve
+            if pipeCurve is not None:
+                if is_point_on_curve(pipeCurve, point):
+                    newPipeIds = PlumbingUtils.BreakCurve(doc, currentPipe.Id, point)
+                    if isinstance(newPipeIds, list):
+                        newPipe = doc.GetElement(newPipeIds[0])  # Assuming the first element is the new pipe
+                        newPipes.append(newPipe)
+                        currentPipe = newPipe
+                    else:
+                        currentPipe = doc.GetElement(newPipeIds)
+                else:
+                    # Use the original pipe for splitting
+                    newPipeIds = PlumbingUtils.BreakCurve(doc, originalPipe.Id, point)
+                    if isinstance(newPipeIds, list):
+                        newPipe = doc.GetElement(newPipeIds[0])  # Assuming the first element is the new pipe
+                        newPipes.append(newPipe)
+                        currentPipe = newPipe
+                    else:
+                        currentPipe = doc.GetElement(newPipeIds)
+    TransactionManager.Instance.TransactionTaskDone()
+    return newPipes
+
+# Utility function to check if a point is on a curve
+def is_point_on_curve(curve, point):
+    projected_point = curve.Project(point)
+    return projected_point.Distance < 1e-6
 		
 #endregion
 
@@ -358,6 +397,7 @@ class MainForm(Form):
 	def Btt_SPLITClick(self, sender, e):
 		'''__________'''
 		pipe = self.selPipe
+		new_dynPoints = []
 		try:
 			if pipe is not None:
 				splitNumber1 = self._txb_K.Text
@@ -390,17 +430,21 @@ class MainForm(Form):
 				'''___'''
 				if sortByCor_case1 == True and minCase == True :
 					sortConns = sorted(originConns, key=lambda c : c.X)			
-				if sortByCor_case1 == True and maxCase == True :
-					sortConns = sorted(originConns, key=lambda c : c.X).reverse()
-				if sortByCor_case2 == True and minCase == True :
+				elif sortByCor_case1 == True and maxCase == True :
+					sortConns = sorted(originConns, key=lambda c : c.X)
+					sortConns.reverse()
+				elif sortByCor_case2 == True and minCase == True :
 					sortConns = sorted(originConns, key=lambda c : c.Y)			
-				if sortByCor_case2 == True and maxCase == True :
-					sortConns = sorted(originConns, key=lambda c : c.Y).reverse()	
-				if sortByCor_case3 == True and minCase == True :
+				elif sortByCor_case2 == True and maxCase == True :
+					sortConns = sorted(originConns, key=lambda c : c.Y)
+					sortConns.reverse()
+				elif sortByCor_case3 == True and minCase == True :
 					sortConns = sorted(originConns, key=lambda c : c.Z)			
-				if sortByCor_case3 == True and maxCase == True :
-					sortConns = sorted(originConns, key=lambda c : c.Z).reverse()		
+				elif sortByCor_case3 == True and maxCase == True :
+					sortConns = sorted(originConns, key=lambda c : c.Z)
+					sortConns.reverse()		
 				points = divideLineSegment(pipeCurve, splitLength, sortConns[0], sortConns[1])
+				
 				dynPoints = list(c.ToRevitType() for c in points)
 				if splitNumber <= len(dynPoints):
 					new_dynPoints = dynPoints[1:splitNumber+1]
