@@ -112,6 +112,7 @@ def closetConn(mPipe, bPipe):
     Connector1 = NearestConnector(connectors1, mPipe)
     XYZconn	= Connector1.Origin
     return Connector1
+
 """_________________________________________"""
 pipe = pickPipe()
 pipeCurve = pipe.Location.Curve
