@@ -946,3 +946,26 @@ def connect2Connectors(doc, pipePart1, pipePart2):
     return nearestPipePart1Conn, nearestPipePart2Conn
 
 #endregion
+
+def getConnectedElements(doc, pipes):
+    connectedElements = {}
+    des = []
+
+    for pipe in pipes:
+        connected_elements = []
+        conns = pipe.ConnectorManager.Connectors
+
+        for conn in conns:
+            if conn.IsConnected:
+                for refConn in conn.AllRefs:
+                    connectedElement = refConn.Owner
+                    if connectedElement.Id != pipe.Id:
+                        connected_elements.append(connectedElement)
+
+        connectedElements[pipe.Id] = connected_elements
+
+        for connectedEle in connected_elements:
+            if connectedEle.Category.Name == "Pipe Fittings":
+                partType = connectedEle.MEPModel.PartType
+                if partType == 'Elbow':
+                    des.append(connectedEle)
