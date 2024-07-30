@@ -969,3 +969,31 @@ def getConnectedElements(doc, pipes):
                 partType = connectedEle.MEPModel.PartType
                 if partType == 'Elbow':
                     des.append(connectedEle)
+
+#region _change vsCode back ground
+{
+    "background.useFront": false,
+    "background.useDefault": false,
+    "background.style": {
+
+    
+          "content": "''",
+          "pointer-events": "none",
+          "position": "absolute",
+          "z-index": "99999",
+          "background-position":"center",
+          "background-size": "1080 px 720px",
+          "opacity": 0.2
+        
+      },
+    "background.customImages": [
+
+        "file:///C:/Users/95053/Desktop/Python/vsCode Background"
+    ],
+    "background.customImageFolders": [
+
+    
+    ],
+    "tabnine.experimentalAutoImports": true
+}
+#endregion

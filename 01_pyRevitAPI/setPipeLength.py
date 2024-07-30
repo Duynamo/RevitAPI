@@ -47,27 +47,28 @@ def allPipesInActiveView():
 	pipesCollector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeCurves).WhereElementIsNotElementType().ToElements()
 	pipesList.append(i for i in pipesCollector)
 	return pipesList
-def getConnectedElements(doc,pipes):
-    connectedElements = {}
+def getConnectedElements(pipes):
+    connectedElements = []
     des = []
     for pipe in pipes:
-        pipeId = pipe.Id
-        connectedElements[pipeId] = []
+        connectedElements = []
         conns = list(pipe.ConnectorManager.Connectors.GetEnumerator())
-        pipeCEParams = pipe.LookupParameter('CE_Length')
+        # pipeCEParams = pipe.LookupParameter('CE_Length')
         for conn in conns:
             if conn.IsConnected:
                 for refConn in conn.AllRefs:
                     connectedElement = refConn.Owner
                     if connectedElement.Id != pipeId:
-                        connectedElements[pipeId].append(connectedElement)
+                        connectedElements.append(connectedElement)
                         for connectedEle in connectedElements:
-                             partType = connectedEle.MEPModel.MechanicalFittting.partType
+                             partType = connectedEle.MEPModel.partType
                              if partType == 'Elbow':
                                   des.append(connectedEle)
-                                  
+    return des
 
-    
-    return des	
+pipes = allPipesInActiveView()
+connectedEles = getConnectedElements(pipes)
+
+OUT = connectedEles
 
 '''___'''
