@@ -104,10 +104,6 @@ def divideLineSegment(line, length, startPoint, endPoint):
 # 				# currentPipe = pipe
 # 	TransactionManager.Instance.TransactionTaskDone
 # 	return newPipes
-
-
-
-
 def splitPipeAtPoints(doc, pipe, points):
     newPipes = []
     currentPipe = pipe

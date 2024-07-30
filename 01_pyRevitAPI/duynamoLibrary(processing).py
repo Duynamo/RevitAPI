@@ -1,3 +1,51 @@
+#region __setting JSON
+{
+    "python.pythonPath": "C:\\Users\\user\\AppData\\Local\\Microsoft\\WindowsApps\\python3.exe",
+    "python.autoComplete.extraPaths":    
+    [    
+     "C:\\Users\\user\\.vscode\\ironpython-stubs-master\\release\\stubs.min"   
+    ],
+    "python.languageServer": "Pylance",
+    "files.autoSave": "onWindowChange",
+    "python.analysis.extraPaths": [
+        "C:\\Users\\user\\.vscode\\ironpython-stubs-master\\release\\stubs.min"
+    ],
+    "python.defaultInterpreterPath": "C:\\Users\\user\\AppData\\Local\\Microsoft\\WindowsApps\\python3.exe",
+    "editor.rulers": [
+        80,
+        120
+    ],
+    "tabnine.experimentalAutoImports": true,
+    "workbench.colorTheme": "Evondev Dracula Normal Contrast",
+    "editor.minimap.enabled": false,
+    "git.openRepositoryInParentFolders": "always",
+    }    
+#endregion
+
+#region __change vsCode background
+{
+    "background.useFront": false,
+    "background.useDefault": false,
+    "background.style": {
+        "content": "''",
+        "pointer-events": "none",
+        "position": "absolute",
+        "z-index": "99999",
+        "background-position":"center",
+        "background-size": "1080 px 720px",
+        "opacity": 0.25
+    },
+    "background.customImages": [
+        # "https://assets-prd.ignimgs.com/2021/05/26/faceoff-anime-blogroll-1622054545336.jpg"
+        "file:///C:/Users/Desktop/Python/98_vsCode Image/naruto3.jpg",
+        "file:///C:/Users/Desktop/Python/98_vsCode Image/light2.jpg"
+    ],
+    "background.customImageFolders": [
+        "file:///C:/Users/Desktop/Python/98_vsCode Image/"
+    ],
+}
+#endregion
+
 #def 0001
 #to Flatten nested lists to expect Level
 def flattenTo1dList(arr):
@@ -969,31 +1017,3 @@ def getConnectedElements(doc, pipes):
                 partType = connectedEle.MEPModel.PartType
                 if partType == 'Elbow':
                     des.append(connectedEle)
-
-#region _change vsCode back ground
-{
-    "background.useFront": false,
-    "background.useDefault": false,
-    "background.style": {
-
-    
-          "content": "''",
-          "pointer-events": "none",
-          "position": "absolute",
-          "z-index": "99999",
-          "background-position":"center",
-          "background-size": "1080 px 720px",
-          "opacity": 0.2
-        
-      },
-    "background.customImages": [
-
-        "file:///C:/Users/95053/Desktop/Python/vsCode Background"
-    ],
-    "background.customImageFolders": [
-
-    
-    ],
-    "tabnine.experimentalAutoImports": true
-}
-#endregion

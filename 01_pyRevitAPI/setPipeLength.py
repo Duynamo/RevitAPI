@@ -43,10 +43,8 @@ uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
 '''___'''
 def allPipesInActiveView():
-	pipesList = []
 	pipesCollector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeCurves).WhereElementIsNotElementType().ToElements()
-	pipesList.append(i for i in pipesCollector)
-	return pipesList
+	return pipesCollector
 def getConnectedElements(pipes):
     connectedElements = []
     des = []
