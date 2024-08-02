@@ -110,7 +110,53 @@ def connect2Connectors(doc, pipePart1, pipePart2):
     nearestPipePart1Conn.ConnectTo(nearestPipePart2Conn)
     TransactionManager.Instance.TransactionTaskDone()
     return nearestPipePart1Conn, nearestPipePart2Conn
+
+def CreateElbow(doc, pipes):
+	connectors = []
+	elbowList = []
+	try:
+		for pipe in pipes:
+			connectors.append(pipe.ConnectorManager.Connectors)
+	except:
+		pass
+	TransactionManager.Instance.EnsureInTransaction(doc)
+	try:
+		for set1, set2 in zip(connectors[:-1], connectors[1:]):
+			conStart = list(set1)
+			conEnd = list(set2)
+			d1 = conStart[0].Origin.DistanceTo(conEnd[0].Origin)*conStart[0].Origin.DistanceTo(conEnd[1].Origin)
+			d2 = conStart[1].Origin.DistanceTo(conEnd[0].Origin)*conStart[1].Origin.DistanceTo(conEnd[1].Origin)
+			i = 0
+			if d1 > d2:
+				i = 1
+			d3 = conEnd[0].Origin.DistanceTo(conStart[0].Origin)*conEnd[0].Origin.DistanceTo(conStart[1].Origin)
+			d4 = conEnd[1].Origin.DistanceTo(conStart[0].Origin)*conEnd[1].Origin.DistanceTo(conStart[1].Origin)
+			j = 0
+			if d3 > d4:
+				j = 1
+			fitting = doc.Create.NewElbowFitting(conStart[i],conEnd[j])
+			elbowList.append(fitting)
+	except:
+		pass
+	return elbowList
+def findNearestConnectorOf2Fittings(fitting1, fitting2):
+    nearest_connector = []
+    minDistance = float('inf')
+    conns1 = list(fitting1.MEPModel.ConnectorManager.Connectors.GetEnumerator())
+    conns2 = list(fitting2.MEPModel.ConnectorManager.Connectors.GetEnumerator())
+    for c1,c2 in zip(conns1, conns2):
+        distance = (c1.Origin - c2.Origin).GetLength()
+        if distance < minDistance:
+            minDistance = distance
+            nearestConnector = [c1,c2]
+    return nearestConnector
 #endregion
+'''___'''
+angle = -22.5
+angle1 = 45
+
+'''___'''
+
 fittingOrAccessory = pickFittingOrAccessory()
 '''___'''
 connectedPipe = getConnectedElement(doc, fittingOrAccessory)
@@ -123,13 +169,30 @@ conn = unconnectedConn(doc, fittingOrAccessory)
 startPoint = conn.Origin
 direction = conn.CoordinateSystem.BasisZ
 length = connectedPipe.LookupParameter('Diameter').AsDouble()*5
-endPoint = startPoint + direction.Multiply(length)
+endPoint1 = startPoint + direction.Multiply(length)
 '''___'''
 TransactionManager.Instance.EnsureInTransaction(doc)
-newPipe = Pipe.Create(doc,pipingSystemId, pipeTypeId, levelId.Id, startPoint, endPoint)
-newPipeDiam = newPipe.LookupParameter('Diameter')
+newPipe1 = Pipe.Create(doc,pipingSystemId, pipeTypeId, levelId.Id, startPoint, endPoint1)
+newPipeDiam = newPipe1.LookupParameter('Diameter')
 newPipeDiam.Set(diam)
-connect = connect2Connectors(doc, newPipe, fittingOrAccessory)
+connect = connect2Connectors(doc, newPipe1, fittingOrAccessory)
 TransactionManager.Instance.TransactionTaskDone()
 '''___'''
-OUT = connectedPipe, startPoint
+rotateAxis = XYZ.BasisZ #rotation axis . asuming rotation axis is
+_endPoint2 = endPoint1 + direction.Multiply(length)
+rotationTransform = Transform.CreateRotationAtPoint(rotateAxis, math.radians(angle), endPoint1)
+endPoint2 = rotationTransform.OfPoint(_endPoint2)
+
+TransactionManager.Instance.EnsureInTransaction(doc)
+pipes = []
+newPipe2 = Pipe.Create(doc,pipingSystemId, pipeTypeId, levelId.Id, endPoint1, endPoint2)
+newPipeDiam = newPipe2.LookupParameter('Diameter')
+newPipeDiam.Set(diam)
+pipes.append(newPipe1)
+pipes.append(newPipe2)
+elbow1 = CreateElbow(doc, pipes)
+TransactionManager.Instance.TransactionTaskDone()
+'''___'''
+nearConns1 = findNearestConnectorOf2Fittings(fittingOrAccessory, elbow1)
+'''___'''
+OUT = nearConns1
