@@ -152,11 +152,62 @@ def findNearestConnectorOf2Fittings(fitting1, fitting2):
     return nearestConnector
 #endregion
 '''___'''
-angle = -22.5
-angle1 = 45
-
+#region __input Angle
+# angle = 90
+# angle1 = 90
+class MyForm(Form):
+    def __init__(self):
+        self.Text = ''
+        self.Size = Size(300, 180)
+        self.Font = System.Drawing.Font("Meiryo UI", 7.5, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
+        self.ForeColor = System.Drawing.Color.Red   
+        # Create and add label
+        self.label = Label()
+        self.label.Text = "Angle"
+        self.label.Size = Size(260,20)
+        self.label.Location = Point(10, 10)
+        self.Controls.Add(self.label)       
+        # Create and add text box
+        self.textBox = TextBox()
+        self.textBox.Location = Point(10, 40)
+        self.textBox.Size = Size(260, 20)
+        self.Controls.Add(self.textBox)      
+        # Create and add OK button
+        self.okButton = Button()
+        self.okButton.Text = 'OK'
+        self.okButton.Location = Point(120, 90)
+        self.okButton.Click += self.okButton_Click
+        self.Controls.Add(self.okButton)  
+        # Create and add Cancel button
+        self.cancelButton = Button()
+        self.cancelButton.Text = 'Cancel'
+        self.cancelButton.Location = Point(200, 90)
+        self.cancelButton.Click += self.cancelButton_Click
+        self.Controls.Add(self.cancelButton)
+        # label
+        self.fvcLabel = Label()
+        self.fvcLabel.Text = "@FVC"
+        self.fvcLabel.Size = Size(50, 20)
+        self.fvcLabel.Location = Point(10, 110)  # Bottom left corner
+        self.Controls.Add(self.fvcLabel)        
+        self.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D
+        self.result = None
+    def okButton_Click(self, sender, event):
+        self.result = self.textBox.Text
+        self.DialogResult = DialogResult.OK
+        self.Close()
+    def cancelButton_Click(self, sender, event):
+        self.DialogResult = DialogResult.Cancel
+        self.Close()
+form = MyForm()
+result = form.ShowDialog()
+if result == DialogResult.OK:
+    text_input = form.result
+else:
+    text_input = None
+angle = float(text_input)
+#endregion
 '''___'''
-
 fittingOrAccessory = pickFittingOrAccessory()
 '''___'''
 connectedPipe = getConnectedElement(doc, fittingOrAccessory)
@@ -182,7 +233,6 @@ rotateAxis = XYZ.BasisZ #rotation axis . asuming rotation axis is
 _endPoint2 = endPoint1 + direction.Multiply(length)
 rotationTransform = Transform.CreateRotationAtPoint(rotateAxis, math.radians(angle), endPoint1)
 endPoint2 = rotationTransform.OfPoint(_endPoint2)
-
 TransactionManager.Instance.EnsureInTransaction(doc)
 pipes = []
 newPipe2 = Pipe.Create(doc,pipingSystemId, pipeTypeId, levelId.Id, endPoint1, endPoint2)
@@ -193,6 +243,29 @@ pipes.append(newPipe2)
 elbow1 = CreateElbow(doc, pipes)
 TransactionManager.Instance.TransactionTaskDone()
 '''___'''
-nearConns1 = findNearestConnectorOf2Fittings(fittingOrAccessory, elbow1)
+nearConns1 = findNearestConnectorOf2Fittings(fittingOrAccessory, elbow1[0])
+fittingOrAccessory_Conn = None
+elbow1_conn = None
+for c in nearConns1:
+    if c.Owner.Id == fittingOrAccessory.Id:
+        fittingOrAccessory_Conn = c.Origin
+    else:
+        elbow1_conn = c.Origin
+transVector1 = fittingOrAccessory_Conn - elbow1_conn
+transform1 = Autodesk.Revit.DB.Transform.CreateTranslation(transVector1)
+ElementTransformUtils.MoveElement(doc, elbow1[0].Id, transVector1)
+TransactionManager.Instance.EnsureInTransaction(doc)
+if elbow1[0]:
+    connectedEle = None
+    conns = list(elbow1[0].MEPModel.ConnectorManager.Connectors)
+    for conn in conns:
+         if conn.IsConnected:
+              for refConn in conn.AllRefs:
+                   connectedElement = refConn.Owner
+                   if connectedElement.Id != elbow1[0].Id:
+                        connectedEle = connectedElement
+                        del_connectedEle = doc.Delete(connectedEle.Id)
+TransactionManager.Instance.TransactionTaskDone()
+# connectElbow1_1stFitting = connect2Connectors(doc, fittingOrAccessory,elbow1[0])
 '''___'''
-OUT = nearConns1
+OUT = fittingOrAccessory, elbow1[0]

@@ -1017,3 +1017,81 @@ def getConnectedElements(doc, pipes):
                 partType = connectedEle.MEPModel.PartType
                 if partType == 'Elbow':
                     des.append(connectedEle)
+
+#region __user input 1 text data value
+import clr
+import System
+clr.AddReference('System.Windows.Forms')
+clr.AddReference('System.Drawing')
+from System.Windows.Forms import Form, Label, TextBox, Button, DialogResult, PaintEventHandler
+from System.Drawing import Point, Size, Font, FontStyle, GraphicsUnit, Color, Brush, Brushes
+
+
+# Create a form
+class MyForm(Form):
+    def __init__(self):
+        self.Text = ''
+        self.Size = Size(300, 180)
+        self.Font = System.Drawing.Font("Meiryo UI", 7.5, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
+        self.ForeColor = System.Drawing.Color.Red
+
+      
+        # Create and add label
+        self.label = Label()
+        self.label.Text = "Angle"
+        self.label.Size = Size(260,20)
+        self.label.Location = Point(10, 10)
+        self.Controls.Add(self.label)
+        
+        # Create and add text box
+        self.textBox = TextBox()
+        self.textBox.Location = Point(10, 40)
+        self.textBox.Size = Size(260, 20)
+        self.Controls.Add(self.textBox)
+        
+        # Create and add OK button
+        self.okButton = Button()
+        self.okButton.Text = 'OK'
+        self.okButton.Location = Point(120, 90)
+        self.okButton.Click += self.okButton_Click
+        self.Controls.Add(self.okButton)
+        
+        # Create and add Cancel button
+        self.cancelButton = Button()
+        self.cancelButton.Text = 'Cancel'
+        self.cancelButton.Location = Point(200, 90)
+        self.cancelButton.Click += self.cancelButton_Click
+        self.Controls.Add(self.cancelButton)
+        
+        self.fvcLabel = Label()
+        self.fvcLabel.Text = "@FVC"
+        self.fvcLabel.Size = Size(50, 20)
+        self.fvcLabel.Location = Point(10, 110)  # Bottom left corner
+        self.Controls.Add(self.fvcLabel)        
+
+        self.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D
+        self.result = None
+
+    def okButton_Click(self, sender, event):
+        self.result = self.textBox.Text
+        self.DialogResult = DialogResult.OK
+        self.Close()
+
+    def cancelButton_Click(self, sender, event):
+        self.DialogResult = DialogResult.Cancel
+        self.Close()
+
+# Show the form and get the result
+form = MyForm()
+result = form.ShowDialog()
+
+# Output the result if OK was clicked
+if result == DialogResult.OK:
+    text_input = form.result
+else:
+    text_input = None
+
+# Assign the result to Dynamo output
+OUT = float(text_input)
+
+#endregion
