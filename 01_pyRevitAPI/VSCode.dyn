@@ -66,7 +66,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\rotateElbow.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\createElbow_v2.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "f81eacff842749f9a23df221c6befe90",
@@ -126,8 +126,8 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\rotateElbow.py",
-      "InputValue": ".\\rotateElbow.py",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\createElbow_v2.py",
+      "InputValue": ".\\createElbow_v2.py",
       "NodeType": "ExtensionNode",
       "Id": "2defdaf2569249fba5bec6695ea32875",
       "Inputs": [],
@@ -215,8 +215,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 44.423950083810155,
-        "Y": 245.64564904483723
+        "X": 41.455852707936685,
+        "Y": 241.68818587700594
       },
       {
         "ShowGeometry": true,
@@ -230,8 +230,8 @@
       }
     ],
     "Annotations": [],
-    "X": 55.096365626386387,
-    "Y": -141.60767988466733,
+    "X": 105.49636562638636,
+    "Y": -109.60767988466736,
     "Zoom": 0.80859880794635652
   }
 }
