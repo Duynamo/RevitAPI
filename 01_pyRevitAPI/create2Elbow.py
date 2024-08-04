@@ -244,6 +244,7 @@ elbow1 = CreateElbow(doc, pipes)
 TransactionManager.Instance.TransactionTaskDone()
 '''___'''
 nearConns1 = findNearestConnectorOf2Fittings(fittingOrAccessory, elbow1[0])
+#region ___get near connector of first fitting and new fitting
 fittingOrAccessory_Conn = None
 elbow1_conn = None
 for c in nearConns1:
@@ -251,6 +252,7 @@ for c in nearConns1:
         fittingOrAccessory_Conn = c.Origin
     else:
         elbow1_conn = c.Origin
+#endregion
 transVector1 = fittingOrAccessory_Conn - elbow1_conn
 transform1 = Autodesk.Revit.DB.Transform.CreateTranslation(transVector1)
 ElementTransformUtils.MoveElement(doc, elbow1[0].Id, transVector1)
