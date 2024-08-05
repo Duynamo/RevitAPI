@@ -110,7 +110,6 @@ def connect2Connectors(doc, pipePart1, pipePart2):
     nearestPipePart1Conn.ConnectTo(nearestPipePart2Conn)
     TransactionManager.Instance.TransactionTaskDone()
     return nearestPipePart1Conn, nearestPipePart2Conn
-
 def CreateElbow(doc, pipes):
 	connectors = []
 	elbowList = []
@@ -142,14 +141,14 @@ def CreateElbow(doc, pipes):
 def findNearestConnectorOf2Fittings(fitting1, fitting2):
     nearest_connector = []
     minDistance = float('inf')
-    conns1 = list(fitting1.MEPModel.ConnectorManager.Connectors.GetEnumerator())
-    conns2 = list(fitting2.MEPModel.ConnectorManager.Connectors.GetEnumerator())
+    conns1 = list(fitting1.MEPModel.ConnectorManager.Connectors)
+    conns2 = list(fitting2.MEPModel.ConnectorManager.Connectors)
     for c1,c2 in zip(conns1, conns2):
         distance = (c1.Origin - c2.Origin).GetLength()
         if distance < minDistance:
             minDistance = distance
-            nearestConnector = [c1,c2]
-    return nearestConnector
+            nearest_connector = [c1,c2]
+    return nearest_connector
 def pickPoint(doc):
 	TransactionManager.Instance.EnsureInTransaction(doc)
 	activeView = doc.ActiveView
@@ -184,11 +183,18 @@ def findNearestConnector(connectorSet, targetPoint):
             minDistance = distance
             nearest_connector = connector
     return nearest_connector
+def moveFitting(doc,fitting, basePoint, movePoint):
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    transVector1 = basePoint - movePoint  
+    ElementTransformUtils.MoveElement(doc, fitting.Id, transVector1)    
+    TransactionManager.Instance.TransactionTaskDone()
+    return fitting
 #endregion
 '''___'''
 fittingOrAccessory = pickFittingOrAccessory()
 basePipe = pickPipe()
 pickedPoint = pickPoint(doc)
+'''___'''
 #region __input Angle
 class MyForm(Form):
     def __init__(self):
@@ -250,18 +256,19 @@ pipingSystemId = basePipe.MEPSystem.GetTypeId()
 levelId = doc.GetElement(basePipe.ReferenceLevel.Id)
 diam = basePipe.LookupParameter('Diameter').AsDouble()
 #endregion
+#region __create temporary point to generate temporary pipe 1
 fittingOrAccessory_conns = fittingOrAccessory.MEPModel.ConnectorManager.Connectors
 conn = findNearestConnector(fittingOrAccessory_conns, pickedPoint)
 startPoint = conn.Origin
 direction = conn.CoordinateSystem.BasisZ
 length = basePipe.LookupParameter('Diameter').AsDouble()*5
 endPoint1 = startPoint + direction.Multiply(length)
+#endregion
 #region __Create temporary pipe 1
 TransactionManager.Instance.EnsureInTransaction(doc)
 newPipe1 = Pipe.Create(doc,pipingSystemId, pipeTypeId, levelId.Id, startPoint, endPoint1)
 newPipeDiam = newPipe1.LookupParameter('Diameter')
 newPipeDiam.Set(diam)
-# connect = connect2Connectors(doc, newPipe1, fittingOrAccessory)
 TransactionManager.Instance.TransactionTaskDone()
 #endregion
 #region __create temporary pipe 2 and connect temporary pipe 1 to temporary pipe 2 by elbow
@@ -277,33 +284,34 @@ newPipeDiam.Set(diam)
 pipes.append(newPipe1)
 pipes.append(newPipe2)
 elbow1 = CreateElbow(doc, pipes)
-TransactionManager.Instance.TransactionTaskDone()
-#endregion
-nearConns1 = findNearestConnectorOf2Fittings(fittingOrAccessory, elbow1)
-#region ___get near connector of first fitting and new fitting
-fittingOrAccessory_Conn = None
-elbow1_conn = None
-for c in nearConns1:
-    if c.Owner.Id == fittingOrAccessory.Id:
-        fittingOrAccessory_Conn = c.Origin
-    else:
-        elbow1_conn = c.Origin
-#endregion
-TransactionManager.Instance.EnsureInTransaction(doc)
-transVector1 = conn.Origin - elbow1_conn
-transform1 = Autodesk.Revit.DB.Transform.CreateTranslation(transVector1)
-ElementTransformUtils.MoveElement(doc, elbow1.Id, transVector1)
 if elbow1:
+#region ___get near connector of first fitting and new fitting
+    nearConns1 = findNearestConnectorOf2Fittings(fittingOrAccessory, elbow1)
+    fittingOrAccessory_connOrigin = None
+    elbow1_connOrigin = None
+    for c in nearConns1:
+        if c.Owner.Id == fittingOrAccessory.Id:
+            fittingOrAccessory_connOrigin = c.Origin
+        if c.Owner.Id == elbow1.Id:
+            elbow1_connOrigin = c.Origin
+#endregion
+#region __move elbow1 to first pipe fitting
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    movedElbow1 = moveFitting(doc, elbow1, fittingOrAccessory_connOrigin, elbow1_connOrigin)
+#endregion
+#region __delete temporary pipe2    
     connectedEle = None
-    conns = list(elbow1.MEPModel.ConnectorManager.Connectors)
+    conns = list(movedElbow1.MEPModel.ConnectorManager.Connectors)
     for conn in conns:
-         if conn.IsConnected:
-              for refConn in conn.AllRefs:
-                   connectedElement = refConn.Owner
-                   if connectedElement.Id != elbow1.Id:
+        if conn.IsConnected:
+            for refConn in conn.AllRefs:
+                connectedElement = refConn.Owner
+                if connectedElement.Id != movedElbow1.Id:
                         connectedEle = connectedElement
                         del_connectedEle = doc.Delete(connectedEle.Id)
+#endregion
+    TransactionManager.Instance.TransactionTaskDone()
 TransactionManager.Instance.TransactionTaskDone()
-# connectElbow1_1stFitting = connect2Connectors(doc, fittingOrAccessory,elbow1[0])
+#endregion
 '''___'''
-OUT = 1
+OUT = fittingOrAccessory_connOrigin.ToPoint(), elbow1_connOrigin.ToPoint()

@@ -50,12 +50,14 @@ class selectionFilter(ISelectionFilter):
 			return True
 		else:
 			return False
-def pickPipe():
+def pickPipes():
 	pipes = []
 	pipeFilter = selectionFilter("Pipes")
-	pipeRef = uidoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element, pipeFilter,"pick Pipe")
-	pipe = doc.GetElement(pipeRef.ElementId)
-	return pipe
+	pipesRef = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Element, pipeFilter,"pick Pipes")
+	for ref in pipesRef:
+		pipe = doc.GetElement(ref.ElementId)
+		pipes.append(pipe)
+	return pipes	
 def findMidpoint(pipe):
     curve = pipe.Location.Curve
     startPoint = curve.GetEndPoint(0)
@@ -114,36 +116,36 @@ def closetConn(mPipe, bPipe):
     return Connector1
 
 """_________________________________________"""
-pipe = pickPipe()
-pipeCurve = pipe.Location.Curve
-pipeLength = pipe.LookupParameter('Length').AsDouble()
-midPoint = findMidpoint(pipe)
-splitPipe = splitPipeAtPoints(doc, pipe, [midPoint])
-conn1 = closetConn(splitPipe[0], splitPipe[1])
-conn2 = closetConn(splitPipe[1], splitPipe[0])
-insertUnion  = doc.Create.NewUnionFitting(conn1,conn2)
+pipes = pickPipes()
+for pipe in pipes:
+    pipeCurve = pipe.Location.Curve
+    pipeLength = pipe.LookupParameter('Length').AsDouble()
+    midPoint = findMidpoint(pipe)
+    splitPipe = splitPipeAtPoints(doc, pipe, [midPoint])
+    conn1 = closetConn(splitPipe[0], splitPipe[1])
+    conn2 = closetConn(splitPipe[1], splitPipe[0])
+    insertUnion  = doc.Create.NewUnionFitting(conn1,conn2)
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    straightPipeConns = []
+    sortStraightPipeConns = []
+    if insertUnion is not None:
+        straightPipeLength_param = insertUnion.LookupParameter('L')
+        if straightPipeLength_param is not None:
+            straightPipeLength_param.Set(pipeLength)
+            straightPipeConns = [conn for conn in insertUnion.MEPModel.ConnectorManager.Connectors]
+            connsOrigin = [c.Origin for c in straightPipeConns]
+            sortStraightPipeConns = [midPoint]
+            added_points = {midPoint}
+            for c in connsOrigin:
+                if not any(c.IsAlmostEqualTo(point) for point in added_points):
+                    sortStraightPipeConns.append(c)
+                    added_points.add(c)
+            
+            vector = sortStraightPipeConns[0] - sortStraightPipeConns[1]
+            transVector = vector.Normalize().Multiply(pipeLength/2)
+            translation = Transform.CreateTranslation(transVector)
+            insertUnion.Location.Move(translation.Origin)
+    TransactionManager.Instance.TransactionTaskDone()
 
-TransactionManager.Instance.EnsureInTransaction(doc)
-straightPipeConns = []
-sortStraightPipeConns = []
-if insertUnion is not None:
-    straightPipeLength_param = insertUnion.LookupParameter('L')
-    if straightPipeLength_param is not None:
-        straightPipeLength_param.Set(pipeLength)
-        straightPipeConns = [conn for conn in insertUnion.MEPModel.ConnectorManager.Connectors]
-        connsOrigin = [c.Origin for c in straightPipeConns]
-        sortStraightPipeConns = [midPoint]
-        added_points = {midPoint}
-        for c in connsOrigin:
-            if not any(c.IsAlmostEqualTo(point) for point in added_points):
-                sortStraightPipeConns.append(c)
-                added_points.add(c)
-        
-        vector = sortStraightPipeConns[0] - sortStraightPipeConns[1]
-        transVector = vector.Normalize().Multiply(pipeLength/2)
-        translation = Transform.CreateTranslation(transVector)
-        insertUnion.Location.Move(translation.Origin)
-TransactionManager.Instance.TransactionTaskDone()
-
-pipeCurve = pipe.Location.Curve
-OUT =  insertUnion, sortStraightPipeConns
+# pipeCurve = pipe.Location.Curve
+OUT = pipes
