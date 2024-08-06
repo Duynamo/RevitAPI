@@ -260,9 +260,27 @@ diam = basePipe.LookupParameter('Diameter').AsDouble()
 fittingOrAccessory_conns = fittingOrAccessory.MEPModel.ConnectorManager.Connectors
 conn = findNearestConnector(fittingOrAccessory_conns, pickedPoint)
 startPoint = conn.Origin
-direction = conn.CoordinateSystem.BasisZ
-length = basePipe.LookupParameter('Diameter').AsDouble()*5
-endPoint1 = startPoint + direction.Multiply(length)
+fittingOrAccessory_farCon = None
+for c in fittingOrAccessory_conns:
+    if c != conn:
+        fittingOrAccessory_farCon = c.Origin
+###need to check the direction to make sure that the endPoint1 was generated in true location or not
+if startPoint:
+    endPoint1 = None
+    direction = None
+    length = basePipe.LookupParameter('Diameter').AsDouble()*5
+    temp1_direction = conn.CoordinateSystem.BasisZ
+    temp1_endPoint1 = startPoint + temp1_direction.Multiply(length)
+    temp2_direction = (-1)*conn.CoordinateSystem.BasisZ
+    temp2_endPoint1 = startPoint + temp2_direction.Multiply(length)
+    check1 = fittingOrAccessory_farCon.DistanceTo(temp1_endPoint1)
+    check2 = fittingOrAccessory_farCon.DistanceTo(temp2_endPoint1)
+    if check1 < check2:
+        endPoint1 = temp1_endPoint1
+        direction = temp1_direction
+    if check1 > check2:
+        endPoint1 = temp2_endPoint1 
+        direction = temp2_direction
 #endregion
 #region __Create temporary pipe 1
 TransactionManager.Instance.EnsureInTransaction(doc)
@@ -286,6 +304,7 @@ pipes.append(newPipe2)
 elbow1 = CreateElbow(doc, pipes)
 if elbow1:
 #region ___get near connector of first fitting and new fitting
+    del_pipe1 = doc.Delete(newPipe1.Id)
     nearConns1 = findNearestConnectorOf2Fittings(fittingOrAccessory, elbow1)
     fittingOrAccessory_connOrigin = None
     elbow1_connOrigin = None
@@ -314,4 +333,4 @@ if elbow1:
 TransactionManager.Instance.TransactionTaskDone()
 #endregion
 '''___'''
-OUT = fittingOrAccessory_connOrigin.ToPoint(), elbow1_connOrigin.ToPoint()
+OUT = "Hello world"
