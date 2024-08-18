@@ -112,10 +112,19 @@ def closetConn(mPipe, bPipe):
     Connector1 = NearestConnector(connectors1, mPipe)
     XYZconn	= Connector1.Origin
     return Connector1
-
+def getPipeParameter(p):
+    paramDiameter = p.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM).AsDouble()*304.8
+    paramDiameter1 = p.LookupParameter('Diameter').AsValueString()
+    paramPipeTypeId = p.GetTypeId()
+    paramPipeType = doc.GetElement(paramPipeTypeId)
+    pipeTypeName = paramPipeType.LookupParameter("Type Name").AsString()
+    paramPipingSystemId = p.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
+    paramPipingSystem = doc.GetElement(paramPipingSystemId)
+    pipingSystemName = paramPipingSystem.LookupParameter("System Classification").AsValueString()
+    paramLevel = p.LookupParameter('Reference Level').AsValueString()
+    return paramDiameter1,pipingSystemName,pipeTypeName,paramLevel
 """_________________________________________"""
 pipe = pickPipe()
-# pipeCurve = pipe.Location.Curve
 pipeLength = pipe.LookupParameter('Length').AsDouble()
 midPoint = findMidpoint(pipe)
 splitPipe = splitPipeAtPoints(doc, pipe, [midPoint])
@@ -124,8 +133,11 @@ conn2 = closetConn(splitPipe[1], splitPipe[0])
 insertUnion  = doc.Create.NewUnionFitting(conn1,conn2)
 #region __lookup and set union pipe parameters 
 TransactionManager.Instance.EnsureInTransaction(doc)
-pipe_diameter_param = pipe.LookupParameter('diameter')
-pipe_referenceLevel_param = pipe.LookupParameter('Reference Level')
+pipe_diameter_params = getPipeParameter(pipe)
+union_Diameter_param = insertUnion.LookupParameter('_Diameter')
+union_Diameter_param.Set(pipe_diameter_params[0])
+union_PipeType_param = insertUnion.LookupParameter('_Pipe Type')
+union_PipeType_param.Set(pipe_diameter_params[2])
 
 TransactionManager.Instance.TransactionTaskDone()
 #endregion
@@ -144,12 +156,10 @@ if insertUnion is not None:
             if not any(c.IsAlmostEqualTo(point) for point in added_points):
                 sortStraightPipeConns.append(c)
                 added_points.add(c)
-        
         vector = sortStraightPipeConns[0] - sortStraightPipeConns[1]
         transVector = vector.Normalize().Multiply(pipeLength/2)
         translation = Transform.CreateTranslation(transVector)
         insertUnion.Location.Move(translation.Origin)
 TransactionManager.Instance.TransactionTaskDone()
 
-# pipeCurve = pipe.Location.Curve
-OUT =  insertUnion, sortStraightPipeConns
+OUT =  insertUnion, sortStraightPipeConns, pipe_diameter_params

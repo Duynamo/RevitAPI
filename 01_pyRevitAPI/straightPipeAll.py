@@ -41,21 +41,7 @@ uiapp = DocumentManager.Instance.CurrentUIApplication
 app = uiapp.Application
 uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
-
-class selectionFilter(ISelectionFilter):
-	def __init__(self, category):
-		self.category = category
-	def AllowElement(self, element):
-		if element.Category.Name == self.category:
-			return True
-		else:
-			return False
-def pickPipe():
-	pipes = []
-	pipeFilter = selectionFilter("Pipes")
-	pipeRef = uidoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element, pipeFilter,"pick Pipe")
-	pipe = doc.GetElement(pipeRef.ElementId)
-	return pipe
+"""_________________________________________"""
 def findMidpoint(pipe):
     curve = pipe.Location.Curve
     startPoint = curve.GetEndPoint(0)
@@ -79,7 +65,6 @@ def splitPipeAtPoints(doc, pipe, points):
 def placePipeUnionAtMidpoint(doc, pipe, unionType):
     levelId = pipe.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
     level = doc.GetElement(levelId)
-
     midpoint = findMidpoint(pipe)
     splittedPipes = splitPipeAtPoints(doc, pipe, [midpoint])
     pipe1 = splittedPipes[0]
@@ -88,15 +73,6 @@ def placePipeUnionAtMidpoint(doc, pipe, unionType):
     union = doc.Create.NewFamilyInstance(midpoint, unionType, pipe1,level, StructuralType.NonStructural)
     TransactionManager.Instance.TransactionTaskDone
     return union
-def findStraightFamily(doc):
-    desUnions = []
-    lst = []
-    collectors = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeFitting).WhereElementIsElementType().ToElements()
-    for fitting in collectors:
-        fittingName = fitting.LookupParameter('Family Name').AsString()
-        if '短管' in fittingName or '直管' in fittingName:
-            desUnions.append(fitting)
-    return None
 def NearestConnector(ConnectorSet, curCurve):
     MinLength = float("inf")
     result = None  # Initialize result to None
@@ -106,50 +82,43 @@ def NearestConnector(ConnectorSet, curCurve):
             MinLength = distance
             result = n
     return result
-
 def closetConn(mPipe, bPipe):
     connectors1 = list(bPipe.ConnectorManager.Connectors.GetEnumerator())
     Connector1 = NearestConnector(connectors1, mPipe)
     XYZconn	= Connector1.Origin
     return Connector1
-
-"""_________________________________________"""
-pipe = pickPipe()
-# pipeCurve = pipe.Location.Curve
-pipeLength = pipe.LookupParameter('Length').AsDouble()
-midPoint = findMidpoint(pipe)
-splitPipe = splitPipeAtPoints(doc, pipe, [midPoint])
-conn1 = closetConn(splitPipe[0], splitPipe[1])
-conn2 = closetConn(splitPipe[1], splitPipe[0])
-insertUnion  = doc.Create.NewUnionFitting(conn1,conn2)
-#region __lookup and set union pipe parameters 
-TransactionManager.Instance.EnsureInTransaction(doc)
-pipe_diameter_param = pipe.LookupParameter('diameter')
-pipe_referenceLevel_param = pipe.LookupParameter('Reference Level')
-
-TransactionManager.Instance.TransactionTaskDone()
-#endregion
-TransactionManager.Instance.EnsureInTransaction(doc)
-straightPipeConns = []
-sortStraightPipeConns = []
-if insertUnion is not None:
-    straightPipeLength_param = insertUnion.LookupParameter('L')
-    if straightPipeLength_param is not None:
-        straightPipeLength_param.Set(pipeLength)
-        straightPipeConns = [conn for conn in insertUnion.MEPModel.ConnectorManager.Connectors]
-        connsOrigin = [c.Origin for c in straightPipeConns]
-        sortStraightPipeConns = [midPoint]
-        added_points = {midPoint}
-        for c in connsOrigin:
-            if not any(c.IsAlmostEqualTo(point) for point in added_points):
-                sortStraightPipeConns.append(c)
-                added_points.add(c)
-        
-        vector = sortStraightPipeConns[0] - sortStraightPipeConns[1]
-        transVector = vector.Normalize().Multiply(pipeLength/2)
-        translation = Transform.CreateTranslation(transVector)
-        insertUnion.Location.Move(translation.Origin)
-TransactionManager.Instance.TransactionTaskDone()
-
-# pipeCurve = pipe.Location.Curve
-OUT =  insertUnion, sortStraightPipeConns
+def allPipesInActiveView():
+	pipesCollector = FilteredElementCollector(doc, view.Id).OfCategory(BuiltInCategory.OST_PipeCurves).WhereElementIsNotElementType().ToElements()
+	return pipesCollector
+"""___"""
+categories = [BuiltInCategory.OST_PipeCurves]
+allPipes = []
+allPipes = allPipesInActiveView()
+for pipe in allPipes:
+    pipeLength = pipe.LookupParameter('Length').AsDouble()
+    midPoint = findMidpoint(pipe)
+    splitPipe = splitPipeAtPoints(doc, pipe, [midPoint])
+    conn1 = closetConn(splitPipe[0], splitPipe[1])
+    conn2 = closetConn(splitPipe[1], splitPipe[0])
+    insertUnion  = doc.Create.NewUnionFitting(conn1,conn2)    
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    straightPipeConns = []
+    sortStraightPipeConns = []
+    if insertUnion is not None:
+        straightPipeLength_param = insertUnion.LookupParameter('L')
+        if straightPipeLength_param is not None:
+            straightPipeLength_param.Set(pipeLength)
+            straightPipeConns = [conn for conn in insertUnion.MEPModel.ConnectorManager.Connectors]
+            connsOrigin = [c.Origin for c in straightPipeConns]
+            sortStraightPipeConns = [midPoint]
+            added_points = {midPoint}
+            for c in connsOrigin:
+                if not any(c.IsAlmostEqualTo(point) for point in added_points):
+                    sortStraightPipeConns.append(c)
+                    added_points.add(c)
+            vector = sortStraightPipeConns[0] - sortStraightPipeConns[1]
+            transVector = vector.Normalize().Multiply(pipeLength/2)
+            translation = Transform.CreateTranslation(transVector)
+            insertUnion.Location.Move(translation.Origin)
+    TransactionManager.Instance.TransactionTaskDone()
+OUT =  allPipes

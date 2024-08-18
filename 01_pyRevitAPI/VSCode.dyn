@@ -66,7 +66,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\createElbow_v2.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\straightPipe_v2.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "f81eacff842749f9a23df221c6befe90",
@@ -126,8 +126,8 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\createElbow_v2.py",
-      "InputValue": ".\\createElbow_v2.py",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\straightPipe_v2.py",
+      "InputValue": ".\\straightPipe_v2.py",
       "NodeType": "ExtensionNode",
       "Id": "2defdaf2569249fba5bec6695ea32875",
       "Inputs": [],
@@ -195,8 +195,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 552.47561032548788,
-        "Y": 312.66709918345759
+        "X": 552.475610325488,
+        "Y": 312.667099183458
       },
       {
         "ShowGeometry": true,
@@ -215,8 +215,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 41.455852707936685,
-        "Y": 241.68818587700594
+        "X": 40.420379959154616,
+        "Y": 244.65628325287929
       },
       {
         "ShowGeometry": true,
@@ -230,8 +230,8 @@
       }
     ],
     "Annotations": [],
-    "X": 105.49636562638636,
-    "Y": -109.60767988466736,
-    "Zoom": 0.80859880794635652
+    "X": -216.46336683474934,
+    "Y": -401.84883493654377,
+    "Zoom": 1.2137155031198976
   }
 }

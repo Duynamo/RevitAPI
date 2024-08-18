@@ -222,23 +222,18 @@ def getPipeParameter(p):
     paramPipingSystems = []
     paramLevels = []
     paramPipeTypes = []
-
     paramDiameter = p.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM).AsDouble() * 304.8
-    
     paramPipeTypeId = p.GetTypeId()
     paramPipeType = doc.GetElement(paramPipeTypeId)
     paramPipeTypes.append(paramPipeType)
     pipeTypeName = paramPipeType.LookupParameter("Type Name").AsString()
-	
     paramPipingSystemId = p.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
     paramPipingSystem = doc.GetElement(paramPipingSystemId)
     paramPipingSystems.append(paramPipingSystem)
     pipingSystemName = paramPipingSystem.LookupParameter("System Classification").AsValueString()
-
     paramLevelId = p.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
     paramLevel = doc.GetElement(paramLevelId)
     paramLevels.append(paramLevel)
-
     return [paramDiameter, paramPipingSystem, paramPipeType, paramLevel],[paramDiameter,pipingSystemName,pipeTypeName,paramLevel]
 
 #endregion
