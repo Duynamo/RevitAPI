@@ -231,11 +231,16 @@ def getPipeParameter(p):
     paramPipingSystem = doc.GetElement(paramPipingSystemId)
     paramPipingSystems.append(paramPipingSystem)
     pipingSystemName = paramPipingSystem.LookupParameter("System Classification").AsValueString()
-    paramLevelId = p.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
+    paramLevelId = doc.GetElement(p.ReferenceLevel.Id)
     paramLevel = doc.GetElement(paramLevelId)
     paramLevels.append(paramLevel)
     return [paramDiameter, paramPipingSystem, paramPipeType, paramLevel],[paramDiameter,pipingSystemName,pipeTypeName,paramLevel]
-
+def getPipeParameter(p):
+    pipeTypeId = p.PipeType.Id
+    pipingSystemId = p.MEPSystem.GetTypeId()
+    levelId = doc.GetElement(p.ReferenceLevel.Id)
+    diam = pipe2.LookupParameter('Diameter').AsDouble()
+    return diam, pipingSystemId, pipeTypeId, levelId
 #endregion
 
 #region ___to delete elements
@@ -622,11 +627,11 @@ def offsetPointAlongVector(point, vector, offsetDistance):
 #endregion
 
 #region ___to offset the point along the vector
+#Make sure that point is the revit point and the vector is revit vector
 def offsetPointAlongVector(point, vector, offsetDistance):
-    point = point.ToPoint()
-    direction = vector.ToVector().Normalize()
+    direction = vector.Normalize()
     scaledVector = direction.Multiply(offsetDistance)
-    offsetPoint = point.ToRevitType().Add(scaledVector)
+    offsetPoint = point.Add(scaledVector)
     return offsetPoint
 #endregion
 

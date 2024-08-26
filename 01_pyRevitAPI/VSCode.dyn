@@ -66,7 +66,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\straightPipe_v2.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\oppositeElbow.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "f81eacff842749f9a23df221c6befe90",
@@ -126,8 +126,8 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\straightPipe_v2.py",
-      "InputValue": ".\\straightPipe_v2.py",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\oppositeElbow.py",
+      "InputValue": ".\\oppositeElbow.py",
       "NodeType": "ExtensionNode",
       "Id": "2defdaf2569249fba5bec6695ea32875",
       "Inputs": [],
@@ -172,20 +172,20 @@
       "HasRunWithoutCrash": true,
       "IsVisibleInDynamoLibrary": true,
       "Version": "2.10.1.3976",
-      "RunType": "Automatic",
+      "RunType": "Manual",
       "RunPeriod": "1000"
     },
     "Camera": {
       "Name": "Background Preview",
-      "EyeX": -17.0,
-      "EyeY": 24.0,
-      "EyeZ": 50.0,
-      "LookX": 12.0,
-      "LookY": -13.0,
-      "LookZ": -58.0,
-      "UpX": 0.0,
-      "UpY": 1.0,
-      "UpZ": 0.0
+      "EyeX": -24.364612579345703,
+      "EyeY": 26.790037155151367,
+      "EyeZ": 32.939666748046875,
+      "LookX": 24.364612579345703,
+      "LookY": -26.790037155151367,
+      "LookZ": -32.939666748046875,
+      "UpX": 0.21117280423641205,
+      "UpY": 0.93482577800750732,
+      "UpZ": -0.285494327545166
     },
     "NodeViews": [
       {
@@ -215,8 +215,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 40.420379959154616,
-        "Y": 244.65628325287929
+        "X": 326.76063728899192,
+        "Y": 252.17938790173534
       },
       {
         "ShowGeometry": true,
@@ -225,13 +225,13 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": -78.407121661721021,
-        "Y": 343.03656915619592
+        "X": -10.779331905284977,
+        "Y": 346.742201471617
       }
     ],
     "Annotations": [],
-    "X": -216.46336683474934,
-    "Y": -401.84883493654377,
-    "Zoom": 1.2137155031198976
+    "X": -159.43897479235892,
+    "Y": -80.43239456694721,
+    "Zoom": 0.74839848802363607
   }
 }
