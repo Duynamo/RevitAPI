@@ -100,23 +100,27 @@ def findNearestConnector(connectorSet, targetPoint):
             minDistance = distance
             nearestConnector = connector
     return nearestConnector
-def connect2Connectors(doc, pipePart1, pipePart2):
+def findFarConnector(connectorSet, targetPoint):
+    farConnector = None
+    minDistance = float('inf')
+    for connector in connectorSet:
+        distance = (connector.Origin - targetPoint).GetLength()
+        if distance > minDistance:
+            maxDistance = distance
+            farConnector = connector
+    return farConnector
+def connect2Connectors(doc, elbow, pipe): #Still bug here
     TransactionManager.Instance.EnsureInTransaction(doc)
-    nearestPipePart1Conn = None
-    nearestPipePart2Conn = None    
-    if pipePart1.Category.Name != 'Pipes':
-        pipePart1Connectors = [conn for conn in pipePart1.MEPModel.ConnectorManager.Connectors]   
-    else:
-        pipePart1Connectors = [conn for conn in pipePart1.ConnectorManager.Connectors]     
-    if pipePart2.Category.Name != 'Pipes':
-        pipePart2Connectors = [conn for conn in pipePart2.MEPModel.ConnectorManager.Connectors]   
-    else:
-        pipePart1Connectors = [conn for conn in pipePart2.ConnectorManager.Connectors] 
-    nearestPipePart1Conn = findNearestConnector(pipePart1Connectors, pipePart2Connectors[0].Origin)
-    nearestPipePart2Conn = findNearestConnector(pipePart2Connectors, pipePart1Connectors[0].Origin)    
-    nearestPipePart1Conn.ConnectTo(nearestPipePart2Conn)
+    unconnected_elbow = unconnectedConn(doc, elbow)
+    pipeConns = [conn for conn in pipe.ConnectorManager.Connectors]
+    nearConn_pipe = findNearestConnector(pipeConns, unconnected_elbow.Origin)
+    farConn_pipe = findFarConnector(pipeConns, unconnected_elbow.Origin)
+    newLocationCurve = Line.CreateBound(unconnected_elbow.Origin, farConn_pipe)   
+    locationCurve = pipe.Location
+    locationCurve.Curve = newLocationCurve
+    nearConn_pipe.ConnectTo(unconnected_elbow)
     TransactionManager.Instance.TransactionTaskDone()
-    return nearestPipePart1Conn, nearestPipePart2Conn
+    return nearConn_pipe
 def createElbow(doc, pipes):
 	connectors = []
 
@@ -183,47 +187,29 @@ def rotateElbowAroundPipe(doc, elbow, pipe, connector):
     ElementTransformUtils.RotateElement(doc, elbow.Id, Line.CreateBound(connOrigin, connOrigin + rotationAxis), rotationAngle)
     TransactionManager.Instance.TransactionTaskDone()
     return elbow
-def mirrorLine(doc, line1, line2):
-    start1 = line1.GetEndPoint(0)
-    end1 = line1.GetEndPoint(1)
-    midpoint1 = (start1 + end1) / 2
-     # Calculate the direction of line1 (this is the axis of symmetry)
-    direction1 = (end1 - start1).Normalize()
-    # Calculate the normal vector to the mirror plane
-    normal = direction1.CrossProduct(XYZ.BasisZ).Normalize()
-    # Create the mirror plane (defined by midpoint1 and the normal vector)
-    mirrorPlane = Plane.CreateByNormalAndOrigin(normal, midpoint1)   
-    # Create the mirror transform
-    mirrorTransform = Transform.CreateReflection(mirrorPlane)
-    # Apply the mirror transform to line2
-    ElementTransformUtils.MirrorElement(doc, line2.Id, mirrorPlane)
-    return line2
-
-def mirrorPipe(doc, pipe1, pipe2):
+def mirrorLocationCurve(doc, pipe1, pipe2, createCopy = True):
     line1 = pipe1.Location.Curve
     line2 = pipe2.Location.Curve
     line2_SP = line2.GetEndPoint(0)
     line2_EP = line2.GetEndPoint(1)
-    tempLine = Line.CreateBound(line2_SP, line2_EP)
     start1 = line1.GetEndPoint(0)
     end1 = line1.GetEndPoint(1)
     midpoint1 = (start1 + end1) / 2
-     # Calculate the direction of line1 (this is the axis of symmetry)
     direction1 = (end1 - start1).Normalize()
-    # Calculate the normal vector to the mirror plane
     normal = direction1.CrossProduct(XYZ.BasisZ).Normalize()
-    # Create the mirror plane (defined by midpoint1 and the normal vector)
     mirrorPlane = Plane.CreateByNormalAndOrigin(normal, midpoint1)   
-    # Create the mirror transform
-    mirrorTransform = Transform.CreateReflection(mirrorPlane)
-    # Apply the mirror transform to line2
-    newPipe = ElementTransformUtils.MirrorElement(doc, pipe2.Id, mirrorPlane)
-    return newPipe
+    vector1_to_line1 = line2_SP - line1.GetEndPoint(0)
+    perpendicular_vector1 = vector1_to_line1 - vector1_to_line1.DotProduct(direction1)*direction1
+    mirror_point1 = line2_SP-2*perpendicular_vector1
+    vector2_to_line1 = line2_EP - line1.GetEndPoint(0)
+    perpendicular_vector2 = vector2_to_line1 - vector2_to_line1.DotProduct(direction1)*direction1
+    mirror_point2 = line2_EP-2*perpendicular_vector2  
+    mirror_line2 = Line.CreateBound(mirror_point1, mirror_point2)
+    return mirror_line2
 #endregion
 '''___'''
 pipe1 = pickPipe()
 pipe2 = pickPipe()
-
 pipeTypeId = pipe2.PipeType.Id
 pipingSystemId = pipe2.MEPSystem.GetTypeId()
 levelId = doc.GetElement(pipe2.ReferenceLevel.Id)
@@ -231,22 +217,28 @@ pipe2_diam = pipe2.LookupParameter('Diameter').AsDouble()
 TransactionManager.Instance.EnsureInTransaction(doc)
 pipeList = []
 pipeList.append(pipe1)
-tempPipe = mirrorPipe(doc, pipe1, pipe2)
-# tempPoint1 = tempLocationCurve.GetEndPoint(0)
-# tempPoint2 = tempLocationCurve.GetEndPoint(1)
-# newPipe1 = Pipe.Create(doc,pipingSystemId, pipeTypeId, levelId.Id, tempPoint1, tempPoint2)
-# tempPipeId = tempPipe.Id
-# newPipe1_diam = newPipe1.LookupParameter("Diameter")
-# newPipe1_diam.Set(pipe2_diam)
-pipeList.append(tempPipe)
-# elbow1 = createElbow(doc, pipeList)
 
-# if elbow1:
-    # doc.Delete(tempPipe.Id)
-    # elbow1_connectedConn = connectedConn(doc, elbow1)
-    # rotateElbow1 = rotateElbowAroundPipe(doc, elbow1, pipe1, elbow1_connectedConn)
-
+tempCurve = mirrorLocationCurve(doc, pipe1, pipe2)
+tempPoint1 = tempCurve.GetEndPoint(0)
+tempPoint2 = tempCurve.GetEndPoint(1)
+newPipe1 = Pipe.Create(doc,pipingSystemId, pipeTypeId, levelId.Id, tempPoint1, tempPoint2)
+tempPipeId = newPipe1.Id
+newPipe1_diam = newPipe1.LookupParameter("Diameter")
+newPipe1_diam.Set(pipe2_diam)
+pipeList.append(newPipe1)
+elbow1 = createElbow(doc, pipeList)
+if elbow1:
+    doc.Delete(newPipe1.Id)
+    elbow1_connectedConn = connectedConn(doc, elbow1)
+    rotateElbow1 = rotateElbowAroundPipe(doc, elbow1, pipe1, elbow1_connectedConn)
+    unconnected_elbow = unconnectedConn(doc, elbow1)
+    pipe2Conns = [conn for conn in pipe2.ConnectorManager.Connectors]
+    nearConn_pipe2 = findNearestConnector(pipe2Conns, unconnected_elbow.Origin)
+    farConn_pipe = findFarConnector(pipe2Conns, unconnected_elbow.Origin)
+    newLocationCurve = Line.CreateBound(unconnected_elbow.Origin, farConn_pipe)   
+    locationCurve = pipe2.Location
+    locationCurve.Curve = newLocationCurve
+    nearConn_pipe2.ConnectTo(unconnected_elbow)    
+    # connect_elbow1_pipe2 = connect2Connectors(doc, elbow1, pipe2)
 TransactionManager.Instance.TransactionTaskDone()
-
-
-OUT =   pipeList
+OUT =   elbow1
