@@ -138,7 +138,10 @@ union_Diameter_param = insertUnion.LookupParameter('_Diameter')
 union_Diameter_param.Set(pipe_diameter_params[0])
 union_PipeType_param = insertUnion.LookupParameter('_Pipe Type')
 union_PipeType_param.Set(pipe_diameter_params[2])
-
+union_PipeType_param = insertUnion.LookupParameter('_Piping System')
+union_PipeType_param.Set(pipe_diameter_params[1])
+union_PipeType_param = insertUnion.LookupParameter('_Reference Level')
+union_PipeType_param.Set(pipe_diameter_params[3])
 TransactionManager.Instance.TransactionTaskDone()
 #endregion
 TransactionManager.Instance.EnsureInTransaction(doc)
