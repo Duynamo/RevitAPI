@@ -1095,3 +1095,14 @@ else:
 OUT = float(text_input)
 
 #endregion
+
+def getAllPipeFittingsInPJ(doc):
+    pipeFittingsName = []
+    collector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeFitting).WhereElementIsElementType().ToElements()
+    for fitting in collector:
+        # Use SYMBOL_NAME_PARAM to get the type name
+        fittingNameParam = fitting.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)
+        if fittingNameParam:
+            fittingName = fittingNameParam.AsString()
+            pipeFittingsName.append(fittingName)
+    return collector, pipeFittingsName

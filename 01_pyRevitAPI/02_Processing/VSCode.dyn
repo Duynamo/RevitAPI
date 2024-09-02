@@ -66,7 +66,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\oppositeElbow_v2.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\02_Processing\\exportFamily.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "f81eacff842749f9a23df221c6befe90",
@@ -126,8 +126,8 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\oppositeElbow_v2.py",
-      "InputValue": ".\\oppositeElbow_v2.py",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\02_Processing\\exportFamily.py",
+      "InputValue": ".\\exportFamily.py",
       "NodeType": "ExtensionNode",
       "Id": "2defdaf2569249fba5bec6695ea32875",
       "Inputs": [],
@@ -144,6 +144,58 @@
       ],
       "Replication": "Disabled",
       "Description": "Allows you to select a file on the system to get its filename"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\n#region ___import all Library\r\nimport clr\r\nimport sys \r\nimport System   \r\nimport math\r\nimport collections\r\n\r\nfrom math import cos,sin,tan,radians\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import* \r\nfrom Autodesk.Revit.DB.Structure import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\nfrom Autodesk.Revit.UI.Selection import ISelectionFilter\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference(\"System.Windows.Forms\")\r\nclr.AddReference(\"System.Drawing\")\r\nclr.AddReference(\"System.Windows.Forms.DataVisualization\")\r\n\r\nimport System.Windows.Forms \r\nfrom System.Windows.Forms import *\r\nimport System.Drawing\r\nfrom System.Drawing import *\r\n#endregion\r\n\r\n#region ___Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n#endregion\r\n\r\n#region ___someFunctions\r\ndef uwList(input):\r\n    result = input if isinstance(input, list) else [input]\r\n    return UnwrapElement(input)\r\n\r\ndef getAllPipeFittingsInPJ(doc):\r\n    pipeFittingsName = []\r\n    collector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeFitting).WhereElementIsElementType().ToElements()\r\n    for fitting in collector:\r\n        # Use SYMBOL_NAME_PARAM to get the type name\r\n        fittingNameParam = fitting.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)\r\n        if fittingNameParam:\r\n            fittingName = fittingNameParam.AsString()\r\n            pipeFittingsName.append(fittingName)\r\n    return collector, pipeFittingsName\r\ndef getAllPipeAccessoriesInPJ(doc):\r\n    pipeFittingsName = []\r\n    collector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeAccessory).WhereElementIsElementType().ToElements()\r\n    for fitting in collector:\r\n        # Use SYMBOL_NAME_PARAM to get the type name\r\n        fittingNameParam = fitting.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)\r\n        if fittingNameParam:\r\n            fittingName = fittingNameParam.AsString()\r\n            pipeFittingsName.append(fittingName)\r\n    return collector, pipeFittingsName    \r\ndef getAllGenericModelInPJ(doc):\r\n    pipeFittingsName = []\r\n    collector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_GenericModel).WhereElementIsElementType().ToElements()\r\n    for fitting in collector:\r\n        # Use SYMBOL_NAME_PARAM to get the type name\r\n        fittingNameParam = fitting.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)\r\n        if fittingNameParam:\r\n            fittingName = fittingNameParam.AsString()\r\n            pipeFittingsName.append(fittingName)\r\n    return collector, pipeFittingsName      \r\n#endregion\r\n\r\n\r\n\r\nOUT =  getAllGenericModelInPJ(doc)\r\n",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "e0e1c03289f846898f26a7ed5fbe369c",
+      "Inputs": [
+        {
+          "Id": "27d0bd6ab3434b91931d036466396d62",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "47ffca5839ce4d7cba0055ac1444885c",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": true,
+      "Id": "6c2beca5ee154fd7b3943c2f808e362e",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "4a4edaef0ac74556887302aac43b4c59",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
     }
   ],
   "Connectors": [
@@ -161,6 +213,11 @@
       "Start": "079de00bac204d6aa76a517dbc581bde",
       "End": "f6005348c303443ebdaf8c474487fa28",
       "Id": "135009a5dd8a40c8a3f09ba00e77a516"
+    },
+    {
+      "Start": "4a4edaef0ac74556887302aac43b4c59",
+      "End": "27d0bd6ab3434b91931d036466396d62",
+      "Id": "5bcb8abe7fa24befbc49556ede10b610"
     }
   ],
   "Dependencies": [],
@@ -205,7 +262,7 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 351.54880239427553,
+        "X": 350.37896643247348,
         "Y": 326.35358881355518
       },
       {
@@ -215,8 +272,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 191.16879303806107,
-        "Y": 239.68212444653975
+        "X": -76.555220908557288,
+        "Y": 200.74293962194415
       },
       {
         "ShowGeometry": true,
@@ -227,11 +284,31 @@
         "Excluded": false,
         "X": -10.779331905284977,
         "Y": 346.742201471617
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "e0e1c03289f846898f26a7ed5fbe369c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 295.06671043142359,
+        "Y": 600.66751512050769
+      },
+      {
+        "ShowGeometry": false,
+        "Name": "Boolean",
+        "Id": "6c2beca5ee154fd7b3943c2f808e362e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 128.77930414286809,
+        "Y": 600.10438933095452
       }
     ],
     "Annotations": [],
-    "X": -199.9906557437514,
-    "Y": -195.09013533482121,
-    "Zoom": 1.1123778951896695
+    "X": 299.0044462007171,
+    "Y": -173.65895175262784,
+    "Zoom": 0.9008331075346443
   }
 }
