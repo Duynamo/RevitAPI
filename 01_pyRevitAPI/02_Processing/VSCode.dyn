@@ -66,7 +66,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\02_Processing\\exportFamily.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\02_Processing\\importFamily.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "f81eacff842749f9a23df221c6befe90",
@@ -126,8 +126,8 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\02_Processing\\exportFamily.py",
-      "InputValue": ".\\exportFamily.py",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\02_Processing\\importFamily.py",
+      "InputValue": ".\\importFamily.py",
       "NodeType": "ExtensionNode",
       "Id": "2defdaf2569249fba5bec6695ea32875",
       "Inputs": [],
@@ -246,69 +246,69 @@
     },
     "NodeViews": [
       {
-        "ShowGeometry": true,
-        "Name": "Python Script From String",
         "Id": "5a2470c39c7c45ceb2474329ec45070c",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Python Script From String",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": 552.475610325488,
         "Y": 312.667099183458
       },
       {
-        "ShowGeometry": true,
-        "Name": "Python Script",
         "Id": "f81eacff842749f9a23df221c6befe90",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": 350.37896643247348,
         "Y": 326.35358881355518
       },
       {
-        "ShowGeometry": true,
-        "Name": "Boolean",
         "Id": "f40ff1a66f0d495b81d6f86c6b863489",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Boolean",
+        "ShowGeometry": true,
         "Excluded": false,
-        "X": -76.555220908557288,
-        "Y": 200.74293962194415
+        "X": -68.5614295320513,
+        "Y": 218.12748499324977
       },
       {
-        "ShowGeometry": true,
-        "Name": "File Path",
         "Id": "2defdaf2569249fba5bec6695ea32875",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "File Path",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": -10.779331905284977,
         "Y": 346.742201471617
       },
       {
-        "ShowGeometry": true,
-        "Name": "Python Script",
         "Id": "e0e1c03289f846898f26a7ed5fbe369c",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": 295.06671043142359,
         "Y": 600.66751512050769
       },
       {
-        "ShowGeometry": false,
-        "Name": "Boolean",
         "Id": "6c2beca5ee154fd7b3943c2f808e362e",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Boolean",
+        "ShowGeometry": false,
         "Excluded": false,
         "X": 128.77930414286809,
         "Y": 600.10438933095452
       }
     ],
     "Annotations": [],
-    "X": 299.0044462007171,
-    "Y": -173.65895175262784,
-    "Zoom": 0.9008331075346443
+    "X": 167.71552496607237,
+    "Y": -70.4012309671001,
+    "Zoom": 0.79995054490589923
   }
 }

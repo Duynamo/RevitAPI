@@ -2,6 +2,7 @@ import clr
 import sys 
 import System   
 import math
+import os
 
 clr.AddReference("ProtoGeometry")
 from Autodesk.DesignScript.Geometry import *
@@ -9,6 +10,7 @@ from Autodesk.DesignScript.Geometry import *
 clr.AddReference("RevitAPI") 
 import Autodesk
 from Autodesk.Revit.DB import* 
+from Autodesk.Revit.DB import SaveAsOptions
 from Autodesk.Revit.DB.Structure import*
 from Autodesk.Revit.DB.Plumbing import*
 clr.AddReference("RevitAPIUI") 
@@ -90,12 +92,18 @@ class MainForm(Form):
 		self._grb_DirectFolderLink = System.Windows.Forms.GroupBox()
 		self._btt_selectFolder = System.Windows.Forms.Button()
 		self._txb_folder = System.Windows.Forms.TextBox()
+		self._lb_pipeFittings = System.Windows.Forms.Label()
+		self._lb_pipeAccessories = System.Windows.Forms.Label()
+		self._lb_genericModel = System.Windows.Forms.Label()
 		self._grb_exportFamily.SuspendLayout()
 		self._grb_DirectFolderLink.SuspendLayout()
 		self.SuspendLayout()
 		# 
 		# grb_exportFamily
 		# 
+		self._grb_exportFamily.Controls.Add(self._lb_genericModel)
+		self._grb_exportFamily.Controls.Add(self._lb_pipeAccessories)
+		self._grb_exportFamily.Controls.Add(self._lb_pipeFittings)
 		self._grb_exportFamily.Controls.Add(self._clb_GenericModels)
 		self._grb_exportFamily.Controls.Add(self._clb_PipeAccessories)
 		self._grb_exportFamily.Controls.Add(self._clb_pipeFittings)
@@ -103,7 +111,7 @@ class MainForm(Form):
 		self._grb_exportFamily.ForeColor = System.Drawing.Color.Red
 		self._grb_exportFamily.Location = System.Drawing.Point(12, 21)
 		self._grb_exportFamily.Name = "grb_exportFamily"
-		self._grb_exportFamily.Size = System.Drawing.Size(576, 166)
+		self._grb_exportFamily.Size = System.Drawing.Size(576, 209)
 		self._grb_exportFamily.TabIndex = 0
 		self._grb_exportFamily.TabStop = False
 		self._grb_exportFamily.Text = "Family"
@@ -112,10 +120,11 @@ class MainForm(Form):
 		# 
 		self._clb_pipeFittings.DisplayMember = 'Name'
 		self._clb_pipeFittings.CheckOnClick = True
+		self._clb_pipeFittings.CheckOnClick = True
 		self._clb_pipeFittings.Font = System.Drawing.Font("Meiryo UI", 6, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._clb_pipeFittings.ForeColor = System.Drawing.Color.Blue
 		self._clb_pipeFittings.FormattingEnabled = True
-		self._clb_pipeFittings.Location = System.Drawing.Point(6, 26)
+		self._clb_pipeFittings.Location = System.Drawing.Point(6, 52)
 		self._clb_pipeFittings.Name = "clb_pipeFittings"
 		self._clb_pipeFittings.Size = System.Drawing.Size(182, 124)
 		self._clb_pipeFittings.TabIndex = 0
@@ -129,7 +138,7 @@ class MainForm(Form):
 		self._clb_PipeAccessories.Font = System.Drawing.Font("Meiryo UI", 6, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._clb_PipeAccessories.ForeColor = System.Drawing.Color.Black
 		self._clb_PipeAccessories.FormattingEnabled = True
-		self._clb_PipeAccessories.Location = System.Drawing.Point(194, 26)
+		self._clb_PipeAccessories.Location = System.Drawing.Point(194, 52)
 		self._clb_PipeAccessories.Name = "clb_PipeAccessories"
 		self._clb_PipeAccessories.Size = System.Drawing.Size(182, 124)
 		self._clb_PipeAccessories.TabIndex = 1
@@ -141,9 +150,9 @@ class MainForm(Form):
 		self._clb_GenericModels.DisplayMember = 'Name'
 		self._clb_GenericModels.CheckOnClick = True
 		self._clb_GenericModels.Font = System.Drawing.Font("Meiryo UI", 6, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
-		self._clb_GenericModels.ForeColor = System.Drawing.Color.Red
+		self._clb_GenericModels.ForeColor = System.Drawing.Color.Green
 		self._clb_GenericModels.FormattingEnabled = True
-		self._clb_GenericModels.Location = System.Drawing.Point(382, 26)
+		self._clb_GenericModels.Location = System.Drawing.Point(382, 52)
 		self._clb_GenericModels.Name = "clb_GenericModels"
 		self._clb_GenericModels.Size = System.Drawing.Size(182, 124)
 		self._clb_GenericModels.TabIndex = 1
@@ -154,7 +163,7 @@ class MainForm(Form):
 		# 
 		self._lb_FVC.Font = System.Drawing.Font("Meiryo UI", 4.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._lb_FVC.ForeColor = System.Drawing.Color.Black
-		self._lb_FVC.Location = System.Drawing.Point(18, 287)
+		self._lb_FVC.Location = System.Drawing.Point(18, 324)
 		self._lb_FVC.Name = "lb_FVC"
 		self._lb_FVC.Size = System.Drawing.Size(48, 16)
 		self._lb_FVC.TabIndex = 1
@@ -164,7 +173,7 @@ class MainForm(Form):
 		# 
 		self._btt_EXPORT.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._btt_EXPORT.ForeColor = System.Drawing.Color.Red
-		self._btt_EXPORT.Location = System.Drawing.Point(399, 258)
+		self._btt_EXPORT.Location = System.Drawing.Point(399, 295)
 		self._btt_EXPORT.Name = "btt_EXPORT"
 		self._btt_EXPORT.Size = System.Drawing.Size(85, 45)
 		self._btt_EXPORT.TabIndex = 2
@@ -176,7 +185,7 @@ class MainForm(Form):
 		# 
 		self._btt_CANCLE.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._btt_CANCLE.ForeColor = System.Drawing.Color.Red
-		self._btt_CANCLE.Location = System.Drawing.Point(490, 258)
+		self._btt_CANCLE.Location = System.Drawing.Point(490, 295)
 		self._btt_CANCLE.Name = "btt_CANCLE"
 		self._btt_CANCLE.Size = System.Drawing.Size(85, 45)
 		self._btt_CANCLE.TabIndex = 2
@@ -190,7 +199,7 @@ class MainForm(Form):
 		self._grb_DirectFolderLink.Controls.Add(self._btt_selectFolder)
 		self._grb_DirectFolderLink.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._grb_DirectFolderLink.ForeColor = System.Drawing.Color.Red
-		self._grb_DirectFolderLink.Location = System.Drawing.Point(12, 194)
+		self._grb_DirectFolderLink.Location = System.Drawing.Point(12, 236)
 		self._grb_DirectFolderLink.Name = "grb_DirectFolderLink"
 		self._grb_DirectFolderLink.Size = System.Drawing.Size(573, 53)
 		self._grb_DirectFolderLink.TabIndex = 3
@@ -218,9 +227,39 @@ class MainForm(Form):
 		self._txb_folder.TabIndex = 1
 		self._txb_folder.TextChanged += self.Txb_folderTextChanged
 		# 
+		# lb_pipeFittings
+		# 
+		self._lb_pipeFittings.Font = System.Drawing.Font("Meiryo UI", 6, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
+		self._lb_pipeFittings.ForeColor = System.Drawing.Color.Black
+		self._lb_pipeFittings.Location = System.Drawing.Point(6, 33)
+		self._lb_pipeFittings.Name = "lb_pipeFittings"
+		self._lb_pipeFittings.Size = System.Drawing.Size(168, 16)
+		self._lb_pipeFittings.TabIndex = 4
+		self._lb_pipeFittings.Text = "Pipe Fittings"
+		# 
+		# lb_pipeAccessories
+		# 
+		self._lb_pipeAccessories.Font = System.Drawing.Font("Meiryo UI", 6, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
+		self._lb_pipeAccessories.ForeColor = System.Drawing.Color.Black
+		self._lb_pipeAccessories.Location = System.Drawing.Point(194, 33)
+		self._lb_pipeAccessories.Name = "lb_pipeAccessories"
+		self._lb_pipeAccessories.Size = System.Drawing.Size(168, 16)
+		self._lb_pipeAccessories.TabIndex = 4
+		self._lb_pipeAccessories.Text = "Pipe Accessories"
+		# 
+		# lb_genericModel
+		# 
+		self._lb_genericModel.Font = System.Drawing.Font("Meiryo UI", 6, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
+		self._lb_genericModel.ForeColor = System.Drawing.Color.Black
+		self._lb_genericModel.Location = System.Drawing.Point(382, 33)
+		self._lb_genericModel.Name = "lb_genericModel"
+		self._lb_genericModel.Size = System.Drawing.Size(168, 16)
+		self._lb_genericModel.TabIndex = 4
+		self._lb_genericModel.Text = "Generic Models"		
+		# 
 		# MainForm
 		# 
-		self.ClientSize = System.Drawing.Size(597, 311)
+		self.ClientSize = System.Drawing.Size(597, 348)
 		self.Controls.Add(self._grb_DirectFolderLink)
 		self.Controls.Add(self._btt_CANCLE)
 		self.Controls.Add(self._btt_EXPORT)
@@ -238,22 +277,49 @@ class MainForm(Form):
 #region__biding
 	def PipeFittingsSelectedIndexChanged(self, sender, e):
 		pass
-
 	def PipeAccessoriesSelectedIndexChanged(self, sender, e):
 		pass
-
 	def GenericModelsSelectedIndexChanged(self, sender, e):
 		pass
-
 	def Txb_folderTextChanged(self, sender, e):
 		pass
-
 	def Btt_selectFolderClick(self, sender, e):
+		fileDialog = FolderBrowserDialog()
+		fileDialog.ShowDialog()
+		self._txb_folder.Text = fileDialog.SelectedPath
 		pass
-
 	def Btt_EXPORTClick(self, sender, e):
-		pass
-
+		selectedFamily = []
+		selectedFamilyName = []
+		for f in self._clb_pipeFittings.CheckedItems:
+			selectedFamily.append(f)
+			familyNameParam = f.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)
+			if familyNameParam:
+				familyName = familyNameParam.AsString()
+				selectedFamilyName.append(familyName)
+		for f in self._clb_PipeAccessories.CheckedItems:
+			selectedFamily.append(f)
+			familyNameParam = f.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)
+			if familyNameParam:
+				familyName = familyNameParam.AsString()
+				selectedFamilyName.append(familyName)
+		for f in self._clb_GenericModels.CheckedItems:
+			selectedFamily.append(f)
+			familyNameParam = f.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)
+			if familyNameParam:
+				familyName = familyNameParam.AsString()
+				selectedFamilyName.append(familyName)		
+		directFolder = self._txb_folder.Text
+		for family, familyName in zip( selectedFamily,selectedFamilyName) :
+			file_name = os.path.join(directFolder, familyName + ".rfa")
+			save_options = SaveAsOptions()
+			save_options.OverwriteExistingFile = True  
+			try:
+				family.Document.SaveAs(file_name, save_options)
+			except Exception as e:
+				pass
+		self.Close()		
+		pass			
 	def Btt_CANCLEClick(self, sender, e):
 		self.Close()
 		pass
