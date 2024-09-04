@@ -193,20 +193,49 @@ class MainForm(Form):
 			familyFiles = [f for f in os.listdir(directory) if f.endswith('.rfa')]
 			self._clb_desFamily.Items.AddRange(System.Array[System.Object](familyFiles))	
 		pass
+
 	def Btt_IMPORTClick(self, sender, e):	
 		selectedFamilies = [item for item in self._clb_desFamily.CheckedItems]
 		directory = self._txb_directFolder.Text
 		importedFamilies = []
-
+		TransactionManager.Instance.EnsureInTransaction(doc)
 		for familyFile in selectedFamilies:
-			TransactionManager.Instance.EnsureInTransaction(doc)
+
 			familyPath = os.path.join(directory, familyFile)
 			loadedFamily = clr.Reference[Family]()
 			check = doc.LoadFamily(familyPath, loadedFamily)
-			TransactionManager.Instance.TransactionTaskDone()
-
+			if check:
+				importedFamilies.append(loadedFamily.Name)
+			else:
+				pass
+		TransactionManager.Instance.TransactionTaskDone()
 		self.Close()
 		pass
+
+	# def Btt_IMPORTClick(self, sender, e):    
+	# 	selectedFamilies = [item for item in self._clb_desFamily.CheckedItems]
+	# 	directory = self._txb_directFolder.Text
+	# 	importedFamilies = []
+	# 	for familyFile in selectedFamilies:
+	# 		familyPath = os.path.join(directory, familyFile)
+	# 		loadedFamily = clr.Reference[Family]()
+	# 		check = doc.LoadFamily(familyPath, loadedFamily)
+	# 		if check: 
+	# 			importedFamilies.append(loadedFamily.Name)
+	# 			try:
+	# 				# Attempt to edit and then close the family
+	# 				familyDoc = doc.EditFamily(loadedFamily)
+					
+	# 				if familyDoc.IsModified:  # Save if modified
+	# 					familyDoc.Save()
+					
+	# 				familyDoc.Close(False)  # Close without saving again
+					
+	# 			except Exception as e:
+	# 				pass
+	# 	TransactionManager.Instance.TransactionTaskDone()  # End transaction
+	# 	self.Close()  # Close the form
+	# 	pass
 
 	def Btt_CANCLEClick(self, sender, e):
 		self.Close()
