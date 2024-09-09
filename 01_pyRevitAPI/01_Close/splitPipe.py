@@ -86,27 +86,61 @@ def divideLineSegment(line, length, startPoint, endPoint):
     return points
 #endregion
 #region ____def splitPipeAtPoints
+
+# def splitPipeAtPoints(doc, pipe, points):
+# 	newPipes = []
+# 	currentPipe = pipe
+# 	TransactionManager.Instance.EnsureInTransaction(doc)
+# 	for point in points:
+# 		#currentPipe = pipe
+# 		pipeLocation = currentPipe.Location
+# 		if isinstance(pipeLocation, LocationCurve):
+# 			pipeCurve = pipeLocation.Curve
+# 			if pipeCurve is not None:
+# 				newPipeIds = PlumbingUtils.BreakCurve(doc, currentPipe.Id, point)             
+# 				newPipe = doc.GetElement(newPipeIds)
+# 				newPipes.append(newPipe)
+# 				currentPipe = newPipe
+# 				# currentPipe = pipe
+# 	TransactionManager.Instance.TransactionTaskDone
+# 	return newPipes
 def splitPipeAtPoints(doc, pipe, points):
-	newPipes = []
-	currentPipe = pipe
-	TransactionManager.Instance.EnsureInTransaction(doc)
-	for point in points:
-		#currentPipe = pipe
-		pipeLocation = currentPipe.Location
-		if isinstance(pipeLocation, LocationCurve):
-			pipeCurve = pipeLocation.Curve
-			if pipeCurve is not None:
-				newPipeIds = PlumbingUtils.BreakCurve(doc, currentPipe.Id, point)             
-				newPipe = doc.GetElement(newPipeIds)
-				newPipes.append(newPipe)
-				currentPipe = newPipe
-				# currentPipe = pipe
-	TransactionManager.Instance.TransactionTaskDone
-	return newPipes
+    newPipes = []
+    currentPipe = pipe
+    originalPipe = pipe
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    for point in points:
+        pipeLocation = currentPipe.Location
+        if isinstance(pipeLocation, LocationCurve):
+            pipeCurve = pipeLocation.Curve
+            if pipeCurve is not None:
+                if is_point_on_curve(pipeCurve, point):
+                    newPipeIds = PlumbingUtils.BreakCurve(doc, currentPipe.Id, point)
+                    if isinstance(newPipeIds, list):
+                        newPipe = doc.GetElement(newPipeIds[0])  # Assuming the first element is the new pipe
+                        newPipes.append(newPipe)
+                        currentPipe = newPipe
+                    else:
+                        currentPipe = doc.GetElement(newPipeIds)
+                else:
+                    # Use the original pipe for splitting
+                    newPipeIds = PlumbingUtils.BreakCurve(doc, originalPipe.Id, point)
+                    if isinstance(newPipeIds, list):
+                        newPipe = doc.GetElement(newPipeIds[0])  # Assuming the first element is the new pipe
+                        newPipes.append(newPipe)
+                        currentPipe = newPipe
+                    else:
+                        currentPipe = doc.GetElement(newPipeIds)
+    TransactionManager.Instance.TransactionTaskDone()
+    return newPipes
+
+# Utility function to check if a point is on a curve
+def is_point_on_curve(curve, point):
+    projected_point = curve.Project(point)
+    return projected_point.Distance < 1e-6
 		
 #endregion
 
-#endregion
 class MainForm(Form):
 	def __init__(self):
 		self.InitializeComponent()
@@ -121,18 +155,23 @@ class MainForm(Form):
 		self._lb_Length = System.Windows.Forms.Label()
 		self._txb_K = System.Windows.Forms.TextBox()
 		self._lb_splitNumber = System.Windows.Forms.Label()
-		self._cbb_sortConnectorBy = System.Windows.Forms.ComboBox()
-		self._groupBox1 = System.Windows.Forms.GroupBox()
 		self._grb_inputData = System.Windows.Forms.GroupBox()
+		self._rbt_pX = System.Windows.Forms.RadioButton()
+		self._rbt_pY = System.Windows.Forms.RadioButton()
+		self._rbt_pZ = System.Windows.Forms.RadioButton()
+		self._rbt_sortByMax = System.Windows.Forms.RadioButton()
+		self._rbt_sortByMin = System.Windows.Forms.RadioButton()
+		self._grb_MinMax = System.Windows.Forms.GroupBox()
 		self._grb_sortConn.SuspendLayout()
 		self._grb_inputData.SuspendLayout()
+		self._grb_MinMax.SuspendLayout()
 		self.SuspendLayout()
 		# 
 		# btt_pickPipe
 		# 
 		self._btt_pickPipe.Font = System.Drawing.Font("Meiryo UI", 10.2, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._btt_pickPipe.ForeColor = System.Drawing.Color.Red
-		self._btt_pickPipe.Location = System.Drawing.Point(18, 37)
+		self._btt_pickPipe.Location = System.Drawing.Point(112, 19)
 		self._btt_pickPipe.Name = "btt_pickPipe"
 		self._btt_pickPipe.Size = System.Drawing.Size(133, 41)
 		self._btt_pickPipe.TabIndex = 0
@@ -142,13 +181,14 @@ class MainForm(Form):
 		# 
 		# grb_sortConn
 		# 
-		self._grb_sortConn.Controls.Add(self._groupBox1)
-		self._grb_sortConn.Controls.Add(self._cbb_sortConnectorBy)
+		self._grb_sortConn.Controls.Add(self._rbt_pZ)
+		self._grb_sortConn.Controls.Add(self._rbt_pY)
+		self._grb_sortConn.Controls.Add(self._rbt_pX)
 		self._grb_sortConn.Cursor = System.Windows.Forms.Cursors.Default
 		self._grb_sortConn.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 128)
-		self._grb_sortConn.Location = System.Drawing.Point(11, 106)
+		self._grb_sortConn.Location = System.Drawing.Point(11, 161)
 		self._grb_sortConn.Name = "grb_sortConn"
-		self._grb_sortConn.Size = System.Drawing.Size(158, 91)
+		self._grb_sortConn.Size = System.Drawing.Size(160, 109)
 		self._grb_sortConn.TabIndex = 1
 		self._grb_sortConn.TabStop = False
 		self._grb_sortConn.Text = "Sort Connector by"
@@ -158,7 +198,7 @@ class MainForm(Form):
 		# 
 		self._btt_CANCLE.Font = System.Drawing.Font("Meiryo UI", 10.2, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._btt_CANCLE.ForeColor = System.Drawing.Color.Red
-		self._btt_CANCLE.Location = System.Drawing.Point(259, 214)
+		self._btt_CANCLE.Location = System.Drawing.Point(265, 293)
 		self._btt_CANCLE.Name = "btt_CANCLE"
 		self._btt_CANCLE.Size = System.Drawing.Size(101, 37)
 		self._btt_CANCLE.TabIndex = 0
@@ -170,7 +210,7 @@ class MainForm(Form):
 		# 
 		self._btt_SPLIT.Font = System.Drawing.Font("Meiryo UI", 10.2, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._btt_SPLIT.ForeColor = System.Drawing.Color.Red
-		self._btt_SPLIT.Location = System.Drawing.Point(152, 214)
+		self._btt_SPLIT.Location = System.Drawing.Point(158, 293)
 		self._btt_SPLIT.Name = "btt_SPLIT"
 		self._btt_SPLIT.Size = System.Drawing.Size(101, 37)
 		self._btt_SPLIT.TabIndex = 0
@@ -182,7 +222,7 @@ class MainForm(Form):
 		# 
 		self._lb_FVC.Font = System.Drawing.Font("Meiryo UI", 4.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
 		self._lb_FVC.ForeColor = System.Drawing.Color.Blue
-		self._lb_FVC.Location = System.Drawing.Point(12, 234)
+		self._lb_FVC.Location = System.Drawing.Point(18, 313)
 		self._lb_FVC.Name = "lb_FVC"
 		self._lb_FVC.Size = System.Drawing.Size(56, 20)
 		self._lb_FVC.TabIndex = 2
@@ -192,16 +232,17 @@ class MainForm(Form):
 		# txb_Length
 		# 
 		self._txb_Length.Font = System.Drawing.Font("Meiryo UI", 7.20000029, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
-		self._txb_Length.Location = System.Drawing.Point(30, 49)
+		self._txb_Length.Location = System.Drawing.Point(20, 49)
 		self._txb_Length.Name = "txb_Length"
 		self._txb_Length.Size = System.Drawing.Size(133, 23)
 		self._txb_Length.TabIndex = 3
-		self._txb_Length.TextChanged += self.Txb_LengthTextChanged
+		# self._txb_Length.TextChanged += self.Txb_LengthTextChanged
+		self._txb_Length.Text = '3000'
 		# 
 		# lb_Length
 		# 
 		self._lb_Length.Font = System.Drawing.Font("Meiryo UI", 7.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
-		self._lb_Length.Location = System.Drawing.Point(26, 26)
+		self._lb_Length.Location = System.Drawing.Point(14, 26)
 		self._lb_Length.Name = "lb_Length"
 		self._lb_Length.Size = System.Drawing.Size(117, 20)
 		self._lb_Length.TabIndex = 2
@@ -211,7 +252,7 @@ class MainForm(Form):
 		# txb_K
 		# 
 		self._txb_K.Font = System.Drawing.Font("Meiryo UI", 7.20000029, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
-		self._txb_K.Location = System.Drawing.Point(30, 106)
+		self._txb_K.Location = System.Drawing.Point(199, 49)
 		self._txb_K.Name = "txb_K"
 		self._txb_K.Size = System.Drawing.Size(133, 23)
 		self._txb_K.TabIndex = 5
@@ -221,34 +262,12 @@ class MainForm(Form):
 		# lb_splitNumber
 		# 
 		self._lb_splitNumber.Font = System.Drawing.Font("Meiryo UI", 7.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
-		self._lb_splitNumber.Location = System.Drawing.Point(23, 83)
+		self._lb_splitNumber.Location = System.Drawing.Point(192, 26)
 		self._lb_splitNumber.Name = "lb_splitNumber"
 		self._lb_splitNumber.Size = System.Drawing.Size(36, 20)
 		self._lb_splitNumber.TabIndex = 4
 		self._lb_splitNumber.Text = "K:"
 		self._lb_splitNumber.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-		# 
-		# cbb_sortConnectorBy
-		# 
-		items = ['p.X','p.Y','p.Z']
-		self._cbb_sortConnectorBy.AllowDrop = True
-		self._cbb_sortConnectorBy.FormattingEnabled = True
-		self._cbb_sortConnectorBy.Location = System.Drawing.Point(7, 32)
-		self._cbb_sortConnectorBy.Name = "cbb_sortConnectorBy"
-		self._cbb_sortConnectorBy.Size = System.Drawing.Size(126, 27)
-		self._cbb_sortConnectorBy.TabIndex = 0
-		self._cbb_sortConnectorBy.SelectedIndexChanged += self.Cbb_sortConnectorBySelectedIndexChanged
-		self._cbb_sortConnectorBy.Items.AddRange(System.Array[System.Object](items))
-		self._cbb_sortConnectorBy.SelectedIndex = 0
-		# 
-		# groupBox1
-		# 
-		self._groupBox1.Location = System.Drawing.Point(155, 61)
-		self._groupBox1.Name = "groupBox1"
-		self._groupBox1.Size = System.Drawing.Size(200, 100)
-		self._groupBox1.TabIndex = 6
-		self._groupBox1.TabStop = False
-		self._groupBox1.Text = "groupBox1"
 		# 
 		# grb_inputData
 		# 
@@ -258,17 +277,97 @@ class MainForm(Form):
 		self._grb_inputData.Controls.Add(self._lb_splitNumber)
 		self._grb_inputData.Cursor = System.Windows.Forms.Cursors.Default
 		self._grb_inputData.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 128)
-		self._grb_inputData.Location = System.Drawing.Point(175, 32)
+		self._grb_inputData.Location = System.Drawing.Point(6, 66)
 		self._grb_inputData.Name = "grb_inputData"
 		self._grb_inputData.RightToLeft = System.Windows.Forms.RightToLeft.No
-		self._grb_inputData.Size = System.Drawing.Size(185, 165)
+		self._grb_inputData.Size = System.Drawing.Size(351, 82)
 		self._grb_inputData.TabIndex = 6
 		self._grb_inputData.TabStop = False
-		self._grb_inputData.Text = "input"
+		self._grb_inputData.Text = "Input"
+		# 
+		# rbt_pX
+		# 
+		self._rbt_pX.Font = System.Drawing.Font("Meiryo UI", 7.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
+		self._rbt_pX.ForeColor = System.Drawing.Color.Red
+		self._rbt_pX.Location = System.Drawing.Point(25, 24)
+		self._rbt_pX.Name = "rbt_pX"
+		self._rbt_pX.Size = System.Drawing.Size(61, 24)
+		self._rbt_pX.TabIndex = 7
+		self._rbt_pX.TabStop = True
+		self._rbt_pX.Text = "pX"
+		self._rbt_pX.UseVisualStyleBackColor = True
+		self._rbt_pX.CheckedChanged += self.Rbt_pXCheckedChanged
+		self._rbt_pX.Checked = True
+		# 
+		# rbt_pY
+		# 
+		self._rbt_pY.Font = System.Drawing.Font("Meiryo UI", 7.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
+		self._rbt_pY.ForeColor = System.Drawing.Color.Red
+		self._rbt_pY.Location = System.Drawing.Point(25, 53)
+		self._rbt_pY.Name = "rbt_pY"
+		self._rbt_pY.Size = System.Drawing.Size(61, 24)
+		self._rbt_pY.TabIndex = 7
+		self._rbt_pY.TabStop = True
+		self._rbt_pY.Text = "pY"
+		self._rbt_pY.UseVisualStyleBackColor = True
+		self._rbt_pY.CheckedChanged += self.Rbt_pYCheckedChanged
+		# 
+		# rbt_pZ
+		# 
+		self._rbt_pZ.Font = System.Drawing.Font("Meiryo UI", 7.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
+		self._rbt_pZ.ForeColor = System.Drawing.Color.Red
+		self._rbt_pZ.Location = System.Drawing.Point(25, 81)
+		self._rbt_pZ.Name = "rbt_pZ"
+		self._rbt_pZ.Size = System.Drawing.Size(61, 24)
+		self._rbt_pZ.TabIndex = 7
+		self._rbt_pZ.TabStop = True
+		self._rbt_pZ.Text = "pZ"
+		self._rbt_pZ.UseVisualStyleBackColor = True
+		self._rbt_pZ.CheckedChanged += self.Rbt_pZCheckedChanged
+		# 
+		# rbt_sortByMax
+		# 
+		self._rbt_sortByMax.Font = System.Drawing.Font("Meiryo UI", 7.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
+		self._rbt_sortByMax.ForeColor = System.Drawing.Color.Fuchsia
+		self._rbt_sortByMax.Location = System.Drawing.Point(6, 73)
+		self._rbt_sortByMax.Name = "rbt_sortByMax"
+		self._rbt_sortByMax.Size = System.Drawing.Size(132, 24)
+		self._rbt_sortByMax.TabIndex = 7
+		self._rbt_sortByMax.TabStop = True
+		self._rbt_sortByMax.Text = "Sort By Max?"
+		self._rbt_sortByMax.UseVisualStyleBackColor = True
+		self._rbt_sortByMax.CheckedChanged += self.Rbt_sortByMaxCheckedChanged
+		# 
+		# rbt_sortByMin
+		# 
+		self._rbt_sortByMin.Font = System.Drawing.Font("Meiryo UI", 7.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
+		self._rbt_sortByMin.ForeColor = System.Drawing.Color.Fuchsia
+		self._rbt_sortByMin.Location = System.Drawing.Point(7, 43)
+		self._rbt_sortByMin.Name = "rbt_sortByMin"
+		self._rbt_sortByMin.Size = System.Drawing.Size(132, 24)
+		self._rbt_sortByMin.TabIndex = 7
+		self._rbt_sortByMin.TabStop = True
+		self._rbt_sortByMin.Text = "Sort By Min?"
+		self._rbt_sortByMin.UseVisualStyleBackColor = True
+		self._rbt_sortByMin.CheckedChanged += self.Rbt_sortByMaxCheckedChanged
+		self._rbt_sortByMin.Checked = True
+		# 
+		# grb_MinMax
+		# 
+		self._grb_MinMax.Controls.Add(self._rbt_sortByMin)
+		self._grb_MinMax.Controls.Add(self._rbt_sortByMax)
+		self._grb_MinMax.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 128)
+		self._grb_MinMax.Location = System.Drawing.Point(198, 161)
+		self._grb_MinMax.Name = "grb_MinMax"
+		self._grb_MinMax.Size = System.Drawing.Size(159, 109)
+		self._grb_MinMax.TabIndex = 8
+		self._grb_MinMax.TabStop = False
+		self._grb_MinMax.Text = "MinMax"
 		# 
 		# MainForm
 		# 
-		self.ClientSize = System.Drawing.Size(369, 263)
+		self.ClientSize = System.Drawing.Size(369, 342)
+		self.Controls.Add(self._grb_MinMax)
 		self.Controls.Add(self._grb_inputData)
 		self.Controls.Add(self._lb_FVC)
 		self.Controls.Add(self._grb_sortConn)
@@ -283,59 +382,72 @@ class MainForm(Form):
 		self._grb_sortConn.ResumeLayout(False)
 		self._grb_inputData.ResumeLayout(False)
 		self._grb_inputData.PerformLayout()
+		self._grb_MinMax.ResumeLayout(False)
 		self.ResumeLayout(False)
-	def Txb_LengthTextChanged(self, sender, e):
-		#self.length = float(self._txb_Length.Text)
-		pass
+
+
 	def Btt_pickPipeClick(self, sender, e):
 		_pipe = pickPipe()
 		self.selPipe = _pipe
-		pass
+
 	def Btt_SPLITClick(self, sender, e):
 		'''__________'''
-		splitNumber1 = self._txb_K.Text
-		if splitNumber1.strip():
-			try:
-				splitNumber = int(splitNumber1)
-			except vars.ValueError:
-				splitNumber = None
-		else:
-			splitNumber = None
-		'''__________'''
-		splitLength1 = self._txb_Length.Text
-		if splitLength1.strip():
-			try:
-				splitLength = int(splitLength1)/304.8
-			except vars.ValueError:
-				splitLength = None
-		else:
-			splitLength = None
-		'''__________'''
 		pipe = self.selPipe
-		inKey = self._cbb_sortConnectorBy.SelectedItem
-		TransactionManager.Instance.EnsureInTransaction(doc)
+		new_dynPoints = []
 		try:
-			if splitNumber > 0:
-				if pipe is not None:
-					pipeCurve  = pipe.Location.Curve
-					conns = list(pipe.ConnectorManager.Connectors.GetEnumerator())
-					originConns = list(c.Origin for c in conns)
-					if inKey == 'p.X':
-						sortConns = sorted(originConns, key=lambda c : c.X)
-					elif inKey == 'p.Y':
-						sortConns = sorted(originConns, key=lambda c : c.Y)
-					elif inKey == 'p.Z':
-						sortConns = sorted(originConns, key=lambda c : c.Z)
-					points = divideLineSegment(pipeCurve, splitLength, sortConns[0], sortConns[1])
-					dynPoints = list(c.ToRevitType() for c in points)
-					if splitNumber <= len(dynPoints):
-						new_dynPoints = dynPoints[1:splitNumber+1]
-					else:
-						new_dynPoints = dynPoints[1:]
-					# new_dynPoints = dynPoints[1:]
-					# TransactionManager.Instance.EnsureInTransaction(doc)	
-					# newPipes = splitPipeAtPoints(doc, pipe, new_dynPoints)
-					# TransactionManager.Instance.TransactionTaskDone
+			if pipe is not None:
+				splitNumber1 = self._txb_K.Text
+				if splitNumber1.strip():
+					try:
+						splitNumber = int(splitNumber1)
+					except ValueError:
+						splitNumber = None
+				else:
+					splitNumber = None
+				'''__________'''
+				splitLength1 = self._txb_Length.Text
+				if splitLength1.strip():
+					try:
+						splitLength = int(splitLength1)/304.8
+					except ValueError:
+						splitLength = None
+				else:
+					splitLength = None
+				'''___'''
+				pipeCurve  = pipe.Location.Curve
+				conns = list(pipe.ConnectorManager.Connectors.GetEnumerator())
+				originConns = list(c.Origin for c in conns)
+				sortByCor_case1 = self._rbt_pX.Checked
+				sortByCor_case2 = self._rbt_pY.Checked
+				sortByCor_case3 = self._rbt_pZ.Checked
+				'''___'''
+				minCase = self._rbt_sortByMin.Checked
+				maxCase = self._rbt_sortByMax.Checked
+				'''___'''
+				if sortByCor_case1 == True and minCase == True :
+					sortConns = sorted(originConns, key=lambda c : c.X)			
+				elif sortByCor_case1 == True and maxCase == True :
+					sortConns = sorted(originConns, key=lambda c : c.X)
+					sortConns.reverse()
+				elif sortByCor_case2 == True and minCase == True :
+					sortConns = sorted(originConns, key=lambda c : c.Y)			
+				elif sortByCor_case2 == True and maxCase == True :
+					sortConns = sorted(originConns, key=lambda c : c.Y)
+					sortConns.reverse()
+				elif sortByCor_case3 == True and minCase == True :
+					sortConns = sorted(originConns, key=lambda c : c.Z)			
+				elif sortByCor_case3 == True and maxCase == True :
+					sortConns = sorted(originConns, key=lambda c : c.Z)
+					sortConns.reverse()		
+				points = divideLineSegment(pipeCurve, splitLength, sortConns[0], sortConns[1])
+				
+				dynPoints = list(c.ToRevitType() for c in points)
+				if splitNumber <= len(dynPoints):
+					new_dynPoints = dynPoints[1:splitNumber+1]
+				else:
+					new_dynPoints = dynPoints[1:]
+
+
 		except Exception as e:
 			TransactionManager.Instance.ForceCloseTransaction()
 			pass
@@ -343,16 +455,36 @@ class MainForm(Form):
 		newPipes = splitPipeAtPoints(doc, pipe, new_dynPoints)
 		TransactionManager.Instance.TransactionTaskDone
 		pass
-		TransactionManager.Instance.TransactionTaskDone
-	def Txb_KTextChanged(self, sender, e):
-		self.K = float(self._txb_K.Text)
-		pass
+
 	def Btt_CANCLEClick(self, sender, e):
 		self.Close()
 		pass
+
+	def MainFormLoad(self, sender, e):
+		pass
+
+	def Txb_KTextChanged(self, sender, e):
+		self.K = float(self._txb_K.Text)
+		pass
+	def Txb_LengthTextChanged(self, sender, e):
+		self.length = float(self._txb_Length.Text)
+		pass	
+
 	def Cbb_sortConnectorBySelectedIndexChanged(self, sender, e):
 		pass
-	def MainFormLoad(self, sender, e):
+
+	def Rbt_pXCheckedChanged(self, sender, e):
+		pass
+
+	def Rbt_pYCheckedChanged(self, sender, e):
+		pass
+
+	def Rbt_pZCheckedChanged(self, sender, e):
+		pass
+
+	def Rbt_sortByMinCheckedChanged(self, sender, e):
 		pass	
+	def Rbt_sortByMaxCheckedChanged(self, sender, e):
+		pass
 f = MainForm()
 Application.Run(f)
