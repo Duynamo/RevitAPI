@@ -85,6 +85,16 @@ def unconnectedConn(doc, fittingOrAccessory):
         else:
             _unConnectedConn = conn
     return _unConnectedConn
+def connectedConn(doc, fittingOrAccessory):
+    conns = list(fittingOrAccessory.MEPModel.ConnectorManager.Connectors.GetEnumerator())
+    _connectedConn = None
+    _unConnectedConn = None
+    for conn in conns:
+        if conn.IsConnected:
+            _connectedConn = conn
+        else:
+            _unConnectedConn = conn
+    return _connectedConn
 def findNearestConnector(connectorSet, targetPoint):
     nearest_connector = None
     minDistance = float('inf')
@@ -156,6 +166,31 @@ def planeFrom3Points(point1, point2, point3):
     normal = vector1.CrossProduct(vector2).Normalize()
     plane = Plane.CreateByNormalAndOrigin(normal, point1)  
     return plane
+def createSketchPlaneFromElbow(doc, elbow):
+    fittingConns = list(elbow.MEPModel.ConnectorManager.Connectors.GetEnumerator())
+    fittingConnsOrigin = [c.Origin for c in fittingConns]
+    fittingOrigin = elbow.Location.Point
+    _tempPlane = planeFrom3Points(fittingOrigin, fittingConnsOrigin[0], fittingConnsOrigin[1])
+    tempSketchPlane = SketchPlane.Create(doc, _tempPlane)
+    return tempSketchPlane
+def createPerpendicularLine(lineA, planeA):
+    end_point1 = lineA.GetEndPoint(0)  # Start point of Line A
+    end_point2 = lineA.GetEndPoint(1)  # End point of Line A
+    # Compute the direction vector of Line A
+    direction_vector = end_point2 - end_point1  # Subtract XYZ coordinates
+    # Get the normal vector of Plane A
+    normal_vector = planeA.Normal  # This is an XYZ vector (normal of Plane A)
+    # Compute a vector that is perpendicular to both the direction of Line A and Plane A's normal
+    perpendicular_vector = direction_vector.CrossProduct(normal_vector)
+    # Normalize the perpendicular vector (make it a unit vector)
+    perpendicular_vector = perpendicular_vector.Normalize()
+    # Define the length of the perpendicular line (you can change this as needed)
+    line_length = 5.0  # For example, 5 units long
+    # Compute the endpoint of the perpendicular line
+    end_point_perpendicular = end_point1 + (perpendicular_vector * line_length)
+    # Create a new line from end_point1 (origin of Line A) to end_point_perpendicular
+    perpendicular_line = Line.CreateBound(end_point1, end_point_perpendicular)
+    return perpendicular_line
 #endregion
 '''___'''
 fittingOrAccessory = pickFittingOrAccessory()
@@ -221,20 +256,29 @@ pipingSystemId = basePipe.MEPSystem.GetTypeId()
 levelId = doc.GetElement(basePipe.ReferenceLevel.Id)
 diam = basePipe.LookupParameter('Diameter').AsDouble()
 #endregion
-conn = unconnectedConn(doc, fittingOrAccessory)
-startPoint = conn.Origin
-direction = conn.CoordinateSystem.BasisZ
+#region __define start point and end point to create temporary pipe 1
+unConnectedConnOfBaseElbow = unconnectedConn(doc, fittingOrAccessory)
+connectedConnOfBaseElbow = connectedConn(doc, fittingOrAccessory)
+startPoint = unConnectedConnOfBaseElbow.Origin
+direction = unConnectedConnOfBaseElbow.CoordinateSystem.BasisZ
 length = basePipe.LookupParameter('Diameter').AsDouble()*5
 endPoint1 = startPoint + direction.Multiply(length)
+#endregion
 #region __Create temporary pipe 1
 TransactionManager.Instance.EnsureInTransaction(doc)
+tempSketchPlane1 = createSketchPlaneFromElbow(doc, fittingOrAccessory)
+doc.ActiveView.SketchPlane = tempSketchPlane1
 newPipe1 = Pipe.Create(doc,pipingSystemId, pipeTypeId, levelId.Id, startPoint, endPoint1)
 newPipeDiam = newPipe1.LookupParameter('Diameter')
 newPipeDiam.Set(diam)
 connect = connect2Connectors(doc, newPipe1, fittingOrAccessory)
+# doc.Delete(tempSketchPlane1.Id)
 TransactionManager.Instance.TransactionTaskDone()
 #endregion
 #region __create temporary pipe 2 and connect temporary pipe 1 to temporary pipe 2 by elbow
+tempLine = createPerpendicularLine(newPipe1.Location.Curve,tempSketchPlane1 )
+
+
 rotateAxis = XYZ.BasisZ #rotation axis . asuming rotation axis is
 _endPoint2 = endPoint1 + direction.Multiply(length)
 rotationTransform = Transform.CreateRotationAtPoint(rotateAxis, math.radians(angle), endPoint1)
@@ -259,17 +303,23 @@ for c in nearConns1:
     else:
         elbow1_conn = c.Origin
 #endregion
+
 #region _move temporary elbow to base elbow
-#create temporary plane from base elbow unconnected connector and elbow1 connectors
-_elbow1Conns = list(elbow1.MEPModel.ConnectorManager.Connectors)
-_elbow1ConnsOrigin = [c.Origin for c in _elbow1Conns]
-tempPlane = planeFrom3Points(_elbow1ConnsOrigin[1], _elbow1ConnsOrigin[0], startPoint)
-tempSketchPlane = SketchPlane.Create(doc, tempPlane)
-doc.ActiveView.SketchPlane = tempSketchPlane
-transVector1 = fittingOrAccessory_Conn - elbow1_conn
+# #create temporary plane from base elbow unconnected connector and elbow1 connectors
+
+# _fittingOrAccessoryConns = list(fittingOrAccessory.MEPModel.ConnectorManager.Connectors)
+# _fittingOrAccessoryConnsOrigin = [c.Origin for c in _fittingOrAccessoryConns]
+# tempPlane = planeFrom3Points(_fittingOrAccessoryConnsOrigin[1], _fittingOrAccessoryConnsOrigin[0], elbow1_conn)
+# tempSketchPlane = SketchPlane.Create(doc, tempPlane)
+# doc.ActiveView.SketchPlane = tempSketchPlane
+# _elbow1Origin = elbow1.Location.Point
+#Move elbow1
+TransactionManager.Instance.EnsureInTransaction(doc)
+transVector1 = fittingOrAccessory_Conn - elbow1_conn 
 transform1 = Autodesk.Revit.DB.Transform.CreateTranslation(transVector1)
-ElementTransformUtils.MoveElement(doc, elbow1.Id, transVector1)
-doc.Delete(tempSketchPlane.Id)
+trans = ElementTransformUtils.MoveElement(doc, elbow1.Id, transVector1)
+# doc.Delete(tempSketchPlane.Id)
+TransactionManager.Instance.TransactionTaskDone()
 TransactionManager.Instance.EnsureInTransaction(doc)
 if elbow1:
     elbow1Conns = list(elbow1.MEPModel.ConnectorManager.Connectors)
@@ -281,9 +331,11 @@ if elbow1:
                    connectedElement = refConn.Owner
                    if connectedElement.Id != elbow1.Id:
                         connectedEle = connectedElement
-                        del_connectedEle = doc.Delete(connectedEle.Id)
+                        # del_connectedEle = doc.Delete(connectedEle.Id)
+doc.Delete(tempSketchPlane1.Id)
 TransactionManager.Instance.TransactionTaskDone()
 #endregion
-# connectElbow1_1stFitting = connect2Connectors(doc, fittingOrAccessory,elbow1[0])
+
 '''___'''
-OUT = fittingOrAccessory, elbow1
+# OUT = fittingOrAccessory, elbow1
+OUT = fittingOrAccessory_Conn.ToPoint(), elbow1_conn.ToPoint(), fittingOrAccessory.Location.Point.ToPoint(), tempLine
