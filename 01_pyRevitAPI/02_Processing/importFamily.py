@@ -193,50 +193,32 @@ class MainForm(Form):
 			familyFiles = [f for f in os.listdir(directory) if f.endswith('.rfa')]
 			self._clb_desFamily.Items.AddRange(System.Array[System.Object](familyFiles))	
 		pass
-
-	def Btt_IMPORTClick(self, sender, e):	
+	def Btt_IMPORTClick(self, sender, e):    
 		selectedFamilies = [item for item in self._clb_desFamily.CheckedItems]
 		directory = self._txb_directFolder.Text
 		importedFamilies = []
+		booleans = []
+		elementList = []
+		# Start a transaction to load the families
 		TransactionManager.Instance.EnsureInTransaction(doc)
 		for familyFile in selectedFamilies:
-
-			familyPath = os.path.join(directory, familyFile)
-			loadedFamily = clr.Reference[Family]()
-			check = doc.LoadFamily(familyPath, loadedFamily)
-			if check:
-				importedFamilies.append(loadedFamily.Name)
-			else:
-				pass
+			try:
+				familyPath = os.path.join(directory, familyFile)
+				loadedFamily = clr.Reference[Family]()
+				doc.LoadFamily(familyPath, loadedFamily)
+				booleans.append(True)
+			except: booleans.append(False)
+		TransactionManager.Instance.TransactionTaskDone()	
+		collector = FilteredElementCollector(doc).OfClass(Family)
+		for item in collector.ToElements():
+			if item.Name in [os.path.splitext(fam)[0] for fam in selectedFamilies]:  # Compare by family names
+				typeList = list()
+				for famTypeId in item.GetFamilySymbolIds():
+					typeList.append(doc.GetElement(famTypeId).ToDSType(True))
+				elementList.append(typeList)
 		TransactionManager.Instance.TransactionTaskDone()
-		self.Close()
+		self.Close()  # Close the form
 		pass
-
-	# def Btt_IMPORTClick(self, sender, e):    
-	# 	selectedFamilies = [item for item in self._clb_desFamily.CheckedItems]
-	# 	directory = self._txb_directFolder.Text
-	# 	importedFamilies = []
-	# 	for familyFile in selectedFamilies:
-	# 		familyPath = os.path.join(directory, familyFile)
-	# 		loadedFamily = clr.Reference[Family]()
-	# 		check = doc.LoadFamily(familyPath, loadedFamily)
-	# 		if check: 
-	# 			importedFamilies.append(loadedFamily.Name)
-	# 			try:
-	# 				# Attempt to edit and then close the family
-	# 				familyDoc = doc.EditFamily(loadedFamily)
-					
-	# 				if familyDoc.IsModified:  # Save if modified
-	# 					familyDoc.Save()
-					
-	# 				familyDoc.Close(False)  # Close without saving again
-					
-	# 			except Exception as e:
-	# 				pass
-	# 	TransactionManager.Instance.TransactionTaskDone()  # End transaction
-	# 	self.Close()  # Close the form
-	# 	pass
-
 	def Btt_CANCLEClick(self, sender, e):
 		self.Close()
 		pass

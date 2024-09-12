@@ -289,37 +289,84 @@ class MainForm(Form):
 		self._txb_folder.Text = fileDialog.SelectedPath
 		pass
 	def Btt_EXPORTClick(self, sender, e):
-		selectedFamily = []
-		selectedFamilyName = []
+		selectedFamilyInstances = []
+		selectedFamilyNames = []
+
+		# Collect selected family instances from UI checkboxes
 		for f in self._clb_pipeFittings.CheckedItems:
-			selectedFamily.append(f)
-			familyNameParam = f.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)
-			if familyNameParam:
-				familyName = familyNameParam.AsString()
-				selectedFamilyName.append(familyName)
+			selectedFamilyInstances.append(f)
 		for f in self._clb_PipeAccessories.CheckedItems:
-			selectedFamily.append(f)
-			familyNameParam = f.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)
-			if familyNameParam:
-				familyName = familyNameParam.AsString()
-				selectedFamilyName.append(familyName)
+			selectedFamilyInstances.append(f)
 		for f in self._clb_GenericModels.CheckedItems:
-			selectedFamily.append(f)
-			familyNameParam = f.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)
-			if familyNameParam:
-				familyName = familyNameParam.AsString()
-				selectedFamilyName.append(familyName)		
+			selectedFamilyInstances.append(f)
+
+		# Get the direct folder path from the UI
 		directFolder = self._txb_folder.Text
-		for family, familyName in zip( selectedFamily,selectedFamilyName) :
-			file_name = os.path.join(directFolder, familyName + ".rfa")
-			save_options = SaveAsOptions()
-			save_options.OverwriteExistingFile = True  
-			try:
-				family.Document.SaveAs(file_name, save_options)
-			except Exception as e:
-				pass
-		self.Close()		
-		pass			
+		
+		# Start a transaction to export families
+		TransactionManager.Instance.EnsureInTransaction(doc)
+		
+		for familyInstance in selectedFamilyInstances:
+			# Get the family element directly from the instance
+			family = familyInstance.Family
+
+			if family is not None:
+				# Retrieve the family name for export
+				familyName = family.Name
+
+				# Create the file path for saving
+				file_name = os.path.join(directFolder, familyName + ".rfa")
+				
+				# Ensure the file is saved with overwrite option
+				save_options = SaveAsOptions()
+				save_options.OverwriteExistingFile = True  
+
+				try:
+					# Export the family to the desired location as a .rfa file
+					family.Document.SaveAs(file_name, save_options)
+					selectedFamilyNames.append(familyName)  # Store exported family name for confirmation
+				except Exception as e:
+					# print(f"Failed to export family {familyName}: {str(e)}")
+					pass
+
+		# End the transaction after exporting
+		TransactionManager.Instance.TransactionTaskDone()
+
+		# Close the form after exporting
+		self.Close()
+		pass
+	# def Btt_EXPORTClick(self, sender, e):
+	# 	selectedFamily = []
+	# 	selectedFamilyName = []
+	# 	for f in self._clb_pipeFittings.CheckedItems:
+	# 		selectedFamily.append(f)
+	# 		familyNameParam = f.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)
+	# 		if familyNameParam:
+	# 			familyName = familyNameParam.AsString()
+	# 			selectedFamilyName.append(familyName)
+	# 	for f in self._clb_PipeAccessories.CheckedItems:
+	# 		selectedFamily.append(f)
+	# 		familyNameParam = f.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)
+	# 		if familyNameParam:
+	# 			familyName = familyNameParam.AsString()
+	# 			selectedFamilyName.append(familyName)
+	# 	for f in self._clb_GenericModels.CheckedItems:
+	# 		selectedFamily.append(f)
+	# 		familyNameParam = f.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)
+	# 		if familyNameParam:
+	# 			familyName = familyNameParam.AsString()
+	# 			selectedFamilyName.append(familyName)		
+	# 	directFolder = self._txb_folder.Text
+	# 	for family, familyName in zip( selectedFamily,selectedFamilyName) :
+	# 		file_name = os.path.join(directFolder, familyName + ".rfa")
+	# 		save_options = SaveAsOptions()
+	# 		save_options.OverwriteExistingFile = True  
+	# 		try:
+	# 			family.Document.SaveAs(file_name, save_options)
+	# 		except Exception as e:
+	# 			pass
+	# 	self.Close()		
+	# 	pass			
 	def Btt_CANCLEClick(self, sender, e):
 		self.Close()
 		pass
