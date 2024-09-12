@@ -1106,3 +1106,13 @@ def getAllPipeFittingsInPJ(doc):
             fittingName = fittingNameParam.AsString()
             pipeFittingsName.append(fittingName)
     return collector, pipeFittingsName
+
+
+def isPointOnLine(pointA, lineA):
+    project_pointA_to_lineA = lineA.Project(pointA).XYZPoint
+    distance = pointA.DistanceTo(project_pointA_to_lineA) 
+    tolerance = 0.0001
+    if distance < tolerance:
+        return True
+    else:
+        return False

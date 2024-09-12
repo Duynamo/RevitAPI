@@ -106,7 +106,6 @@ def NearestConnector(ConnectorSet, curCurve):
             MinLength = distance
             result = n
     return result
-
 def closetConn(mPipe, bPipe):
     connectors1 = list(bPipe.ConnectorManager.Connectors.GetEnumerator())
     Connector1 = NearestConnector(connectors1, mPipe)
@@ -131,6 +130,26 @@ def isPointOnLine(pointA, lineA):
         return True
     else:
         return False
+def unconnectedConn(doc, fittingOrAccessory):
+    conns = list(fittingOrAccessory.MEPModel.ConnectorManager.Connectors.GetEnumerator())
+    _connectedConn = None
+    _unConnectedConn = None
+    for conn in conns:
+        if conn.IsConnected:
+            _connectedConn = conn
+        else:
+            _unConnectedConn = conn
+    return _unConnectedConn
+def connectedConn(doc, fittingOrAccessory):
+    conns = list(fittingOrAccessory.MEPModel.ConnectorManager.Connectors.GetEnumerator())
+    _connectedConn = None
+    _unConnectedConn = None
+    for conn in conns:
+        if conn.IsConnected:
+            _connectedConn = conn
+        else:
+            _unConnectedConn = conn
+    return _connectedConn    
 """_________________________________________"""
 pipe = pickPipe()
 pipeLength = pipe.LookupParameter('Length').AsDouble()
@@ -153,24 +172,29 @@ union_ReferenceLevel_param.Set(pipe_diameter_params[3])
 TransactionManager.Instance.TransactionTaskDone()
 #endregion
 TransactionManager.Instance.EnsureInTransaction(doc)
-straightPipeConns = []
-sortStraightPipeConns = []
+# straightPipeConns = []
+# sortStraightPipeConns = []
 if insertUnion is not None:
     straightPipeLength_param = insertUnion.LookupParameter('L')
     if straightPipeLength_param is not None:
         straightPipeLength_param.Set(pipeLength)
-        straightPipeConns = [conn for conn in insertUnion.MEPModel.ConnectorManager.Connectors]
-        connsOrigin = [c.Origin for c in straightPipeConns]
-        sortStraightPipeConns = [midPoint]
-        added_points = {midPoint}
-        for c in connsOrigin:
-            if not any(c.IsAlmostEqualTo(point) for point in added_points):
-                sortStraightPipeConns.append(c)
-                added_points.add(c)
-        vector = sortStraightPipeConns[0] - sortStraightPipeConns[1]
-        transVector = vector.Normalize().Multiply(pipeLength/2)
+        # straightPipeConns = [conn for conn in insertUnion.MEPModel.ConnectorManager.Connectors]
+        # straightPipeConnsOrigin = [c.Origin for c in straightPipeConns]
+        # lineA = Line.CreateBound(straightPipeConnsOrigin[0], straightPipeConnsOrigin[1])
+        # sortStraightPipeConns = [midPoint]
+        # added_points = {midPoint}
+        # for c in straightPipeConnsOrigin:
+        #     if not any(c.IsAlmostEqualTo(point) for point in added_points):
+        #         sortStraightPipeConns.append(c)
+        #         added_points.add(c)
+#region __check what connector of union is on the pipe to define move vector
+        connectedConn_insertUnion = connectedConn(doc, insertUnion)
+        unconnectedConn_insertUnion = unconnectedConn(doc, insertUnion)
+        vector = unconnectedConn_insertUnion.Origin - unconnectedConn_insertUnion.Origin
+        transVector = vector.Normalize().Multiply(straightPipeLength_param/2)
         translation = Transform.CreateTranslation(transVector)
         insertUnion.Location.Move(translation.Origin)
+#endregion
 TransactionManager.Instance.TransactionTaskDone()
 
-OUT =  insertUnion, sortStraightPipeConns, pipe_diameter_params
+OUT =  insertUnion
