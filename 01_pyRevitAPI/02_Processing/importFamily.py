@@ -207,7 +207,8 @@ class MainForm(Form):
 				loadedFamily = clr.Reference[Family]()
 				doc.LoadFamily(familyPath, loadedFamily)
 				booleans.append(True)
-			except: booleans.append(False)
+			except: 
+				booleans.append(False)
 		TransactionManager.Instance.TransactionTaskDone()	
 		collector = FilteredElementCollector(doc).OfClass(Family)
 		for item in collector.ToElements():

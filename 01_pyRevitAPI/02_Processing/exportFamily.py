@@ -289,84 +289,35 @@ class MainForm(Form):
 		self._txb_folder.Text = fileDialog.SelectedPath
 		pass
 	def Btt_EXPORTClick(self, sender, e):
-		selectedFamilyInstances = []
-		selectedFamilyNames = []
-
-		# Collect selected family instances from UI checkboxes
-		for f in self._clb_pipeFittings.CheckedItems:
-			selectedFamilyInstances.append(f)
-		for f in self._clb_PipeAccessories.CheckedItems:
-			selectedFamilyInstances.append(f)
-		for f in self._clb_GenericModels.CheckedItems:
-			selectedFamilyInstances.append(f)
-
-		# Get the direct folder path from the UI
 		directFolder = self._txb_folder.Text
-		
-		# Start a transaction to export families
-		TransactionManager.Instance.EnsureInTransaction(doc)
-		
-		for familyInstance in selectedFamilyInstances:
-			# Get the family element directly from the instance
-			family = familyInstance.Family
-
-			if family is not None:
-				# Retrieve the family name for export
-				familyName = family.Name
-
-				# Create the file path for saving
-				file_name = os.path.join(directFolder, familyName + ".rfa")
-				
-				# Ensure the file is saved with overwrite option
-				save_options = SaveAsOptions()
-				save_options.OverwriteExistingFile = True  
-
-				try:
-					# Export the family to the desired location as a .rfa file
-					family.Document.SaveAs(file_name, save_options)
-					selectedFamilyNames.append(familyName)  # Store exported family name for confirmation
-				except Exception as e:
-					# print(f"Failed to export family {familyName}: {str(e)}")
-					pass
-
-		# End the transaction after exporting
-		TransactionManager.Instance.TransactionTaskDone()
-
-		# Close the form after exporting
+		selectedFamilySymbols = []  
+		selectedFamilyNames = []
+		selectedPipeFittings = self._clb_pipeFittings.CheckedItems
+		selectedPipeAccessories = self._clb_PipeAccessories.CheckedItems
+		selectedGenericModels = self._clb_GenericModels.CheckedItems
+		def process_items(items):
+			for symbol in items:
+				if isinstance(symbol, FamilySymbol):
+					family = symbol.Family  # Get the Family from the FamilySymbol
+					if family not in selectedFamilySymbols:
+						selectedFamilySymbols.append(family)
+						selectedFamilyNames.append(family.Name)
+		if selectedPipeFittings:
+			process_items(selectedPipeFittings)
+		if selectedPipeAccessories:
+			process_items(selectedPipeAccessories)
+		if selectedGenericModels:
+			process_items(selectedGenericModels)
+		for family, familyName in zip(selectedFamilySymbols, selectedFamilyNames):
+			file_name = os.path.join(directFolder, familyName + ".rfa")
+			save_options = SaveAsOptions()
+			save_options.OverwriteExistingFile = True			
+			try:
+				family_doc = doc.EditFamily(family)
+				family_doc.SaveAs(file_name, save_options)
+				family_doc.Close(False)
+			except Exception as e: pass
 		self.Close()
-		pass
-	# def Btt_EXPORTClick(self, sender, e):
-	# 	selectedFamily = []
-	# 	selectedFamilyName = []
-	# 	for f in self._clb_pipeFittings.CheckedItems:
-	# 		selectedFamily.append(f)
-	# 		familyNameParam = f.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)
-	# 		if familyNameParam:
-	# 			familyName = familyNameParam.AsString()
-	# 			selectedFamilyName.append(familyName)
-	# 	for f in self._clb_PipeAccessories.CheckedItems:
-	# 		selectedFamily.append(f)
-	# 		familyNameParam = f.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)
-	# 		if familyNameParam:
-	# 			familyName = familyNameParam.AsString()
-	# 			selectedFamilyName.append(familyName)
-	# 	for f in self._clb_GenericModels.CheckedItems:
-	# 		selectedFamily.append(f)
-	# 		familyNameParam = f.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)
-	# 		if familyNameParam:
-	# 			familyName = familyNameParam.AsString()
-	# 			selectedFamilyName.append(familyName)		
-	# 	directFolder = self._txb_folder.Text
-	# 	for family, familyName in zip( selectedFamily,selectedFamilyName) :
-	# 		file_name = os.path.join(directFolder, familyName + ".rfa")
-	# 		save_options = SaveAsOptions()
-	# 		save_options.OverwriteExistingFile = True  
-	# 		try:
-	# 			family.Document.SaveAs(file_name, save_options)
-	# 		except Exception as e:
-	# 			pass
-	# 	self.Close()		
-	# 	pass			
 	def Btt_CANCLEClick(self, sender, e):
 		self.Close()
 		pass
