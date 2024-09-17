@@ -88,15 +88,15 @@ def placePipeUnionAtMidpoint(doc, pipe, unionType):
     union = doc.Create.NewFamilyInstance(midpoint, unionType, pipe1,level, StructuralType.NonStructural)
     TransactionManager.Instance.TransactionTaskDone
     return union
-def findStraightFamily(doc):
-    desUnions = []
-    lst = []
-    collectors = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeFitting).WhereElementIsElementType().ToElements()
-    for fitting in collectors:
-        fittingName = fitting.LookupParameter('Family Name').AsString()
-        if '短管' in fittingName or '直管' in fittingName:
-            desUnions.append(fitting)
-    return None
+# def findStraightFamily(doc):
+#     desUnions = []
+#     lst = []
+#     collectors = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeFitting).WhereElementIsElementType().ToElements()
+#     for fitting in collectors:
+#         fittingName = fitting.LookupParameter('Family Name').AsString()
+#         if '短管' in fittingName or '直管' in fittingName:
+#             desUnions.append(fitting)
+#     return None
 def NearestConnector(ConnectorSet, curCurve):
     MinLength = float("inf")
     result = None  # Initialize result to None
@@ -178,19 +178,9 @@ if insertUnion is not None:
     straightPipeLength_param = insertUnion.LookupParameter('L')
     if straightPipeLength_param is not None:
         straightPipeLength_param.Set(pipeLength)
-        # straightPipeConns = [conn for conn in insertUnion.MEPModel.ConnectorManager.Connectors]
-        # straightPipeConnsOrigin = [c.Origin for c in straightPipeConns]
-        # lineA = Line.CreateBound(straightPipeConnsOrigin[0], straightPipeConnsOrigin[1])
-        # sortStraightPipeConns = [midPoint]
-        # added_points = {midPoint}
-        # for c in straightPipeConnsOrigin:
-        #     if not any(c.IsAlmostEqualTo(point) for point in added_points):
-        #         sortStraightPipeConns.append(c)
-        #         added_points.add(c)
 #region __check what connector of union is on the pipe to define move vector
         connectedConn_insertUnion = connectedConn(doc, insertUnion)
         unconnectedConn_insertUnion = unconnectedConn(doc, insertUnion)
-        vector = unconnectedConn_insertUnion.Origin - unconnectedConn_insertUnion.Origin
         transVector = vector.Normalize().Multiply(straightPipeLength_param/2)
         translation = Transform.CreateTranslation(transVector)
         insertUnion.Location.Move(translation.Origin)
