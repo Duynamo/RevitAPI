@@ -193,6 +193,34 @@ class MainForm(Form):
 			familyFiles = [f for f in os.listdir(directory) if f.endswith('.rfa')]
 			self._clb_desFamily.Items.AddRange(System.Array[System.Object](familyFiles))	
 		pass
+	# def Btt_IMPORTClick(self, sender, e):    
+	# 	selectedFamilies = [item for item in self._clb_desFamily.CheckedItems]
+	# 	directory = self._txb_directFolder.Text
+	# 	importedFamilies = []
+	# 	booleans = []
+	# 	elementList = []
+	# 	# Start a transaction to load the families
+	# 	TransactionManager.Instance.EnsureInTransaction(doc)
+	# 	for familyFile in selectedFamilies:
+	# 		try:
+	# 			familyPath = os.path.join(directory, familyFile)
+	# 			loadedFamily = clr.Reference[Family]()
+	# 			doc.LoadFamily(familyPath, loadedFamily)
+	# 			booleans.append(True)
+	# 		except: 
+	# 			booleans.append(False)
+	# 	TransactionManager.Instance.TransactionTaskDone()	
+	# 	collector = FilteredElementCollector(doc).OfClass(Family)
+	# 	for item in collector.ToElements():
+	# 		if item.Name in [os.path.splitext(fam)[0] for fam in selectedFamilies]:  # Compare by family names
+	# 			typeList = list()
+	# 			for famTypeId in item.GetFamilySymbolIds():
+	# 				typeList.append(doc.GetElement(famTypeId).ToDSType(True))
+	# 			elementList.append(typeList)
+	# 	TransactionManager.Instance.TransactionTaskDone()
+	# 	self.Close()  # Close the form
+	# 	pass
+
 	def Btt_IMPORTClick(self, sender, e):    
 		selectedFamilies = [item for item in self._clb_desFamily.CheckedItems]
 		directory = self._txb_directFolder.Text
@@ -204,12 +232,30 @@ class MainForm(Form):
 		for familyFile in selectedFamilies:
 			try:
 				familyPath = os.path.join(directory, familyFile)
+				familyName = os.path.splitext(familyFile)[0]  # Get family name without extension
+
+				# Check if the family is already loaded
+				existingFamily = FilteredElementCollector(doc).OfClass(Family).ToElements()
+				familyAlreadyLoaded = any(fam.Name == familyName for fam in existingFamily)
 				loadedFamily = clr.Reference[Family]()
-				doc.LoadFamily(familyPath, loadedFamily)
+				if familyAlreadyLoaded:
+					# Forcefully reload the family by replacing it
+					# print(f"Reloading family: {familyName}")
+					doc.LoadFamily(familyPath, loadedFamily)
+				else:
+					# Load the family for the first time
+					# print(f"Loading new family: {familyName}")
+					doc.LoadFamily(familyPath, loadedFamily)
+
 				booleans.append(True)
-			except: 
+
+			except Exception as e:
+				# print(f"Failed to load family {familyFile}: {str(e)}")
 				booleans.append(False)
-		TransactionManager.Instance.TransactionTaskDone()	
+
+		TransactionManager.Instance.TransactionTaskDone()
+
+		# Collect family types from the loaded families
 		collector = FilteredElementCollector(doc).OfClass(Family)
 		for item in collector.ToElements():
 			if item.Name in [os.path.splitext(fam)[0] for fam in selectedFamilies]:  # Compare by family names
@@ -217,9 +263,16 @@ class MainForm(Form):
 				for famTypeId in item.GetFamilySymbolIds():
 					typeList.append(doc.GetElement(famTypeId).ToDSType(True))
 				elementList.append(typeList)
+
+		# End transaction after collecting elements
 		TransactionManager.Instance.TransactionTaskDone()
-		self.Close()  # Close the form
+
+		# Close the form after importing
+		self.Close()
 		pass
+
+
+
 	def Btt_CANCLEClick(self, sender, e):
 		self.Close()
 		pass

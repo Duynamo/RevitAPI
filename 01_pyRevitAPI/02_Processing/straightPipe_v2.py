@@ -181,9 +181,13 @@ if insertUnion is not None:
 #region __check what connector of union is on the pipe to define move vector
         connectedConn_insertUnion = connectedConn(doc, insertUnion)
         unconnectedConn_insertUnion = unconnectedConn(doc, insertUnion)
-        transVector = vector.Normalize().Multiply(straightPipeLength_param/2)
-        translation = Transform.CreateTranslation(transVector)
-        insertUnion.Location.Move(translation.Origin)
+        TransactionManager.Instance.EnsureInTransaction(doc)
+        if connectedConn_insertUnion is not None and unconnectedConn_insertUnion is not None:
+            vector = unconnectedConn_insertUnion.Origin - connectedConn_insertUnion.Origin
+            transVector = vector.Normalize().Multiply(straightPipeLength_param / 2)
+            translation = Transform.CreateTranslation(transVector)
+            insertUnion.Location.Move(translation.Origin)
+        TransactionManager.Instance.TransactionTaskDone
 #endregion
 TransactionManager.Instance.TransactionTaskDone()
 
