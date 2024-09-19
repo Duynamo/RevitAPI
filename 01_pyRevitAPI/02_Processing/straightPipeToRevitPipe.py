@@ -84,13 +84,13 @@ conns = [conn for conn in straightPipe.MEPModel.ConnectorManager.Connectors]
 connsOrigin = [c.Origin for c in conns]
 #region __lookup and set union pipe parameters 
 TransactionManager.Instance.EnsureInTransaction(doc)
-union_Diameter_param = straightPipe.LookupParameter('_Diameter').AsString()
+union_Diameter_param = straightPipe.LookupParameter('FVC_Diameter').AsString()
 pipe_Diameter_param = float(union_Diameter_param)
-union_PipeType_param = straightPipe.LookupParameter('_Pipe Type').AsString()
+union_PipeType_param = straightPipe.LookupParameter('FVC_Pipe Type').AsString()
 pipe_PipeType_param = getPipeTypeByName(doc, union_PipeType_param)
-union_PipingSystem_param = straightPipe.LookupParameter('_Piping System').AsString()
+union_PipingSystem_param = straightPipe.LookupParameter('FVC_Piping System').AsString()
 pipe_PipingSystem_param = getPipingSystemByName(doc, union_PipingSystem_param)
-union_ReferenceLevel_param = straightPipe.LookupParameter('_Reference Level').AsString()
+union_ReferenceLevel_param = straightPipe.LookupParameter('FVC_Reference Level').AsString()
 pipe_ReferenceLevel_param = getLevelByName(doc, union_ReferenceLevel_param)
 TransactionManager.Instance.TransactionTaskDone()
 #endregion

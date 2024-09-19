@@ -134,13 +134,13 @@ insertUnion  = doc.Create.NewUnionFitting(conn1,conn2)
 #region __lookup and set union pipe parameters 
 TransactionManager.Instance.EnsureInTransaction(doc)
 pipe_diameter_params = getPipeParameter(pipe)
-union_Diameter_param = insertUnion.LookupParameter('_Diameter')
+union_Diameter_param = insertUnion.LookupParameter('FVC_Diameter')
 union_Diameter_param.Set(pipe_diameter_params[0])
-union_PipeType_param = insertUnion.LookupParameter('_Pipe Type')
+union_PipeType_param = insertUnion.LookupParameter('FVC_Pipe Type')
 union_PipeType_param.Set(pipe_diameter_params[2])
-union_PipingSystem_param = insertUnion.LookupParameter('_Piping System')
+union_PipingSystem_param = insertUnion.LookupParameter('FVC_Piping System')
 union_PipingSystem_param.Set(pipe_diameter_params[1])
-union_ReferenceLevel_param = insertUnion.LookupParameter('_Reference Level')
+union_ReferenceLevel_param = insertUnion.LookupParameter('FVC_Reference Level')
 union_ReferenceLevel_param.Set(pipe_diameter_params[3])
 TransactionManager.Instance.TransactionTaskDone()
 #endregion
@@ -148,7 +148,7 @@ TransactionManager.Instance.EnsureInTransaction(doc)
 straightPipeConns = []
 sortStraightPipeConns = []
 if insertUnion is not None:
-    straightPipeLength_param = insertUnion.LookupParameter('L')
+    straightPipeLength_param = insertUnion.LookupParameter('FVC_Part Length')
     if straightPipeLength_param is not None:
         straightPipeLength_param.Set(pipeLength)
         straightPipeConns = [conn for conn in insertUnion.MEPModel.ConnectorManager.Connectors]
