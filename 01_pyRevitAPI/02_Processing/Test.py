@@ -68,3 +68,23 @@ def pickMultiFittingOrAccessory(doc):
 #region __code here
 OUT = pickMultiFittingOrAccessory(doc)
 #endregion
+
+
+
+
+import clr
+import sys
+import System
+clr.AddReference('System.Windows.Forms')
+clr.AddReference('System.Drawing')
+clr.AddReference('System')
+
+from System.Drawing import Point, Font
+from System.Windows.Forms import OpenFileDialog
+from System.Windows.Forms import OpenFileDialog
+
+openDialog = OpenFileDialog()
+openDialog.Multiselect = True
+openDialog.Filter = "All files|*.*"
+openDialog.ShowDialog()
+OUT = openDialog.FileNames

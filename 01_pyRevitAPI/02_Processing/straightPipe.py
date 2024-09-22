@@ -180,7 +180,7 @@ if insertUnion is not None:
         #     if not any(c.IsAlmostEqualTo(point) for point in added_points):
         #         sortStraightPipeConns.append(c)
         #         added_points.add(c)
-        # # vector = sortStraightPipeConns[0] - sortStraightPipeConns[1]
+        # vector = sortStraightPipeConns[0] - sortStraightPipeConns[1]
         # vector = sortStraightPipeConns[1] - sortStraightPipeConns[0]
 
         # transVector = vector.Normalize().Multiply(pipeLength/2)
@@ -189,6 +189,7 @@ if insertUnion is not None:
         # insertUnion.Location.Move(translation.Origin)
         # TransactionManager.Instance.TransactionTaskDone
 #endregion        
+
 #region __check what connector of union is on the pipe to define move vector (use if the first method is not work)
         connectedConn_insertUnion = connectedConn(doc, insertUnion)
         unconnectedConn_insertUnion = unconnectedConn(doc, insertUnion)

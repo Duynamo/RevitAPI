@@ -1116,3 +1116,27 @@ def isPointOnLine(pointA, lineA):
         return True
     else:
         return False
+    
+
+#region open dynamo folder
+import clr
+import sys
+
+pyt_path = r"C:\Program Files (x86)\IronPython 2.7\Lib"
+sys.path.append(pyt_path)
+
+import getpass
+
+start = "C:\Users"+"\\"
+Username = getpass.getuser()
+end = "\\"+"AppData\Roaming\Dynamo\Dynamo Revit"+"\\"
+
+dynpath = start+Username+end
+
+if IN[0] == True:
+	import os
+	os.startfile(dynpath)
+
+OUT = dynpath
+
+#endregion

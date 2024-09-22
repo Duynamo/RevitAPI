@@ -178,11 +178,27 @@ class MainForm(Form):
 	def Gbr_FamilyEnter(self, sender, e):
 		pass
 
+	# def Btt_selectFolderClick(self, sender, e):
+	# 	fileDialog = FolderBrowserDialog()
+
+	# 	# openDialog = OpenFileDialog()
+	# 	# openDialog.Multiselect = False
+	# 	# openDialog.Filter = "All files|*.*"
+	# 	# openDialog.ShowDialog()		
+	# 	fileDialog.ShowDialog()
+	# 	self._txb_directFolder.Text = fileDialog.SelectedPath
+	# 	self.populateFamiliesInList()
+	# 	pass
+
 	def Btt_selectFolderClick(self, sender, e):
-		fileDialog = FolderBrowserDialog()
-		fileDialog.ShowDialog()
-		self._txb_directFolder.Text = fileDialog.SelectedPath
-		self.populateFamiliesInList()
+		folderDialog = FolderBrowserDialog()
+		folderDialog.Description = "Select a Folder"
+		
+		# Show the folder dialog and check if the user selects a folder
+		if folderDialog.ShowDialog() == DialogResult.OK:
+			selectedFolderPath = folderDialog.SelectedPath  # Get the selected folder path
+			self._txb_directFolder.Text = selectedFolderPath  # Set the folder path in your text box
+			self.populateFamiliesInList()  # Update the list with the selected folder's data, if necessary
 		pass
 	def Clb_desFamilySelectedIndexChanged(self, sender, e):			
 		pass
