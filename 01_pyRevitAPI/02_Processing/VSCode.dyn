@@ -66,7 +66,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\02_Processing\\importFamily.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\02_Processing\\OKB01.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "f81eacff842749f9a23df221c6befe90",
@@ -107,7 +107,7 @@
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
       "NodeType": "BooleanInputNode",
-      "InputValue": true,
+      "InputValue": false,
       "Id": "f40ff1a66f0d495b81d6f86c6b863489",
       "Inputs": [],
       "Outputs": [
@@ -126,8 +126,8 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\02_Processing\\importFamily.py",
-      "InputValue": ".\\importFamily.py",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\02_Processing\\OKB01.py",
+      "InputValue": ".\\OKB01.py",
       "NodeType": "ExtensionNode",
       "Id": "2defdaf2569249fba5bec6695ea32875",
       "Inputs": [],
@@ -307,8 +307,8 @@
       }
     ],
     "Annotations": [],
-    "X": 69.499502757403846,
-    "Y": -31.505818177765519,
+    "X": 63.099502757403869,
+    "Y": -22.705818177765565,
     "Zoom": 0.56666446518541547
   }
 }
