@@ -63,7 +63,32 @@ class selectionFilter(ISelectionFilter):
 
 #region __code here
 categories = [BuiltInCategory.OST_PipeFitting]
+#region __pipe list
 susPipes = []
+susPipes_visible_1end = []
+susPipes_visible_1mid = []
+susPipes_visible_1end1mid = []
+susPipes_visible_2end = []
+susPipes_visible_2end1mid = []
+susPipes_visible_0end0mid = []
+#endregion
+#region __sus pipes parameters for BOM
+_FVC_PartName = None
+_FVC_PartNumber = None
+_FVC_PartMaterial = None
+_FVC_PartDimension = None
+_FVC_Note= None
+_FVC_CoatingSpec= None
+_FVC_F_M1 = None
+_FVC_F_M2 = None
+_FVC_F_B = None
+
+#endregion
+#region __sus pipes parameters other
+_FVC_PartType = None
+_FVC_Diameter = None
+#endregion
+
 for c in categories:
     collector = FilteredElementCollector(doc, view.Id).OfCategory(c).WhereElementIsNotElementType().ToElements()
 for ele in collector:
@@ -75,11 +100,30 @@ for ele in collector:
             if elementName and elementName == 'SUS_PIPE_DN':  
                 susPipes.append(ele)
     
+for p in susPipes:
+    checkVisible1 = p.LookupParameter('FVC_Visible1').AsValueString()
+    checkVisible2 = p.LookupParameter('FVC_Visible2').AsValueString()
+    checkVisible3 = p.LookupParameter('FVC_Visible3').AsValueString()
+    #check susPipes_visible_1end
+    if checkVisible1 == 'Yes' and checkVisible2 == 'No' and checkVisible3 == 'No' :
+        susPipes_visible_1end.append(p)
+    elif checkVisible1 == 'No' and checkVisible2 == 'Yes' and checkVisible3 == 'No' :
+        susPipes_visible_1end.append(p)
+    #check susPipes_visible_2end
+    elif checkVisible1 == 'Yes' and checkVisible2 == 'Yes' and checkVisible3 == 'No' :
+        susPipes_visible_1mid.append(p)
+    #check susPipes_visible_1end1mid    
+    elif checkVisible1 == 'Yes' and checkVisible2 == 'No' and checkVisible3 == 'Yes' :
+        susPipes_visible_1end1mid.append(p)
+    elif checkVisible1 == 'No' and checkVisible2 == 'Yes' and checkVisible3 == 'Yes' :
+        susPipes_visible_1end1mid.append(p)
+     #check susPipes_visible_2end1mid   
+    elif checkVisible1 == 'Yes' and checkVisible2 == 'Yes' and checkVisible3 == 'Yes' :
+        susPipes_visible_2end1mid.append(p)
+    #check susPipes_visible_0end0mid    
+    elif checkVisible1 == 'No' and checkVisible2 == 'No' and checkVisible3 == 'No' :
+        susPipes_visible_0end0mid.append(p)
 
-
-
-
-# flat_categoriesFilter = [item for sublist in categoriesFilter for item in sublist]
 # IDS = List[ElementId]()
 # for i in flat_categoriesFilter:
 # 	IDS.Add(i.Id)
@@ -89,4 +133,4 @@ for ele in collector:
 #endregion
 
 
-OUT = susPipes
+OUT = susPipes, susPipes_visible_1end ,susPipes_visible_1mid,susPipes_visible_1end1mid,susPipes_visible_2end,susPipes_visible_2end1mid,susPipes_visible_0end0mid
