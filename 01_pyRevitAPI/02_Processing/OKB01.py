@@ -104,11 +104,28 @@ for p in susPipes:
     checkVisible1 = p.LookupParameter('FVC_Visible1').AsValueString()
     checkVisible2 = p.LookupParameter('FVC_Visible2').AsValueString()
     checkVisible3 = p.LookupParameter('FVC_Visible3').AsValueString()
+    _FVC_PartName_param = p.LookupParameter('FVC_Part Name')
+    _FVC_PartNumber = p.LookupParameter('FVC_Part Number')
+    _FVC_PartMaterial = p.LookupParameter('FVC_Part Material')
+    # _FVC_PartStandard = p.LookupParameter('FVC_Part Standard')
+    _FVC_Note = p.LookupParameter('FVC_Note')
+    _FVC_CoatingSpec = p.LookupParameter('FVC_CoatingSpec')
+    _FVC_F_M1 = p.LookupParameter('FVC_F_M1')
+    _FVC_F_M2 = p.LookupParameter('FVC_F_M2')
+    _FVC_F_B = p.LookupParameter('FVC_F_B')
+    _FVC_PartStandard = p.LookupParameter('FVC_Part Standard')
+    susPipe_DN_param = p.LookupParameter('DN').AsValueString()
+    susPipe_t_param = p.LookupParameter('t').AsValueString()
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    _FVC_PartStandard.Set('D'+str( susPipe_DN_param)+' x '+str( susPipe_t_param)+'mm')
+    _FVC_PartMaterial.Set('vitaminD')
+    TransactionManager.Instance.TransactionTaskDone()
+#region __group sus pipe by visible status  
     #check susPipes_visible_1end
     if checkVisible1 == 'Yes' and checkVisible2 == 'No' and checkVisible3 == 'No' :
         susPipes_visible_1end.append(p)
     elif checkVisible1 == 'No' and checkVisible2 == 'Yes' and checkVisible3 == 'No' :
-        susPipes_visible_1end.append(p)
+        susPipes_visible_1end.append(p)      
     #check susPipes_visible_2end
     elif checkVisible1 == 'Yes' and checkVisible2 == 'Yes' and checkVisible3 == 'No' :
         susPipes_visible_1mid.append(p)
@@ -123,6 +140,7 @@ for p in susPipes:
     #check susPipes_visible_0end0mid    
     elif checkVisible1 == 'No' and checkVisible2 == 'No' and checkVisible3 == 'No' :
         susPipes_visible_0end0mid.append(p)
+#endregion
 
 # IDS = List[ElementId]()
 # for i in flat_categoriesFilter:
