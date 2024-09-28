@@ -406,6 +406,188 @@
       ],
       "Replication": "Disabled",
       "Description": "Allows for DesignScript code to be authored directly"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "a[7];",
+      "Id": "0cb21b60d6024f45aca4293bbaf4937f",
+      "Inputs": [
+        {
+          "Id": "6c75eabfebe6441f98f65b4b8394dbbd",
+          "Name": "a",
+          "Description": "a",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "da0c3207c6734236880a22588536cf9f",
+          "Name": "",
+          "Description": "Value of expression at line 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows for DesignScript code to be authored directly"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Function, DynamoCore",
+      "FunctionSignature": "5fea20fa-9652-4d53-887c-1d8e6e71666a",
+      "FunctionType": "Graph",
+      "NodeType": "FunctionNode",
+      "Id": "372919477f364cacab4a8a0da522ce42",
+      "Inputs": [
+        {
+          "Id": "9f5ee9daaefe431e936c77392fa3fae2",
+          "Name": "filePath",
+          "Description": "string",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "6a72095c2d12414ea6dea9ededf9e24a",
+          "Name": "sheetName",
+          "Description": "string\nDefault value : \"Sheet1\"",
+          "UsingDefaultValue": true,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "d94408f9cb3c41aeb2c97775964b7708",
+          "Name": "headerRows",
+          "Description": "int\nDefault value : 1",
+          "UsingDefaultValue": true,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "6417cdf9ae034b28a1eb37c167e2538b",
+          "Name": "dataAsColumns",
+          "Description": "bool\nDefault value : true",
+          "UsingDefaultValue": true,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "14b29f1b09f140078d30eb7307840451",
+          "Name": "nullReplace",
+          "Description": "var\nDefault value : \"\"",
+          "UsingDefaultValue": true,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "2a61587c13a8486787ece23deb4af50f",
+          "Name": "headers",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "fbb56f62cc7048569f2e23796726fe40",
+          "Name": "data",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "6ae8e9a18d9a4cde92e60b673c5c45da",
+          "Name": "sheetFound",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "dbb8f68f25224cd6b5cea16a197d2f0c",
+          "Name": "report",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "ImportExcel, with a few extra settings for quicker importing."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Function, DynamoCore",
+      "FunctionSignature": "2d955c77-e83f-43d2-a2dd-c6ccdc5b9670",
+      "FunctionType": "Graph",
+      "NodeType": "FunctionNode",
+      "Id": "2bab381fb2ab4855aa3ebe0af2c0d24d",
+      "Inputs": [
+        {
+          "Id": "e44c39b18b2f4babbc9a5a27c3aac668",
+          "Name": "filePath",
+          "Description": "string",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "e86c80885ec848c5baebb0b863f6895b",
+          "Name": "sheetName",
+          "Description": "string\nDefault value : \"Sheet1\"",
+          "UsingDefaultValue": true,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "86863f91849647448c31ef73cba07e3d",
+          "Name": "dataRows",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "1a460ec32ef54fd1837660f34b53fc6d",
+          "Name": "sheetFound",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "74c26a7f855d413ebebd18615509a443",
+          "Name": "report",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "Imports a 2D matrix of data from an existing Excel file path from a given worksheet name. If a worksheet does not exist by that name it will take the data from the first worksheet instead. Credit to Cyril Poupin for most of the Python code (details in node body)."
     }
   ],
   "Connectors": [
@@ -445,6 +627,11 @@
       "Id": "4108699d8c6d4807ada3dbc70abcb77a"
     },
     {
+      "Start": "6f000ab69e76464ca9c942f41d48f621",
+      "End": "6c75eabfebe6441f98f65b4b8394dbbd",
+      "Id": "5eca60a241d6469e9e874c7f66a2819e"
+    },
+    {
       "Start": "fab9bb682ad24a06a6395c757392c139",
       "End": "260b88bbbdee4878a7c5a95428f65583",
       "Id": "89bef44d878e4c8bb697e28e51657714"
@@ -465,8 +652,21 @@
       "Id": "5bcb8abe7fa24befbc49556ede10b610"
     }
   ],
-  "Dependencies": [],
-  "NodeLibraryDependencies": [],
+  "Dependencies": [
+    "5fea20fa-9652-4d53-887c-1d8e6e71666a",
+    "2d955c77-e83f-43d2-a2dd-c6ccdc5b9670"
+  ],
+  "NodeLibraryDependencies": [
+    {
+      "Name": "Crumple",
+      "Version": "2022.5.27",
+      "ReferenceType": "Package",
+      "Nodes": [
+        "372919477f364cacab4a8a0da522ce42",
+        "2bab381fb2ab4855aa3ebe0af2c0d24d"
+      ]
+    }
+  ],
   "Bindings": [],
   "View": {
     "Dynamo": {
@@ -491,139 +691,169 @@
     },
     "NodeViews": [
       {
-        "ShowGeometry": true,
-        "Name": "Python Script From String",
         "Id": "5a2470c39c7c45ceb2474329ec45070c",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Python Script From String",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": 552.475610325488,
         "Y": 312.667099183458
       },
       {
-        "ShowGeometry": true,
-        "Name": "Python Script",
         "Id": "f81eacff842749f9a23df221c6befe90",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": 351.16798970415607,
         "Y": 326.35358881355518
       },
       {
-        "ShowGeometry": true,
-        "Name": "Boolean",
         "Id": "f40ff1a66f0d495b81d6f86c6b863489",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Boolean",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": -4.4551227129588682,
         "Y": 251.42237002257895
       },
       {
-        "ShowGeometry": true,
-        "Name": "File Path",
         "Id": "2defdaf2569249fba5bec6695ea32875",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "File Path",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": -10.779331905284977,
         "Y": 346.742201471617
       },
       {
-        "ShowGeometry": true,
-        "Name": "Python Script",
         "Id": "e0e1c03289f846898f26a7ed5fbe369c",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": 295.06671043142359,
         "Y": 600.66751512050769
       },
       {
-        "ShowGeometry": false,
-        "Name": "Boolean",
         "Id": "6c2beca5ee154fd7b3943c2f808e362e",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Boolean",
+        "ShowGeometry": false,
         "Excluded": true,
         "X": 128.77930414286809,
         "Y": 600.10438933095452
       },
       {
-        "ShowGeometry": true,
-        "Name": "Code Block",
         "Id": "9060e0b564c642f58a941d74c2c199fc",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Code Block",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": 1381.7098443156242,
         "Y": 19.790362947225816
       },
       {
-        "ShowGeometry": true,
-        "Name": "Code Block",
         "Id": "2a06fe09b27649389197cf108a35bb00",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Code Block",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": 1067.0995810626555,
         "Y": 228.81215098374003
       },
       {
-        "ShowGeometry": true,
-        "Name": "Code Block",
         "Id": "9e2397915d9a42a6968e990c80ffb846",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Code Block",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": 1101.5497315546963,
         "Y": 363.51387510757144
       },
       {
-        "ShowGeometry": true,
-        "Name": "Code Block",
         "Id": "01667ebf3494460b98693d01ce714185",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Code Block",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": 1076.2664642800951,
         "Y": 587.667202267444
       },
       {
-        "ShowGeometry": true,
-        "Name": "Code Block",
         "Id": "d0e800006dcc42aab00794e34476a228",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Code Block",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": 1240.8146066564261,
         "Y": 889.80880381883117
       },
       {
-        "ShowGeometry": true,
-        "Name": "Code Block",
         "Id": "adfa55ff61bc41c5952a117d7623fb44",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Code Block",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": 953.02626611118137,
         "Y": 734.60595098422084
       },
       {
-        "ShowGeometry": true,
-        "Name": "Code Block",
         "Id": "47f68ab6e36047ac967ca7d14e6566b5",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
+        "Name": "Code Block",
+        "ShowGeometry": true,
         "Excluded": false,
         "X": 1193.8353473468369,
         "Y": 693.52440204644631
+      },
+      {
+        "Id": "0cb21b60d6024f45aca4293bbaf4937f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Code Block",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 1408.6995748939742,
+        "Y": 684.58768766490641
+      },
+      {
+        "Id": "372919477f364cacab4a8a0da522ce42",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "© Excel.Import+",
+        "ShowGeometry": true,
+        "Excluded": true,
+        "X": -39.292244257578318,
+        "Y": 48.891969053501271
+      },
+      {
+        "Id": "2bab381fb2ab4855aa3ebe0af2c0d24d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "© ImportExcel",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 508.01635251760524,
+        "Y": 554.02961966987925
       }
     ],
     "Annotations": [],
-    "X": -412.85114062312437,
-    "Y": -86.9420257673303,
-    "Zoom": 0.68939183048817942
+    "X": -1752.4201486745496,
+    "Y": -932.38264552558326,
+    "Zoom": 1.4815314040324699
   }
 }
