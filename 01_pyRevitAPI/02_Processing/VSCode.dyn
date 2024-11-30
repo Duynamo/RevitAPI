@@ -126,7 +126,7 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\02_Processing\\OKB01.py",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\OKB01.py",
       "InputValue": ".\\OKB01.py",
       "NodeType": "ExtensionNode",
       "Id": "2defdaf2569249fba5bec6695ea32875",
@@ -144,58 +144,6 @@
       ],
       "Replication": "Disabled",
       "Description": "Allows you to select a file on the system to get its filename"
-    },
-    {
-      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
-      "NodeType": "PythonScriptNode",
-      "Code": "\"\"\"Copyright by: vudinhduybm@gmail.com\"\"\"\r\n#region ___import all Library\r\nimport clr\r\nimport sys \r\nimport System   \r\nimport math\r\nimport collections\r\n\r\nfrom math import cos,sin,tan,radians\r\n\r\nclr.AddReference(\"ProtoGeometry\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference(\"RevitAPI\") \r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import* \r\nfrom Autodesk.Revit.DB.Structure import*\r\n\r\nclr.AddReference(\"RevitAPIUI\") \r\nfrom Autodesk.Revit.UI import*\r\nfrom Autodesk.Revit.UI.Selection import ISelectionFilter\r\nclr.AddReference(\"System\") \r\nfrom System.Collections.Generic import List\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference(\"System.Windows.Forms\")\r\nclr.AddReference(\"System.Drawing\")\r\nclr.AddReference(\"System.Windows.Forms.DataVisualization\")\r\n\r\nimport System.Windows.Forms \r\nfrom System.Windows.Forms import *\r\nimport System.Drawing\r\nfrom System.Drawing import *\r\n#endregion\r\n\r\n#region ___Current doc/app/ui\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nview = doc.ActiveView\r\n#endregion\r\n\r\n#region ___someFunctions\r\ndef uwList(input):\r\n    result = input if isinstance(input, list) else [input]\r\n    return UnwrapElement(input)\r\n\r\ndef getAllPipeFittingsInPJ(doc):\r\n    pipeFittingsName = []\r\n    collector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeFitting).WhereElementIsElementType().ToElements()\r\n    for fitting in collector:\r\n        # Use SYMBOL_NAME_PARAM to get the type name\r\n        fittingNameParam = fitting.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)\r\n        if fittingNameParam:\r\n            fittingName = fittingNameParam.AsString()\r\n            pipeFittingsName.append(fittingName)\r\n    return collector, pipeFittingsName\r\ndef getAllPipeAccessoriesInPJ(doc):\r\n    pipeFittingsName = []\r\n    collector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeAccessory).WhereElementIsElementType().ToElements()\r\n    for fitting in collector:\r\n        # Use SYMBOL_NAME_PARAM to get the type name\r\n        fittingNameParam = fitting.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)\r\n        if fittingNameParam:\r\n            fittingName = fittingNameParam.AsString()\r\n            pipeFittingsName.append(fittingName)\r\n    return collector, pipeFittingsName    \r\ndef getAllGenericModelInPJ(doc):\r\n    pipeFittingsName = []\r\n    collector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_GenericModel).WhereElementIsElementType().ToElements()\r\n    for fitting in collector:\r\n        # Use SYMBOL_NAME_PARAM to get the type name\r\n        fittingNameParam = fitting.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM)\r\n        if fittingNameParam:\r\n            fittingName = fittingNameParam.AsString()\r\n            pipeFittingsName.append(fittingName)\r\n    return collector, pipeFittingsName      \r\n#endregion\r\n\r\n\r\n\r\nOUT =  getAllGenericModelInPJ(doc)\r\n",
-      "Engine": "IronPython2",
-      "VariableInputPorts": true,
-      "Id": "e0e1c03289f846898f26a7ed5fbe369c",
-      "Inputs": [
-        {
-          "Id": "27d0bd6ab3434b91931d036466396d62",
-          "Name": "IN[0]",
-          "Description": "Input #0",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Outputs": [
-        {
-          "Id": "47ffca5839ce4d7cba0055ac1444885c",
-          "Name": "OUT",
-          "Description": "Result of the python script",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Replication": "Disabled",
-      "Description": "Runs an embedded Python script."
-    },
-    {
-      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
-      "NodeType": "BooleanInputNode",
-      "InputValue": true,
-      "Id": "6c2beca5ee154fd7b3943c2f808e362e",
-      "Inputs": [],
-      "Outputs": [
-        {
-          "Id": "4a4edaef0ac74556887302aac43b4c59",
-          "Name": "",
-          "Description": "Boolean",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Replication": "Disabled",
-      "Description": "Selection between a true and false."
     },
     {
       "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
@@ -532,26 +480,35 @@
       "Description": "ImportExcel, with a few extra settings for quicker importing."
     },
     {
-      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Function, DynamoCore",
-      "FunctionSignature": "2d955c77-e83f-43d2-a2dd-c6ccdc5b9670",
-      "FunctionType": "Graph",
-      "NodeType": "FunctionNode",
-      "Id": "2bab381fb2ab4855aa3ebe0af2c0d24d",
+      "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "NodeType": "ExtensionNode",
+      "Id": "142e8276f479441f9c582800209d0c48",
       "Inputs": [
         {
-          "Id": "e44c39b18b2f4babbc9a5a27c3aac668",
-          "Name": "filePath",
-          "Description": "string",
+          "Id": "daed8c6d9dff44dea868e0737fc48fd4",
+          "Name": "script",
+          "Description": "Python script to run.",
           "UsingDefaultValue": false,
           "Level": 2,
           "UseLevels": false,
           "KeepListStructure": false
         },
         {
-          "Id": "e86c80885ec848c5baebb0b863f6895b",
-          "Name": "sheetName",
-          "Description": "string\nDefault value : \"Sheet1\"",
-          "UsingDefaultValue": true,
+          "Id": "4b0b1244a0e0493c910098ccd766be66",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "84e14412e5704259b4733af3fa2cc3bd",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
           "Level": 2,
           "UseLevels": false,
           "KeepListStructure": false
@@ -559,35 +516,99 @@
       ],
       "Outputs": [
         {
-          "Id": "86863f91849647448c31ef73cba07e3d",
-          "Name": "dataRows",
-          "Description": "return value",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        },
-        {
-          "Id": "1a460ec32ef54fd1837660f34b53fc6d",
-          "Name": "sheetFound",
-          "Description": "return value",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        },
-        {
-          "Id": "74c26a7f855d413ebebd18615509a443",
-          "Name": "report",
-          "Description": "return value",
+          "Id": "531277f7fa5b44a681c646d7426ba403",
+          "Name": "OUT",
+          "Description": "Result of the python script",
           "UsingDefaultValue": false,
           "Level": 2,
           "UseLevels": false,
           "KeepListStructure": false
         }
       ],
-      "Replication": "Auto",
-      "Description": "Imports a 2D matrix of data from an existing Excel file path from a given worksheet name. If a worksheet does not exist by that name it will take the data from the first worksheet instead. Credit to Cyril Poupin for most of the Python code (details in node body)."
+      "Replication": "Disabled",
+      "Description": "Runs a Python script from a string."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\SOJ_MTO Length.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "ee5fb4e7d0fa4ff096b84fa637acfcc4",
+      "Inputs": [
+        {
+          "Id": "adc6e7c62e1a4d5aaf45d7a9a397c2a7",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "9a84743bee3c45ea9c6f12e529c1edb5",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "136d167b91304957956b441100e0faf1",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": false,
+      "Id": "c3b073f847b94fde9a6c353715b72bc7",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "3121218788a4410a86fe3810d9acaa02",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\SOJ_MTO Length.py",
+      "InputValue": ".\\SOJ_MTO Length.py",
+      "NodeType": "ExtensionNode",
+      "Id": "52414855b217494e95211eb90a4d1392",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "4bf03722d53b48569828fbbff83c4114",
+          "Name": "",
+          "Description": "Filename",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows you to select a file on the system to get its filename"
     }
   ],
   "Connectors": [
@@ -647,14 +668,23 @@
       "Id": "135009a5dd8a40c8a3f09ba00e77a516"
     },
     {
-      "Start": "4a4edaef0ac74556887302aac43b4c59",
-      "End": "27d0bd6ab3434b91931d036466396d62",
-      "Id": "5bcb8abe7fa24befbc49556ede10b610"
+      "Start": "136d167b91304957956b441100e0faf1",
+      "End": "daed8c6d9dff44dea868e0737fc48fd4",
+      "Id": "01546fa982ff41098e3751a9c9c10396"
+    },
+    {
+      "Start": "3121218788a4410a86fe3810d9acaa02",
+      "End": "adc6e7c62e1a4d5aaf45d7a9a397c2a7",
+      "Id": "386a923778ac435bafd7f093f4d85f0a"
+    },
+    {
+      "Start": "4bf03722d53b48569828fbbff83c4114",
+      "End": "9a84743bee3c45ea9c6f12e529c1edb5",
+      "Id": "31b9151c32154604bbded6ef6f5fcdb0"
     }
   ],
   "Dependencies": [
-    "5fea20fa-9652-4d53-887c-1d8e6e71666a",
-    "2d955c77-e83f-43d2-a2dd-c6ccdc5b9670"
+    "5fea20fa-9652-4d53-887c-1d8e6e71666a"
   ],
   "NodeLibraryDependencies": [
     {
@@ -662,8 +692,7 @@
       "Version": "2022.5.27",
       "ReferenceType": "Package",
       "Nodes": [
-        "372919477f364cacab4a8a0da522ce42",
-        "2bab381fb2ab4855aa3ebe0af2c0d24d"
+        "372919477f364cacab4a8a0da522ce42"
       ]
     }
   ],
@@ -716,9 +745,9 @@
         "IsSetAsOutput": false,
         "Name": "Boolean",
         "ShowGeometry": true,
-        "Excluded": false,
-        "X": -4.4551227129588682,
-        "Y": 251.42237002257895
+        "Excluded": true,
+        "X": -2.0501628432730143,
+        "Y": 250.21989008773596
       },
       {
         "Id": "2defdaf2569249fba5bec6695ea32875",
@@ -729,26 +758,6 @@
         "Excluded": false,
         "X": -10.779331905284977,
         "Y": 346.742201471617
-      },
-      {
-        "Id": "e0e1c03289f846898f26a7ed5fbe369c",
-        "IsSetAsInput": false,
-        "IsSetAsOutput": false,
-        "Name": "Python Script",
-        "ShowGeometry": true,
-        "Excluded": false,
-        "X": 295.06671043142359,
-        "Y": 600.66751512050769
-      },
-      {
-        "Id": "6c2beca5ee154fd7b3943c2f808e362e",
-        "IsSetAsInput": false,
-        "IsSetAsOutput": false,
-        "Name": "Boolean",
-        "ShowGeometry": false,
-        "Excluded": true,
-        "X": 128.77930414286809,
-        "Y": 600.10438933095452
       },
       {
         "Id": "9060e0b564c642f58a941d74c2c199fc",
@@ -841,19 +850,49 @@
         "Y": 48.891969053501271
       },
       {
-        "Id": "2bab381fb2ab4855aa3ebe0af2c0d24d",
+        "Id": "142e8276f479441f9c582800209d0c48",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "© ImportExcel",
+        "Name": "Python Script From String",
         "ShowGeometry": true,
         "Excluded": false,
-        "X": 508.01635251760524,
-        "Y": 554.02961966987925
+        "X": -26.413540391058632,
+        "Y": 773.72712386107708
+      },
+      {
+        "Id": "ee5fb4e7d0fa4ff096b84fa637acfcc4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": -227.72116101239067,
+        "Y": 787.413613491174
+      },
+      {
+        "Id": "c3b073f847b94fde9a6c353715b72bc7",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Boolean",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": -580.93931355981965,
+        "Y": 711.279914765355
+      },
+      {
+        "Id": "52414855b217494e95211eb90a4d1392",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "File Path",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": -589.66848262183157,
+        "Y": 807.802226149236
       }
     ],
     "Annotations": [],
-    "X": -1752.4201486745496,
-    "Y": -932.38264552558326,
-    "Zoom": 1.4815314040324699
+    "X": 412.74089755928492,
+    "Y": -350.32054481413633,
+    "Zoom": 0.59634717642441126
   }
 }
