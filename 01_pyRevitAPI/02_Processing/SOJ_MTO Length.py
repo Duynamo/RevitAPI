@@ -56,11 +56,17 @@ def getConnectedElements(doc, pipes):
                     if connectedElement.Id != pipe.Id:
                         pipe_MTOLength_param = pipe.LookupParameter('FU_MTO Length')
                         pipeLength = pipe.LookupParameter('Length').AsDouble()
-                        connectedEle_MTOLength_param = connectedElement.LookupParameter('FU_MTO Length').AsDouble()
-                        TransactionManager.Instance.EnsureInTransaction(doc)
-                        pipe_MTOLength_param.Set(connectedEle_MTOLength_param+pipeLength)
-                        TransactionManager.Instance.TransactionTaskDone()
-                        connected_elements.append(connectedElement)
+                        connectedEle_MTOLength_param_check = connectedElement.LookupParameter('FU_MTO Length')
+                        if connectedEle_MTOLength_param_check != None:
+                            connectedEle_MTOLength_param = connectedEle_MTOLength_param_check.AsDouble()
+                            TransactionManager.Instance.EnsureInTransaction(doc)
+                            if connectedEle_MTOLength_param != None:
+                                pipe_MTOLength_param.Set(connectedEle_MTOLength_param+pipeLength)
+                            else:
+                                pipe_MTOLength_param.Set(pipeLength)
+                            TransactionManager.Instance.TransactionTaskDone()
+                            connected_elements.append(connectedElement)
+                        else: pass
     return connected_elements
 
 pipes = allPipesInActiveView()
