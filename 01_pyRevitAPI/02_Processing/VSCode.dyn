@@ -609,6 +609,137 @@
       ],
       "Replication": "Disabled",
       "Description": "Allows you to select a file on the system to get its filename"
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": false,
+      "Id": "49ee9cbc42224a66bcb52ef676c08216",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "1269f5b7ec7c4a4da2bcd9ecf9c36c5b",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\SOJ_MTO Raw Bending Length.py",
+      "InputValue": ".\\SOJ_MTO Raw Bending Length.py",
+      "NodeType": "ExtensionNode",
+      "Id": "4678a9fc6f7f47cabab2902dfbb55ac5",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "9769032615d8487180df5e2561f60abd",
+          "Name": "",
+          "Description": "Filename",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows you to select a file on the system to get its filename"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\SOJ_MTO Raw Bending Length.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "fd2b09467b00403fb042517846074231",
+      "Inputs": [
+        {
+          "Id": "c8af357be6e84465821e39fc3fa02b11",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "831a11f9a7a249f0be1786758aa07435",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "1f3389b2a6e74bee9b7912962c7d5bd8",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "NodeType": "ExtensionNode",
+      "Id": "a184fe427b684f5b9cd06158c2e2141c",
+      "Inputs": [
+        {
+          "Id": "cc6d1c4b2aed41fb946e575b07c6c987",
+          "Name": "script",
+          "Description": "Python script to run.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "4021f5e70ffc48cf80e8e1b918a5bb9a",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "61b6bf2ff7b2439f8d15dc40bfa76821",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "7d32b422c79c4766a652d897310b6d69",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs a Python script from a string."
     }
   ],
   "Connectors": [
@@ -681,6 +812,21 @@
       "Start": "4bf03722d53b48569828fbbff83c4114",
       "End": "9a84743bee3c45ea9c6f12e529c1edb5",
       "Id": "31b9151c32154604bbded6ef6f5fcdb0"
+    },
+    {
+      "Start": "1269f5b7ec7c4a4da2bcd9ecf9c36c5b",
+      "End": "c8af357be6e84465821e39fc3fa02b11",
+      "Id": "467883de597642c5bf34547a56d5c80b"
+    },
+    {
+      "Start": "9769032615d8487180df5e2561f60abd",
+      "End": "831a11f9a7a249f0be1786758aa07435",
+      "Id": "5425a35e1d854fa4b648c4fb6cd934ed"
+    },
+    {
+      "Start": "1f3389b2a6e74bee9b7912962c7d5bd8",
+      "End": "cc6d1c4b2aed41fb946e575b07c6c987",
+      "Id": "3bea4480b37e4eed859e5b0f20dc3ec1"
     }
   ],
   "Dependencies": [
@@ -720,179 +866,219 @@
     },
     "NodeViews": [
       {
+        "ShowGeometry": true,
+        "Name": "Python Script From String",
         "Id": "5a2470c39c7c45ceb2474329ec45070c",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "Python Script From String",
-        "ShowGeometry": true,
         "Excluded": false,
         "X": 552.475610325488,
         "Y": 312.667099183458
       },
       {
+        "ShowGeometry": true,
+        "Name": "Python Script",
         "Id": "f81eacff842749f9a23df221c6befe90",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "Python Script",
-        "ShowGeometry": true,
         "Excluded": false,
         "X": 351.16798970415607,
         "Y": 326.35358881355518
       },
       {
+        "ShowGeometry": true,
+        "Name": "Boolean",
         "Id": "f40ff1a66f0d495b81d6f86c6b863489",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "Boolean",
-        "ShowGeometry": true,
         "Excluded": true,
         "X": -2.0501628432730143,
         "Y": 250.21989008773596
       },
       {
+        "ShowGeometry": true,
+        "Name": "File Path",
         "Id": "2defdaf2569249fba5bec6695ea32875",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "File Path",
-        "ShowGeometry": true,
         "Excluded": false,
         "X": -10.779331905284977,
         "Y": 346.742201471617
       },
       {
+        "ShowGeometry": true,
+        "Name": "Code Block",
         "Id": "9060e0b564c642f58a941d74c2c199fc",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "Code Block",
-        "ShowGeometry": true,
         "Excluded": false,
         "X": 1381.7098443156242,
         "Y": 19.790362947225816
       },
       {
+        "ShowGeometry": true,
+        "Name": "Code Block",
         "Id": "2a06fe09b27649389197cf108a35bb00",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "Code Block",
-        "ShowGeometry": true,
         "Excluded": false,
         "X": 1067.0995810626555,
         "Y": 228.81215098374003
       },
       {
+        "ShowGeometry": true,
+        "Name": "Code Block",
         "Id": "9e2397915d9a42a6968e990c80ffb846",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "Code Block",
-        "ShowGeometry": true,
         "Excluded": false,
         "X": 1101.5497315546963,
         "Y": 363.51387510757144
       },
       {
+        "ShowGeometry": true,
+        "Name": "Code Block",
         "Id": "01667ebf3494460b98693d01ce714185",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "Code Block",
-        "ShowGeometry": true,
         "Excluded": false,
         "X": 1076.2664642800951,
         "Y": 587.667202267444
       },
       {
+        "ShowGeometry": true,
+        "Name": "Code Block",
         "Id": "d0e800006dcc42aab00794e34476a228",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "Code Block",
-        "ShowGeometry": true,
         "Excluded": false,
         "X": 1240.8146066564261,
         "Y": 889.80880381883117
       },
       {
+        "ShowGeometry": true,
+        "Name": "Code Block",
         "Id": "adfa55ff61bc41c5952a117d7623fb44",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "Code Block",
-        "ShowGeometry": true,
         "Excluded": false,
         "X": 953.02626611118137,
         "Y": 734.60595098422084
       },
       {
+        "ShowGeometry": true,
+        "Name": "Code Block",
         "Id": "47f68ab6e36047ac967ca7d14e6566b5",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "Code Block",
-        "ShowGeometry": true,
         "Excluded": false,
         "X": 1193.8353473468369,
         "Y": 693.52440204644631
       },
       {
+        "ShowGeometry": true,
+        "Name": "Code Block",
         "Id": "0cb21b60d6024f45aca4293bbaf4937f",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "Code Block",
-        "ShowGeometry": true,
         "Excluded": false,
         "X": 1408.6995748939742,
         "Y": 684.58768766490641
       },
       {
+        "ShowGeometry": true,
+        "Name": "© Excel.Import+",
         "Id": "372919477f364cacab4a8a0da522ce42",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "© Excel.Import+",
-        "ShowGeometry": true,
         "Excluded": true,
         "X": -39.292244257578318,
         "Y": 48.891969053501271
       },
       {
+        "ShowGeometry": true,
+        "Name": "Python Script From String",
         "Id": "142e8276f479441f9c582800209d0c48",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "Python Script From String",
-        "ShowGeometry": true,
         "Excluded": false,
-        "X": -26.413540391058632,
-        "Y": 773.72712386107708
+        "X": -10.735821974450346,
+        "Y": 729.54446286881728
       },
       {
+        "ShowGeometry": true,
+        "Name": "Python Script",
         "Id": "ee5fb4e7d0fa4ff096b84fa637acfcc4",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "Python Script",
-        "ShowGeometry": true,
         "Excluded": false,
         "X": -227.72116101239067,
         "Y": 787.413613491174
       },
       {
+        "ShowGeometry": true,
+        "Name": "Boolean",
         "Id": "c3b073f847b94fde9a6c353715b72bc7",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "Boolean",
-        "ShowGeometry": true,
-        "Excluded": false,
+        "Excluded": true,
         "X": -580.93931355981965,
         "Y": 711.279914765355
       },
       {
+        "ShowGeometry": true,
+        "Name": "File Path",
         "Id": "52414855b217494e95211eb90a4d1392",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Name": "File Path",
-        "ShowGeometry": true,
         "Excluded": false,
         "X": -589.66848262183157,
         "Y": 807.802226149236
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Boolean",
+        "Id": "49ee9cbc42224a66bcb52ef676c08216",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -565.06818532885973,
+        "Y": 951.92370749967836
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "File Path",
+        "Id": "4678a9fc6f7f47cabab2902dfbb55ac5",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -573.79735439087176,
+        "Y": 1048.4460188835594
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "fd2b09467b00403fb042517846074231",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -211.85003278143074,
+        "Y": 1028.0574062254973
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script From String",
+        "Id": "a184fe427b684f5b9cd06158c2e2141c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -10.542412160098309,
+        "Y": 1014.3709165954003
       }
     ],
     "Annotations": [],
-    "X": 589.44472646646454,
-    "Y": -682.06323290192,
-    "Zoom": 1.0162534100236162
+    "X": 452.90869103194865,
+    "Y": -741.983333483134,
+    "Zoom": 0.80220516868384661
   }
 }
