@@ -47,6 +47,7 @@ def allPipesInActiveView():
 	return pipesCollector
 def getConnectedElements(doc, pipes):
     connected_elements = []
+    settedPipesMTOLength = []
     for pipe in pipes:
         conns = pipe.ConnectorManager.Connectors
         for conn in conns:
@@ -66,12 +67,20 @@ def getConnectedElements(doc, pipes):
                                 pipe_MTOLength_param.Set(pipeLength)
                             TransactionManager.Instance.TransactionTaskDone()
                             connected_elements.append(connectedElement)
+                            settedPipesMTOLength.append(pipe)
                         else: pass
-    return connected_elements
+            else:
+                pipeLength1 = pipe.LookupParameter('Length').AsDouble()
+                pipe_MTOLength_param1 = pipe.LookupParameter('FU_MTO Length')
+                TransactionManager.Instance.EnsureInTransaction(doc)
+                pipe_MTOLength_param1.Set(pipeLength1)
+                TransactionManager.Instance.TransactionTaskDone()
+                settedPipesMTOLength.append(pipe)
+    return  settedPipesMTOLength
 
 pipes = allPipesInActiveView()
-connectedEles = getConnectedElements(doc,pipes)
+settedPipesMTOLength = getConnectedElements(doc,pipes)
 
-OUT =  connectedEles, pipes
+OUT =  settedPipesMTOLength
 
 '''___'''
