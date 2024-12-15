@@ -1,3 +1,5 @@
+#This code is help user to set MTO length
+
 import clr
 import sys 
 import System   

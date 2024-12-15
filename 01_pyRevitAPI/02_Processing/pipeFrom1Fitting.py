@@ -58,6 +58,12 @@ def pickFittingOrAccessory():
     ref = uidoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element, fittingFilter, 'Pick fitting or Accessory')
     desEle = doc.GetElement(ref.ElementId)
     return desEle
+def pickPipeOrPipePart():
+    categories = ['Pipe Fittings', 'Pipe Accessories','Pipes']
+    fittingFilter = selectionFilter(categories)
+    ref = uidoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element, fittingFilter, 'Pick fitting or Accessory or Pipe')
+    desEle = doc.GetElement(ref.ElementId)
+    return desEle
 def pickPipe():
     category = ['PipeCurves']
     pipeFilter = selectionFilter(category)
