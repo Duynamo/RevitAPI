@@ -87,15 +87,7 @@ def getAllPipeTypes(doc):
 """______________________________________________________________________________________"""
 
 levelsCollector = FilteredElementCollector(doc).OfClass(Level).ToElements()
-"""________________________________________________________________________________________"""
-# def logger(title, content):
-# 	import datetime
-# 	date = datetime.datetime.now()
-# 	f = open(r"C:\Users\95053\Desktop\Python\RevitAPI-master\RevitAPI\python.log", 'a')
-# 	# C:\Users\95053\Desktop\Python\RevitAPI-master\RevitAPI\PipeCreate.py
-# 	f.write(str(date) + '\n' + title + '\n' + str(content) + '\n')
-# 	f.close()
-"""________________________________________________________________________________________"""
+"""___"""
 class MainForm(Form):
 	def __init__(self):
 		self.InitializeComponent()

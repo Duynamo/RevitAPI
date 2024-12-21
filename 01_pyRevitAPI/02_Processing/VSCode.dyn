@@ -935,7 +935,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\pipeFrom2Parts.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\linkCadToSectionView_241221.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "3b242dc8aa11448cad9bcddb3ba50901",
@@ -995,8 +995,8 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\pipeFrom2Parts.py",
-      "InputValue": ".\\pipeFrom2Parts.py",
+      "HintPath": "C:\\Users\\Desktop\\NSY01\\NSY01_240717\\【作業中・検討用】C-115,116_排水池上澄水管_更新配管図240712(４・５号弁室修正).dwg",
+      "InputValue": "..\\..\\..\\..\\..\\..\\NSY01\\NSY01_240717\\【作業中・検討用】C-115,116_排水池上澄水管_更新配管図240712(４・５号弁室修正).dwg",
       "NodeType": "ExtensionNode",
       "Id": "50a1ab07839f4289bafdde25c29b2c01",
       "Inputs": [],
@@ -1013,6 +1013,68 @@
       ],
       "Replication": "Disabled",
       "Description": "Allows you to select a file on the system to get its filename"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Function, DynamoCore",
+      "FunctionSignature": "1fc51e18-478c-4bb2-a997-67f57ac10590",
+      "FunctionType": "Graph",
+      "NodeType": "FunctionNode",
+      "Id": "fef697b4751e463581d6d7b0e6a0ffeb",
+      "Inputs": [
+        {
+          "Id": "41dcbf8088e640458d32946de80cfddb",
+          "Name": "LinkedOnlyImportInstance",
+          "Description": "ImportInstance",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "5b503d43facb443cb6c2462cced63a31",
+          "Name": "DWG Filepath",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "Get the full path and name of the linked (not imported) importInstance"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Function, DynamoCore",
+      "FunctionSignature": "f33a2628-47bf-401c-8556-68dde68fbec5",
+      "FunctionType": "Graph",
+      "NodeType": "FunctionNode",
+      "Id": "c789d86797df4d78a4553731bb360b40",
+      "Inputs": [
+        {
+          "Id": "8ff4609988ce4ead9c97208efc97eb40",
+          "Name": "VARrefresh",
+          "Description": "bool\nDefault value : false",
+          "UsingDefaultValue": true,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "57380fb5974740958137ee5d2965a741",
+          "Name": "VARgt",
+          "Description": "return value",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "Provides a file path option for use with Dynamo Player."
     }
   ],
   "Connectors": [
@@ -1138,7 +1200,9 @@
     }
   ],
   "Dependencies": [
-    "5fea20fa-9652-4d53-887c-1d8e6e71666a"
+    "5fea20fa-9652-4d53-887c-1d8e6e71666a",
+    "1fc51e18-478c-4bb2-a997-67f57ac10590",
+    "f33a2628-47bf-401c-8556-68dde68fbec5"
   ],
   "NodeLibraryDependencies": [
     {
@@ -1147,6 +1211,22 @@
       "ReferenceType": "Package",
       "Nodes": [
         "372919477f364cacab4a8a0da522ce42"
+      ]
+    },
+    {
+      "Name": "LinkDWG2",
+      "Version": "0.4.18",
+      "ReferenceType": "Package",
+      "Nodes": [
+        "fef697b4751e463581d6d7b0e6a0ffeb"
+      ]
+    },
+    {
+      "Name": "Synthesize toolkit",
+      "Version": "6.7.9",
+      "ReferenceType": "Package",
+      "Nodes": [
+        "c789d86797df4d78a4553731bb360b40"
       ]
     }
   ],
@@ -1439,9 +1519,9 @@
         "Id": "aac0fd780b9d4e94a0f6188735db8ecf",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": true,
-        "X": 70.859844862763225,
-        "Y": 1651.3456974384792
+        "Excluded": false,
+        "X": 245.46862702207022,
+        "Y": 1756.6540595777246
       },
       {
         "ShowGeometry": true,
@@ -1450,8 +1530,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": -193.80513279149864,
-        "Y": 1642.1059170407343
+        "X": 10.075154064687922,
+        "Y": 1615.704153275185
       },
       {
         "ShowGeometry": true,
@@ -1459,9 +1539,9 @@
         "Id": "aa4bd9a82f99431ebd046f0d969d8cdb",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": false,
-        "X": -547.02328533892762,
-        "Y": 1566.8759231068443
+        "Excluded": true,
+        "X": -367.84691317679335,
+        "Y": 1555.2722474282116
       },
       {
         "ShowGeometry": true,
@@ -1470,13 +1550,33 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": -555.75245440093965,
-        "Y": 1663.3958738943443
+        "X": -700.962155111461,
+        "Y": 1678.0635204307605
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "DWGFilepath",
+        "Id": "fef697b4751e463581d6d7b0e6a0ffeb",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": -753.51747841183,
+        "Y": 2022.3330830663126
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "RH.FilePath",
+        "Id": "c789d86797df4d78a4553731bb360b40",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": -817.08272423418725,
+        "Y": 2111.8897516306447
       }
     ],
     "Annotations": [],
-    "X": 463.00994276284882,
-    "Y": -1158.7866984772609,
-    "Zoom": 0.84172662976589818
+    "X": 301.64253957260723,
+    "Y": -956.92329099244967,
+    "Zoom": 0.71801361835632216
   }
 }
