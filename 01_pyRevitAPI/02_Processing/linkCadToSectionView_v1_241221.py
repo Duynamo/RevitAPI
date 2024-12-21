@@ -28,9 +28,8 @@ import RevitServices
 from RevitServices.Persistence import DocumentManager
 from RevitServices.Transactions import TransactionManager
 
-# from System.Drawing import Point, Font
 from System.Windows.Forms import OpenFileDialog
-#Current doc/app/ui
+
 doc = DocumentManager.Instance.CurrentDBDocument
 uiapp = DocumentManager.Instance.CurrentUIApplication
 app = uiapp.Application
@@ -99,10 +98,6 @@ importInst.Pinned = False
 TransactionManager.Instance.TransactionTaskDone()
 CADLink = doc.GetElement(importInst.GetTypeId())
 
-# sectionBBox = sectionView.get_BoundingBox(None)
-# sectionCenter = (sectionBBox.Min + sectionBBox.Max) / 2  
-# importBBox = importInst.get_BoundingBox(None)
-# importCenter = (importBBox.Min + importBBox.Max) / 2  
 pointOrigin = XYZ(0,0,0)
 moveVector = sectionViewPoint - pointOrigin
 # Apply the transformation

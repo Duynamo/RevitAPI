@@ -935,7 +935,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\linkCadToSectionView_241221.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\linkCadToSectionView_v2_241221.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "3b242dc8aa11448cad9bcddb3ba50901",
@@ -995,8 +995,8 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\NSY01\\NSY01_240717\\【作業中・検討用】C-115,116_排水池上澄水管_更新配管図240712(４・５号弁室修正).dwg",
-      "InputValue": "..\\..\\..\\..\\..\\..\\NSY01\\NSY01_240717\\【作業中・検討用】C-115,116_排水池上澄水管_更新配管図240712(４・５号弁室修正).dwg",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\linkCadToSectionView_v2_241221.py",
+      "InputValue": ".\\linkCadToSectionView_v2_241221.py",
       "NodeType": "ExtensionNode",
       "Id": "50a1ab07839f4289bafdde25c29b2c01",
       "Inputs": [],
@@ -1480,8 +1480,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": true,
-        "X": 35.831118312181957,
-        "Y": 1413.63465228699
+        "X": 1.2307377980111482,
+        "Y": 1335.2541984691745
       },
       {
         "ShowGeometry": true,
@@ -1520,8 +1520,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 245.46862702207022,
-        "Y": 1756.6540595777246
+        "X": 186.06403284046417,
+        "Y": 1636.82065407345
       },
       {
         "ShowGeometry": true,
@@ -1550,8 +1550,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": -700.962155111461,
-        "Y": 1678.0635204307605
+        "X": -420.83421237540944,
+        "Y": 1653.1016245433898
       },
       {
         "ShowGeometry": true,
@@ -1575,8 +1575,8 @@
       }
     ],
     "Annotations": [],
-    "X": 301.64253957260723,
-    "Y": -956.92329099244967,
-    "Zoom": 0.71801361835632216
+    "X": 327.08150877897123,
+    "Y": -1041.2864984839916,
+    "Zoom": 0.78585760329111642
   }
 }
