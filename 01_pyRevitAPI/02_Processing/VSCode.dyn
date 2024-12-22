@@ -875,7 +875,7 @@
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
       "NodeType": "BooleanInputNode",
-      "InputValue": true,
+      "InputValue": false,
       "Id": "6d8cad3c7f954450ac52893f83f0d6b2",
       "Inputs": [],
       "Outputs": [
@@ -1511,7 +1511,7 @@
         "IsSetAsOutput": false,
         "Excluded": false,
         "X": -594.40756728270412,
-        "Y": 1336.76829665886
+        "Y": 1335.3205999280044
       },
       {
         "ShowGeometry": true,
@@ -1534,7 +1534,7 @@
         "Y": 1615.704153275185
       },
       {
-        "ShowGeometry": true,
+        "ShowGeometry": false,
         "Name": "Boolean",
         "Id": "aa4bd9a82f99431ebd046f0d969d8cdb",
         "IsSetAsInput": false,
@@ -1575,8 +1575,8 @@
       }
     ],
     "Annotations": [],
-    "X": 327.08150877897123,
-    "Y": -1041.2864984839916,
-    "Zoom": 0.78585760329111642
+    "X": 418.11850022290565,
+    "Y": -596.9879941475341,
+    "Zoom": 0.51298386700068666
   }
 }
