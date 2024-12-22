@@ -935,7 +935,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\linkCadToSectionView_v2_241221.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\linkCadToSectionView_v3_241222.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "3b242dc8aa11448cad9bcddb3ba50901",
@@ -995,8 +995,8 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\linkCadToSectionView_v2_241221.py",
-      "InputValue": ".\\linkCadToSectionView_v2_241221.py",
+      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\linkCadToSectionView_v3_241222.py",
+      "InputValue": ".\\linkCadToSectionView_v3_241222.py",
       "NodeType": "ExtensionNode",
       "Id": "50a1ab07839f4289bafdde25c29b2c01",
       "Inputs": [],
@@ -1530,7 +1530,7 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 10.075154064687922,
+        "X": 11.09315019611131,
         "Y": 1615.704153275185
       },
       {
