@@ -32,14 +32,26 @@ app = uiapp.Application
 uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
 
-def getAllPipingSystemsInActiveView(doc):
-    collector = FilteredElementCollector(doc, doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipingSystem)
-    pipingSystems = collector.ToElements()
-    pipingSystemsName = []
-    for system in pipingSystems:
-        systemName = system.get_Parameter(BuiltInParameter.RBS_SYSTEM_NAME_PARAM).AsString()
-        pipingSystemsName.append(systemName)
-    return pipingSystemsName
+# def getAllPipingSystemsInActiveView(doc):
+#     collector = FilteredElementCollector(doc, doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipingSystem)
+#     pipingSystems = collector.ToElements()
+#     pipingSystemsName = []
+#     for system in pipingSystems:
+#         systemName = system.get_Parameter(BuiltInParameter.RBS_SYSTEM_NAME_PARAM).AsString()
+#         pipingSystemsName = [systemName for systemName not in pipingSystemsName]
+#     return pipingSystemsName
+
+def getAllPipingSystemsInActiveView(doc):  
+    # Collect all piping systems in the active view  
+    collector = FilteredElementCollector(doc, doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipingSystem)  
+    pipingSystems = collector.ToElements()  
+    # Create a set to store unique system names  
+    pipingSystemsName = set()  
+    for system in pipingSystems:  
+        systemName = system.get_Parameter(BuiltInParameter.ELEM_TYPE_PARAM).AsValueString()  
+        if systemName:  # Check if systemName is not None  
+            pipingSystemsName.add(systemName)  # Add system name to the set  
+    return list(pipingSystemsName)  # Convert the set back to a list before returning
 
 def getBuiltInCategoryOST(nameCategory):
     # Get BuiltInCategory by name
@@ -85,8 +97,9 @@ for i in filteredElements:
 	IDS.Add(i.Id)
 # combineFilter = LogicalAndFilter(filter1 , filter2)
 # desPipes = FilteredElementCollector(doc, IDS).WherePasses(filter1).WhereElementIsNotElementType().ToElements()
-TransactionManager.Instance.EnsureInTransaction(doc)
-isolatedEles = view.IsolateElementsTemporary(IDS)
-TransactionManager.Instance.TransactionTaskDone()
 
-OUT = filteredElements
+# TransactionManager.Instance.EnsureInTransaction(doc)
+# isolatedEles = view.IsolateElementsTemporary(IDS)
+# TransactionManager.Instance.TransactionTaskDone()
+
+OUT = getAllPipingSystemsInActiveView(doc)
