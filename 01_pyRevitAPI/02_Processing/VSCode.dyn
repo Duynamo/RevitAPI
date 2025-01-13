@@ -17,6 +17,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
       "Engine": "IronPython2",
+      "EngineName": "IronPython2",
       "VariableInputPorts": true,
       "NodeType": "ExtensionNode",
       "Id": "5a2470c39c7c45ceb2474329ec45070c",
@@ -68,6 +69,7 @@
       "NodeType": "PythonScriptNode",
       "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\01_pyRevitAPI\\02_Processing\\OKB01.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
+      "EngineName": "IronPython2",
       "VariableInputPorts": true,
       "Id": "f81eacff842749f9a23df221c6befe90",
       "Inputs": [
@@ -122,11 +124,11 @@
         }
       ],
       "Replication": "Disabled",
-      "Description": "Selection between a true and false."
+      "Description": "Enables selection between True and False"
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\OKB01.py",
+      "HintPath": "C:\\Users\\95053\\Desktop\\pyRevit\\RevitAPI\\01_pyRevitAPI\\02_Processing\\OKB01.py",
       "InputValue": ".\\OKB01.py",
       "NodeType": "ExtensionNode",
       "Id": "2defdaf2569249fba5bec6695ea32875",
@@ -143,7 +145,7 @@
         }
       ],
       "Replication": "Disabled",
-      "Description": "Allows you to select a file on the system to get its filename"
+      "Description": "Allows you to select a file on the system and returns its file path"
     },
     {
       "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
@@ -386,102 +388,9 @@
       "Description": "Allows for DesignScript code to be authored directly"
     },
     {
-      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Function, DynamoCore",
-      "FunctionSignature": "5fea20fa-9652-4d53-887c-1d8e6e71666a",
-      "FunctionType": "Graph",
-      "NodeType": "FunctionNode",
-      "Id": "372919477f364cacab4a8a0da522ce42",
-      "Inputs": [
-        {
-          "Id": "9f5ee9daaefe431e936c77392fa3fae2",
-          "Name": "filePath",
-          "Description": "string",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        },
-        {
-          "Id": "6a72095c2d12414ea6dea9ededf9e24a",
-          "Name": "sheetName",
-          "Description": "string\nDefault value : \"Sheet1\"",
-          "UsingDefaultValue": true,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        },
-        {
-          "Id": "d94408f9cb3c41aeb2c97775964b7708",
-          "Name": "headerRows",
-          "Description": "int\nDefault value : 1",
-          "UsingDefaultValue": true,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        },
-        {
-          "Id": "6417cdf9ae034b28a1eb37c167e2538b",
-          "Name": "dataAsColumns",
-          "Description": "bool\nDefault value : true",
-          "UsingDefaultValue": true,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        },
-        {
-          "Id": "14b29f1b09f140078d30eb7307840451",
-          "Name": "nullReplace",
-          "Description": "var\nDefault value : \"\"",
-          "UsingDefaultValue": true,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Outputs": [
-        {
-          "Id": "2a61587c13a8486787ece23deb4af50f",
-          "Name": "headers",
-          "Description": "return value",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        },
-        {
-          "Id": "fbb56f62cc7048569f2e23796726fe40",
-          "Name": "data",
-          "Description": "return value",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        },
-        {
-          "Id": "6ae8e9a18d9a4cde92e60b673c5c45da",
-          "Name": "sheetFound",
-          "Description": "return value",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        },
-        {
-          "Id": "dbb8f68f25224cd6b5cea16a197d2f0c",
-          "Name": "report",
-          "Description": "return value",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Replication": "Auto",
-      "Description": "ImportExcel, with a few extra settings for quicker importing."
-    },
-    {
       "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
       "Engine": "IronPython2",
+      "EngineName": "IronPython2",
       "VariableInputPorts": true,
       "NodeType": "ExtensionNode",
       "Id": "142e8276f479441f9c582800209d0c48",
@@ -499,15 +408,6 @@
           "Id": "4b0b1244a0e0493c910098ccd766be66",
           "Name": "IN[0]",
           "Description": "Input #0",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        },
-        {
-          "Id": "84e14412e5704259b4733af3fa2cc3bd",
-          "Name": "IN[1]",
-          "Description": "Input #1",
           "UsingDefaultValue": false,
           "Level": 2,
           "UseLevels": false,
@@ -531,8 +431,9 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\SOJ_MTO Length.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Code": "re  = open(r\"C:\\Users\\95053\\Desktop\\pyRevit\\RevitAPI\\01_pyRevitAPI\\02_Processing\\SOJ_MTO Length.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
+      "EngineName": "IronPython2",
       "VariableInputPorts": true,
       "Id": "ee5fb4e7d0fa4ff096b84fa637acfcc4",
       "Inputs": [
@@ -572,7 +473,7 @@
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
       "NodeType": "BooleanInputNode",
-      "InputValue": false,
+      "InputValue": true,
       "Id": "c3b073f847b94fde9a6c353715b72bc7",
       "Inputs": [],
       "Outputs": [
@@ -587,11 +488,11 @@
         }
       ],
       "Replication": "Disabled",
-      "Description": "Selection between a true and false."
+      "Description": "Enables selection between True and False"
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\SOJ_MTO Length.py",
+      "HintPath": "C:\\Users\\95053\\Desktop\\pyRevit\\RevitAPI\\01_pyRevitAPI\\02_Processing\\SOJ_MTO Length.py",
       "InputValue": ".\\SOJ_MTO Length.py",
       "NodeType": "ExtensionNode",
       "Id": "52414855b217494e95211eb90a4d1392",
@@ -608,7 +509,7 @@
         }
       ],
       "Replication": "Disabled",
-      "Description": "Allows you to select a file on the system to get its filename"
+      "Description": "Allows you to select a file on the system and returns its file path"
     },
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
@@ -628,11 +529,11 @@
         }
       ],
       "Replication": "Disabled",
-      "Description": "Selection between a true and false."
+      "Description": "Enables selection between True and False"
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\filterByPipingSystemInActiveView.py",
+      "HintPath": "C:\\Users\\95053\\Desktop\\pyRevit\\RevitAPI\\01_pyRevitAPI\\02_Processing\\filterByPipingSystemInActiveView.py",
       "InputValue": ".\\filterByPipingSystemInActiveView.py",
       "NodeType": "ExtensionNode",
       "Id": "4678a9fc6f7f47cabab2902dfbb55ac5",
@@ -649,13 +550,14 @@
         }
       ],
       "Replication": "Disabled",
-      "Description": "Allows you to select a file on the system to get its filename"
+      "Description": "Allows you to select a file on the system and returns its file path"
     },
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
       "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\filterByPipingSystemInActiveView.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
+      "EngineName": "IronPython2",
       "VariableInputPorts": true,
       "Id": "fd2b09467b00403fb042517846074231",
       "Inputs": [
@@ -695,6 +597,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
       "Engine": "IronPython2",
+      "EngineName": "IronPython2",
       "VariableInputPorts": true,
       "NodeType": "ExtensionNode",
       "Id": "a184fe427b684f5b9cd06158c2e2141c",
@@ -773,6 +676,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
       "Engine": "IronPython2",
+      "EngineName": "IronPython2",
       "VariableInputPorts": true,
       "NodeType": "ExtensionNode",
       "Id": "0c608a0e7a544e5ea5011be365651190",
@@ -815,6 +719,7 @@
       "NodeType": "PythonScriptNode",
       "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\setPipeSystem.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
+      "EngineName": "IronPython2",
       "VariableInputPorts": true,
       "Id": "378dd13e99d040a5afd1265d8b572fee",
       "Inputs": [
@@ -853,7 +758,7 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\setPipeSystem.py",
+      "HintPath": "C:\\Users\\95053\\Desktop\\pyRevit\\RevitAPI\\01_pyRevitAPI\\02_Processing\\setPipeSystem.py",
       "InputValue": ".\\setPipeSystem.py",
       "NodeType": "ExtensionNode",
       "Id": "2e2e0fb86cd54360a8523d313661606d",
@@ -870,7 +775,7 @@
         }
       ],
       "Replication": "Disabled",
-      "Description": "Allows you to select a file on the system to get its filename"
+      "Description": "Allows you to select a file on the system and returns its file path"
     },
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
@@ -890,358 +795,203 @@
         }
       ],
       "Replication": "Disabled",
-      "Description": "Selection between a true and false."
-    },
-    {
-      "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
-      "Engine": "IronPython2",
-      "VariableInputPorts": true,
-      "NodeType": "ExtensionNode",
-      "Id": "aac0fd780b9d4e94a0f6188735db8ecf",
-      "Inputs": [
-        {
-          "Id": "42a49c61e4a641568dfe4adb843605ba",
-          "Name": "script",
-          "Description": "Python script to run.",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        },
-        {
-          "Id": "5cd93e1408204d2398e97af2c4c1a530",
-          "Name": "IN[0]",
-          "Description": "Input #0",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Outputs": [
-        {
-          "Id": "c85d760e15a842f7b742e972ed6cf665",
-          "Name": "OUT",
-          "Description": "Result of the python script",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Replication": "Disabled",
-      "Description": "Runs a Python script from a string."
-    },
-    {
-      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
-      "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\linkCadToSectionView_v3_241222.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
-      "Engine": "IronPython2",
-      "VariableInputPorts": true,
-      "Id": "3b242dc8aa11448cad9bcddb3ba50901",
-      "Inputs": [
-        {
-          "Id": "4ec1e65668c049f0b0f6cc2699353acc",
-          "Name": "IN[0]",
-          "Description": "Input #0",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        },
-        {
-          "Id": "53079c8027a64870b0dd70a7dddd1ac6",
-          "Name": "IN[1]",
-          "Description": "Input #1",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Outputs": [
-        {
-          "Id": "b14628f6972b4aff8dde4ab2404ca871",
-          "Name": "OUT",
-          "Description": "Result of the python script",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Replication": "Disabled",
-      "Description": "Runs an embedded Python script."
-    },
-    {
-      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
-      "NodeType": "BooleanInputNode",
-      "InputValue": true,
-      "Id": "aa4bd9a82f99431ebd046f0d969d8cdb",
-      "Inputs": [],
-      "Outputs": [
-        {
-          "Id": "1319a3a51a43437c8777636eba6a9c0d",
-          "Name": "",
-          "Description": "Boolean",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Replication": "Disabled",
-      "Description": "Selection between a true and false."
-    },
-    {
-      "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "C:\\Users\\Desktop\\Python\\02_PyRevit\\04_Processing\\RevitAPI\\01_pyRevitAPI\\02_Processing\\linkCadToSectionView_v3_241222.py",
-      "InputValue": ".\\linkCadToSectionView_v3_241222.py",
-      "NodeType": "ExtensionNode",
-      "Id": "50a1ab07839f4289bafdde25c29b2c01",
-      "Inputs": [],
-      "Outputs": [
-        {
-          "Id": "ae38b4429a7d4616bf060187af4c3f1d",
-          "Name": "",
-          "Description": "Filename",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Replication": "Disabled",
-      "Description": "Allows you to select a file on the system to get its filename"
-    },
-    {
-      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Function, DynamoCore",
-      "FunctionSignature": "1fc51e18-478c-4bb2-a997-67f57ac10590",
-      "FunctionType": "Graph",
-      "NodeType": "FunctionNode",
-      "Id": "fef697b4751e463581d6d7b0e6a0ffeb",
-      "Inputs": [
-        {
-          "Id": "41dcbf8088e640458d32946de80cfddb",
-          "Name": "LinkedOnlyImportInstance",
-          "Description": "ImportInstance",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Outputs": [
-        {
-          "Id": "5b503d43facb443cb6c2462cced63a31",
-          "Name": "DWG Filepath",
-          "Description": "return value",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Replication": "Auto",
-      "Description": "Get the full path and name of the linked (not imported) importInstance"
-    },
-    {
-      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Function, DynamoCore",
-      "FunctionSignature": "f33a2628-47bf-401c-8556-68dde68fbec5",
-      "FunctionType": "Graph",
-      "NodeType": "FunctionNode",
-      "Id": "c789d86797df4d78a4553731bb360b40",
-      "Inputs": [
-        {
-          "Id": "8ff4609988ce4ead9c97208efc97eb40",
-          "Name": "VARrefresh",
-          "Description": "bool\nDefault value : false",
-          "UsingDefaultValue": true,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Outputs": [
-        {
-          "Id": "57380fb5974740958137ee5d2965a741",
-          "Name": "VARgt",
-          "Description": "return value",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Replication": "Auto",
-      "Description": "Provides a file path option for use with Dynamo Player."
+      "Description": "Enables selection between True and False"
     }
   ],
   "Connectors": [
     {
       "Start": "6f000ab69e76464ca9c942f41d48f621",
       "End": "6b52ec038350406eb0f532f735dbb881",
-      "Id": "4a7b78fa4243404c8973170cc372e82d"
+      "Id": "4a7b78fa4243404c8973170cc372e82d",
+      "IsHidden": "False"
     },
     {
       "Start": "6f000ab69e76464ca9c942f41d48f621",
       "End": "020ce3d1b3d24f8699fea8b3ffb66138",
-      "Id": "41de795ad7b4467283f3e5fe695398a3"
+      "Id": "41de795ad7b4467283f3e5fe695398a3",
+      "IsHidden": "False"
     },
     {
       "Start": "6f000ab69e76464ca9c942f41d48f621",
       "End": "0b1f62ad39474af08d681ebfd2d9d318",
-      "Id": "8e9ed084b02f4fbfbe0f17b69f8466ff"
+      "Id": "8e9ed084b02f4fbfbe0f17b69f8466ff",
+      "IsHidden": "False"
     },
     {
       "Start": "6f000ab69e76464ca9c942f41d48f621",
       "End": "939199b9afb94b8eb6ea48c6a6f0b9c3",
-      "Id": "59fcfbf1eac641cd8caf77676cc725c8"
+      "Id": "59fcfbf1eac641cd8caf77676cc725c8",
+      "IsHidden": "False"
     },
     {
       "Start": "6f000ab69e76464ca9c942f41d48f621",
       "End": "9332083741b640e181caece6fd36d346",
-      "Id": "87460f049d4942adaca4ff59dabda068"
+      "Id": "87460f049d4942adaca4ff59dabda068",
+      "IsHidden": "False"
     },
     {
       "Start": "6f000ab69e76464ca9c942f41d48f621",
       "End": "4ac5132fad084a6dbc65be2115799d69",
-      "Id": "91482aff7ae841d2b17d2478a927fe1d"
+      "Id": "91482aff7ae841d2b17d2478a927fe1d",
+      "IsHidden": "False"
     },
     {
       "Start": "6f000ab69e76464ca9c942f41d48f621",
       "End": "9b67065d895446a09de999ee1803487d",
-      "Id": "4108699d8c6d4807ada3dbc70abcb77a"
+      "Id": "4108699d8c6d4807ada3dbc70abcb77a",
+      "IsHidden": "False"
     },
     {
       "Start": "6f000ab69e76464ca9c942f41d48f621",
       "End": "6c75eabfebe6441f98f65b4b8394dbbd",
-      "Id": "5eca60a241d6469e9e874c7f66a2819e"
+      "Id": "5eca60a241d6469e9e874c7f66a2819e",
+      "IsHidden": "False"
     },
     {
       "Start": "fab9bb682ad24a06a6395c757392c139",
       "End": "260b88bbbdee4878a7c5a95428f65583",
-      "Id": "89bef44d878e4c8bb697e28e51657714"
+      "Id": "89bef44d878e4c8bb697e28e51657714",
+      "IsHidden": "False"
     },
     {
       "Start": "ffb1756e959f4733ac733fe34131cc5b",
       "End": "744baa03d29548d0a631335b032c8cb4",
-      "Id": "d1ae730d21ae4bf69a77e9965e06be0c"
+      "Id": "d1ae730d21ae4bf69a77e9965e06be0c",
+      "IsHidden": "False"
     },
     {
       "Start": "079de00bac204d6aa76a517dbc581bde",
       "End": "f6005348c303443ebdaf8c474487fa28",
-      "Id": "135009a5dd8a40c8a3f09ba00e77a516"
+      "Id": "135009a5dd8a40c8a3f09ba00e77a516",
+      "IsHidden": "False"
     },
     {
       "Start": "136d167b91304957956b441100e0faf1",
       "End": "daed8c6d9dff44dea868e0737fc48fd4",
-      "Id": "01546fa982ff41098e3751a9c9c10396"
+      "Id": "01546fa982ff41098e3751a9c9c10396",
+      "IsHidden": "False"
     },
     {
       "Start": "3121218788a4410a86fe3810d9acaa02",
       "End": "adc6e7c62e1a4d5aaf45d7a9a397c2a7",
-      "Id": "386a923778ac435bafd7f093f4d85f0a"
+      "Id": "386a923778ac435bafd7f093f4d85f0a",
+      "IsHidden": "False"
     },
     {
       "Start": "4bf03722d53b48569828fbbff83c4114",
       "End": "9a84743bee3c45ea9c6f12e529c1edb5",
-      "Id": "31b9151c32154604bbded6ef6f5fcdb0"
+      "Id": "31b9151c32154604bbded6ef6f5fcdb0",
+      "IsHidden": "False"
     },
     {
       "Start": "1269f5b7ec7c4a4da2bcd9ecf9c36c5b",
       "End": "c8af357be6e84465821e39fc3fa02b11",
-      "Id": "467883de597642c5bf34547a56d5c80b"
+      "Id": "467883de597642c5bf34547a56d5c80b",
+      "IsHidden": "False"
     },
     {
       "Start": "9769032615d8487180df5e2561f60abd",
       "End": "831a11f9a7a249f0be1786758aa07435",
-      "Id": "5425a35e1d854fa4b648c4fb6cd934ed"
+      "Id": "5425a35e1d854fa4b648c4fb6cd934ed",
+      "IsHidden": "False"
     },
     {
       "Start": "1f3389b2a6e74bee9b7912962c7d5bd8",
       "End": "cc6d1c4b2aed41fb946e575b07c6c987",
-      "Id": "3bea4480b37e4eed859e5b0f20dc3ec1"
+      "Id": "3bea4480b37e4eed859e5b0f20dc3ec1",
+      "IsHidden": "False"
     },
     {
       "Start": "10c1cf1ade594686a0666511aac937ed",
       "End": "4021f5e70ffc48cf80e8e1b918a5bb9a",
-      "Id": "882e18fc315845ef915d07d40df65d3e"
+      "Id": "882e18fc315845ef915d07d40df65d3e",
+      "IsHidden": "False"
     },
     {
       "Start": "6b90138f7ad64554984a66839d6f69ce",
       "End": "1ce1d68e498441b091ba63a9e1d8b995",
-      "Id": "b87e8958a7f14e89bdc810f2c1c4ed58"
+      "Id": "b87e8958a7f14e89bdc810f2c1c4ed58",
+      "IsHidden": "False"
     },
     {
       "Start": "af1b8e7d02654f4981576bac3b1abd0c",
       "End": "9172bce51a6248f7a9b4c5929ad944fd",
-      "Id": "28ed179ae0f4445ca9ab81517a86a44b"
+      "Id": "28ed179ae0f4445ca9ab81517a86a44b",
+      "IsHidden": "False"
     },
     {
       "Start": "f16c01aa5c2749649690fe98507e0d5e",
       "End": "8ebd194ca05447bba3e345a5cc2dc341",
-      "Id": "9ff3408a54164ff9b81c847fcf502e67"
-    },
-    {
-      "Start": "b14628f6972b4aff8dde4ab2404ca871",
-      "End": "42a49c61e4a641568dfe4adb843605ba",
-      "Id": "26519f5ebe8747d2bb8e9267e8aa5c9e"
-    },
-    {
-      "Start": "1319a3a51a43437c8777636eba6a9c0d",
-      "End": "4ec1e65668c049f0b0f6cc2699353acc",
-      "Id": "910273ed5ef44c83bc6963185eef80b6"
-    },
-    {
-      "Start": "ae38b4429a7d4616bf060187af4c3f1d",
-      "End": "53079c8027a64870b0dd70a7dddd1ac6",
-      "Id": "ffb8fef1b1f5415e8b017daaf94af0fd"
+      "Id": "9ff3408a54164ff9b81c847fcf502e67",
+      "IsHidden": "False"
     }
   ],
-  "Dependencies": [
-    "5fea20fa-9652-4d53-887c-1d8e6e71666a",
-    "1fc51e18-478c-4bb2-a997-67f57ac10590",
-    "f33a2628-47bf-401c-8556-68dde68fbec5"
-  ],
+  "Dependencies": [],
   "NodeLibraryDependencies": [
     {
-      "Name": "Crumple",
-      "Version": "2022.5.27",
-      "ReferenceType": "Package",
+      "Name": "OKB01.py",
+      "ReferenceType": "External",
       "Nodes": [
-        "372919477f364cacab4a8a0da522ce42"
+        "2defdaf2569249fba5bec6695ea32875"
       ]
     },
     {
-      "Name": "LinkDWG2",
-      "Version": "0.4.18",
-      "ReferenceType": "Package",
+      "Name": "SOJ_MTO Length.py",
+      "ReferenceType": "External",
       "Nodes": [
-        "fef697b4751e463581d6d7b0e6a0ffeb"
+        "52414855b217494e95211eb90a4d1392"
       ]
     },
     {
-      "Name": "Synthesize toolkit",
-      "Version": "6.7.9",
-      "ReferenceType": "Package",
+      "Name": "filterByPipingSystemInActiveView.py",
+      "ReferenceType": "External",
       "Nodes": [
-        "c789d86797df4d78a4553731bb360b40"
+        "4678a9fc6f7f47cabab2902dfbb55ac5"
+      ]
+    },
+    {
+      "Name": "setPipeSystem.py",
+      "ReferenceType": "External",
+      "Nodes": [
+        "2e2e0fb86cd54360a8523d313661606d"
       ]
     }
   ],
+  "Thumbnail": null,
+  "GraphDocumentationURL": null,
+  "ExtensionWorkspaceData": [
+    {
+      "ExtensionGuid": "28992e1d-abb9-417f-8b1b-05e053bee670",
+      "Name": "Properties",
+      "Version": "2.17",
+      "Data": {}
+    },
+    {
+      "ExtensionGuid": "DFBD9CC0-DB40-457A-939E-8C8555555A9D",
+      "Name": "Generative Design",
+      "Version": "4.0",
+      "Data": {}
+    }
+  ],
+  "Author": "None provided",
+  "Linting": {
+    "activeLinter": "None",
+    "activeLinterId": "7b75fb44-43fd-4631-a878-29f4d5d8399a",
+    "warningCount": 0,
+    "errorCount": 0
+  },
   "Bindings": [],
   "View": {
     "Dynamo": {
       "ScaleFactor": 1.0,
       "HasRunWithoutCrash": true,
       "IsVisibleInDynamoLibrary": true,
-      "Version": "2.10.1.3976",
+      "Version": "2.17.0.3472",
       "RunType": "Automatic",
       "RunPeriod": "1000"
     },
     "Camera": {
-      "Name": "Background Preview",
+      "Name": "_Background Preview",
       "EyeX": -24.364612579345703,
       "EyeY": 26.790037155151367,
       "EyeZ": 32.939666748046875,
@@ -1252,10 +1002,11 @@
       "UpY": 0.93482577800750732,
       "UpZ": -0.285494327545166
     },
+    "ConnectorPins": [],
     "NodeViews": [
       {
-        "ShowGeometry": true,
         "Name": "Python Script From String",
+        "ShowGeometry": true,
         "Id": "5a2470c39c7c45ceb2474329ec45070c",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -1264,8 +1015,8 @@
         "Y": 312.667099183458
       },
       {
-        "ShowGeometry": true,
         "Name": "Python Script",
+        "ShowGeometry": true,
         "Id": "f81eacff842749f9a23df221c6befe90",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -1274,8 +1025,8 @@
         "Y": 326.35358881355518
       },
       {
-        "ShowGeometry": true,
         "Name": "Boolean",
+        "ShowGeometry": true,
         "Id": "f40ff1a66f0d495b81d6f86c6b863489",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -1284,8 +1035,8 @@
         "Y": 250.21989008773596
       },
       {
-        "ShowGeometry": true,
         "Name": "File Path",
+        "ShowGeometry": true,
         "Id": "2defdaf2569249fba5bec6695ea32875",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -1294,8 +1045,8 @@
         "Y": 346.742201471617
       },
       {
-        "ShowGeometry": true,
         "Name": "Code Block",
+        "ShowGeometry": true,
         "Id": "9060e0b564c642f58a941d74c2c199fc",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -1304,8 +1055,8 @@
         "Y": 19.790362947225816
       },
       {
-        "ShowGeometry": true,
         "Name": "Code Block",
+        "ShowGeometry": true,
         "Id": "2a06fe09b27649389197cf108a35bb00",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -1314,8 +1065,8 @@
         "Y": 228.81215098374003
       },
       {
-        "ShowGeometry": true,
         "Name": "Code Block",
+        "ShowGeometry": true,
         "Id": "9e2397915d9a42a6968e990c80ffb846",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -1324,8 +1075,8 @@
         "Y": 363.51387510757144
       },
       {
-        "ShowGeometry": true,
         "Name": "Code Block",
+        "ShowGeometry": true,
         "Id": "01667ebf3494460b98693d01ce714185",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -1334,8 +1085,8 @@
         "Y": 587.667202267444
       },
       {
-        "ShowGeometry": true,
         "Name": "Code Block",
+        "ShowGeometry": true,
         "Id": "d0e800006dcc42aab00794e34476a228",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -1344,8 +1095,8 @@
         "Y": 889.80880381883117
       },
       {
-        "ShowGeometry": true,
         "Name": "Code Block",
+        "ShowGeometry": true,
         "Id": "adfa55ff61bc41c5952a117d7623fb44",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -1354,8 +1105,8 @@
         "Y": 734.60595098422084
       },
       {
-        "ShowGeometry": true,
         "Name": "Code Block",
+        "ShowGeometry": true,
         "Id": "47f68ab6e36047ac967ca7d14e6566b5",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -1364,8 +1115,8 @@
         "Y": 693.52440204644631
       },
       {
-        "ShowGeometry": true,
         "Name": "Code Block",
+        "ShowGeometry": true,
         "Id": "0cb21b60d6024f45aca4293bbaf4937f",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -1374,68 +1125,58 @@
         "Y": 684.58768766490641
       },
       {
-        "ShowGeometry": true,
-        "Name": "© Excel.Import+",
-        "Id": "372919477f364cacab4a8a0da522ce42",
-        "IsSetAsInput": false,
-        "IsSetAsOutput": false,
-        "Excluded": true,
-        "X": -39.292244257578318,
-        "Y": 48.891969053501271
-      },
-      {
-        "ShowGeometry": true,
         "Name": "Python Script From String",
+        "ShowGeometry": true,
         "Id": "142e8276f479441f9c582800209d0c48",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": -10.735821974450346,
-        "Y": 729.54446286881728
+        "X": -32.524268431964629,
+        "Y": 649.02194335191621
       },
       {
-        "ShowGeometry": true,
         "Name": "Python Script",
+        "ShowGeometry": true,
         "Id": "ee5fb4e7d0fa4ff096b84fa637acfcc4",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": -227.72116101239067,
-        "Y": 787.413613491174
+        "X": -286.24102307315229,
+        "Y": 650.86726868273
       },
       {
-        "ShowGeometry": true,
         "Name": "Boolean",
+        "ShowGeometry": true,
         "Id": "c3b073f847b94fde9a6c353715b72bc7",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": true,
-        "X": -580.93931355981965,
-        "Y": 711.00817314304572
+        "Excluded": false,
+        "X": -577.92262771287608,
+        "Y": 550.41938038603291
       },
       {
-        "ShowGeometry": true,
         "Name": "File Path",
+        "ShowGeometry": true,
         "Id": "52414855b217494e95211eb90a4d1392",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": -589.66848262183157,
-        "Y": 807.802226149236
+        "X": -564.0660429702483,
+        "Y": 700.51581237117284
       },
       {
-        "ShowGeometry": true,
         "Name": "Boolean",
+        "ShowGeometry": true,
         "Id": "49ee9cbc42224a66bcb52ef676c08216",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": -565.06818532885973,
-        "Y": 951.92606809605991
+        "X": -576.04065946525259,
+        "Y": 932.41944740913925
       },
       {
-        "ShowGeometry": true,
         "Name": "File Path",
+        "ShowGeometry": true,
         "Id": "4678a9fc6f7f47cabab2902dfbb55ac5",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -1444,8 +1185,8 @@
         "Y": 1048.4460188835594
       },
       {
-        "ShowGeometry": true,
         "Name": "Python Script",
+        "ShowGeometry": true,
         "Id": "fd2b09467b00403fb042517846074231",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -1454,8 +1195,8 @@
         "Y": 1027.1560620299481
       },
       {
-        "ShowGeometry": true,
         "Name": "Python Script From String",
+        "ShowGeometry": true,
         "Id": "a184fe427b684f5b9cd06158c2e2141c",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -1464,18 +1205,18 @@
         "Y": 1028.7924237241859
       },
       {
-        "ShowGeometry": true,
         "Name": "Code Block",
+        "ShowGeometry": true,
         "Id": "2a3b07bfd46847afaa37b9ac47dce1ed",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": -573.67260834616991,
-        "Y": 1167.2144499065296
+        "X": -605.3708669624159,
+        "Y": 1214.7618378308987
       },
       {
-        "ShowGeometry": true,
         "Name": "Python Script From String",
+        "ShowGeometry": true,
         "Id": "0c608a0e7a544e5ea5011be365651190",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
@@ -1484,99 +1225,39 @@
         "Y": 1335.2541984691745
       },
       {
-        "ShowGeometry": true,
         "Name": "Python Script",
+        "ShowGeometry": true,
         "Id": "378dd13e99d040a5afd1265d8b572fee",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": -241.18941473527514,
-        "Y": 1411.9982905927498
+        "X": -248.80967082356096,
+        "Y": 1364.5833638211932
       },
       {
-        "ShowGeometry": true,
         "Name": "File Path",
+        "ShowGeometry": true,
         "Id": "2e2e0fb86cd54360a8523d313661606d",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": -603.13673634471616,
-        "Y": 1433.2882474463602
+        "X": -610.89210661456434,
+        "Y": 1473.7885144111233
       },
       {
-        "ShowGeometry": true,
         "Name": "Boolean",
+        "ShowGeometry": true,
         "Id": "6d8cad3c7f954450ac52893f83f0d6b2",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
         "X": -594.40756728270412,
         "Y": 1335.3205999280044
-      },
-      {
-        "ShowGeometry": true,
-        "Name": "Python Script From String",
-        "Id": "aac0fd780b9d4e94a0f6188735db8ecf",
-        "IsSetAsInput": false,
-        "IsSetAsOutput": false,
-        "Excluded": false,
-        "X": 186.06403284046417,
-        "Y": 1636.82065407345
-      },
-      {
-        "ShowGeometry": true,
-        "Name": "Python Script",
-        "Id": "3b242dc8aa11448cad9bcddb3ba50901",
-        "IsSetAsInput": false,
-        "IsSetAsOutput": false,
-        "Excluded": false,
-        "X": 11.09315019611131,
-        "Y": 1615.704153275185
-      },
-      {
-        "ShowGeometry": false,
-        "Name": "Boolean",
-        "Id": "aa4bd9a82f99431ebd046f0d969d8cdb",
-        "IsSetAsInput": false,
-        "IsSetAsOutput": false,
-        "Excluded": true,
-        "X": -367.84691317679335,
-        "Y": 1555.2722474282116
-      },
-      {
-        "ShowGeometry": true,
-        "Name": "File Path",
-        "Id": "50a1ab07839f4289bafdde25c29b2c01",
-        "IsSetAsInput": false,
-        "IsSetAsOutput": false,
-        "Excluded": false,
-        "X": -420.83421237540944,
-        "Y": 1653.1016245433898
-      },
-      {
-        "ShowGeometry": true,
-        "Name": "DWGFilepath",
-        "Id": "fef697b4751e463581d6d7b0e6a0ffeb",
-        "IsSetAsInput": false,
-        "IsSetAsOutput": false,
-        "Excluded": true,
-        "X": -753.51747841183,
-        "Y": 2022.3330830663126
-      },
-      {
-        "ShowGeometry": true,
-        "Name": "RH.FilePath",
-        "Id": "c789d86797df4d78a4553731bb360b40",
-        "IsSetAsInput": false,
-        "IsSetAsOutput": false,
-        "Excluded": true,
-        "X": -817.08272423418725,
-        "Y": 2111.8897516306447
       }
     ],
     "Annotations": [],
-    "X": 418.11850022290565,
-    "Y": -596.9879941475341,
-    "Zoom": 0.51298386700068666
+    "X": 685.17355565796572,
+    "Y": -485.88101253909565,
+    "Zoom": 1.0817540587335523
   }
 }
