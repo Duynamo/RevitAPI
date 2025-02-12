@@ -108,6 +108,19 @@ for pipe in pipeCollector:
     else: pass
 #endregion
 
+#region set elbow FVC_Angle
+pipeFittingsCollector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeFitting).WhereElementIsNotElementType().ToElements()
+for fitting in pipeFittingsCollector:
+    fittingAngleCheck = fitting.LookupParameter("Angle")
+    if fittingAngleCheck is not None:
+        fittingAngle = fittingAngleCheck.AsDouble()
+        fitting_FVC_Angle = fitting.LookupParameter("FVC_Angle")
+        TransactionManager.Instance.EnsureInTransaction(doc)
+        fitting_FVC_Angle.Set(fittingAngle)
+        TransactionManager.Instance.TransactionTaskDone()
+    else: pass
+
+#endregion
 
 
 OUT = eleList, pipeCollector, pipeParam
