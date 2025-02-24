@@ -13,6 +13,7 @@ from Autodesk.Revit.DB.Structure import*
 
 clr.AddReference("RevitAPIUI") 
 from Autodesk.Revit.UI import*
+from Autodesk.Revit.UI.Selection import ISelectionFilter
 
 clr.AddReference("System") 
 from System.Collections.Generic import List
@@ -35,22 +36,17 @@ import System.Windows.Forms
 from System.Windows.Forms import *
 import System.Drawing
 from System.Drawing import *
-
+"""___"""
+doc = DocumentManager.Instance.CurrentDBDocument
+uiapp = DocumentManager.Instance.CurrentUIApplication
+app = uiapp.Application
+uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
+view = doc.ActiveView
 """___"""
 class ISelectionFilter_ModelLine(Autodesk.Revit.UI.Selection.ISelectionFilter):
 	def AllowElement(self, element):
 		if type(element) == ModelLine:
 			return True
-
-#Create midpoints between 2 refpoints
-def MidPointsBySegment(P1, P2, segment_length):
-	count = P1.DistanceTo(P2)//(segment_length/304.8)
-	direction = (P2-P1).Normalize()
-	midPoints = []
-	for i in range(int(count)):
-		point = P1.Add(direction.Multiply((i+1)*segment_length/304.8))
-		midPoints.append(point)
-	return midPoints
 
 #region pickPoints
 def pickPoints(doc):
@@ -79,12 +75,6 @@ def pickPoints(doc):
 	TransactionManager.Instance.TransactionTaskDone()			
 	return dynPList, pointsList
 #endregion
-
-#Create sections along ModelLine
-class ISelectionFilter_ModelLine(Autodesk.Revit.UI.Selection.ISelectionFilter):
-	def AllowElement(self, element):
-		if type(element) == ModelLine:
-			return True
 
 #Create midpoints between 2 refpoints
 def MidPointsBySegment(P1, P2, segment_length):
@@ -148,81 +138,75 @@ def pipeCreateFromPoints(desPointsList, sel_pipingSystem, sel_PipeType, sel_Leve
     return pipesList
 #endregion
 
-#region ______to connect pipes by Elbows
-def createElbows(pipes):
-    fittings = []
-    connectors = {}
-    connlist = []    
-    for pipe in pipes:
-        conns = pipe.ConnectorManager.Connectors
-        for conn in conns:
-            if conn.IsConnected:
-                continue
-            connectors[conn] = None
-            connlist.append(conn)
-    for k in connectors.keys():
-        mindist = 1000000
-        closest = None
-        for conn in connlist:
-            if conn.Owner.Id.Equals(k.Owner.Id):
-                continue
-            dist = k.Origin.DistanceTo(conn.Origin)
-            if dist < mindist:
-                mindist = dist
-                closest = conn
-        if mindist > margin:
-            continue
-        connectors[k] = closest
-        connlist.remove(closest)
-        try:
-            del connectors[closest]
-        except:
-            pass
-    for k,v in connectors.items():
-        TransactionManager.Instance.EnsureInTransaction(doc)		
-        try:
-            fitting = doc.Create.NewElbowFitting(k,v)
-            fittings.append(fitting.ToDSType(False))
-        except:
-            pass
-        TransactionManager.Instance.TransactionTaskDone()
-    return fittings
-    #endregion
 
 #Create sections along ModelLine
-segment_length = 1000
-points = pickPoints(doc)
-section_names = []
-for i in range(len(points)-1):
-	refPoints_start = points[i]
-	refPoints_end = points[i+1]
-	section_points = MidPointsBySegment(refPoints_start, refPoints_end, segment_length)
-	direction_vector = (refPoints_end-refPoints_start).Normalize()
-	for point in section_points:
-		new_section = CreateViewSectionAtPoint(doc, point, direction_vector, 5000, 5000, 100)
-		section_names.append(new_section)
-      
-def closetConn(mPipe, bPipe):
-    connectors1 = list(bPipe.ConnectorManager.Connectors.GetEnumerator())
-    Connector1 = NearestConnector(connectors1, mPipe)
-    XYZconn	= Connector1.Origin
-    return XYZconn
+# segment_length = 1000
+# points = pickPoints(doc)
+# section_names = []
+# for i in range(len(points)-1):
+# 	refPoints_start = points[i]
+# 	refPoints_end = points[i+1]
+# 	section_points = MidPointsBySegment(refPoints_start, refPoints_end, segment_length)
+# 	direction_vector = (refPoints_end-refPoints_start).Normalize()
+# 	for point in section_points:
+# 		new_section = CreateViewSectionAtPoint(doc, point, direction_vector, 5000, 5000, 100)
+# 		section_names.append(new_section)
+#region pickPipe and create elbow
+class selectionFilter(ISelectionFilter):
+	def __init__(self, category):
+		self.category = category
+	def AllowElement(self, element):
+		if element.Category.Name == self.category:
+			return True
+		else:
+			return False
+def pickPipes():
+	pipes = []
+	pipeFilter = selectionFilter("Pipes")
+	pipesRef = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Element, pipeFilter,"pick Pipes")
+	for ref in pipesRef:
+		pipe = doc.GetElement(ref.ElementId)
+		pipes.append(pipe)
+	return pipes	      
 #endregion
-#region ___get 3 closest connectors of 3 pipe
-def NearestConnector(ConnectorSet, curCurve):
-    MinLength = float("inf")
-    result = None  # Initialize result to None
-    for n in ConnectorSet:
-        distance = curCurve.Location.Curve.Distance(n.Origin)
-        if distance < MinLength:
-            MinLength = distance
-            result = n
-    return result
+def closestConn1(pipe1, pipe2):
+    if not pipe1 or not pipe2:
+        return None, None
+    connectors1 = pipe1.ConnectorManager.Connectors
+    connectors2 = pipe2.ConnectorManager.Connectors
+    min_distance = float('inf')
+    closest_conn1 = None
+    closest_conn2 = None
+    
+    for conn1 in connectors1:
+        if conn1.IsConnected:
+            continue
+        for conn2 in connectors2:
+            if conn2.IsConnected:
+                continue
+            distance = conn1.Origin.DistanceTo(conn2.Origin)
+            if distance < min_distance:
+                min_distance = distance
+                closest_conn1 = conn1
+                closest_conn2 = conn2
+    
+    return closest_conn1, closest_conn2
+"""___"""
+# pipingSystems = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipingSystem).ToElements()
+# pipeType = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeSegment).ToElements()
+# refLevel = FilteredElementCollector(doc).OfClass(Level).ToElements
 
-pipingSystems = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipingSystem).ToElements()
-pipeType = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeSegment).ToElements()
-refLevel = FilteredElementCollector(doc).OfClass(Level).ToElements
 
-
-
-OUT = section_names
+pipes = pickPipes()
+# conn1 = closetConn(pipes[0], pipes[1])
+# conn2 = closetConn(pipes[1], pipes[0])
+closestConns = closestConn1(pipes[0], pipes[1])
+TransactionManager.Instance.EnsureInTransaction(doc)		
+fittings = []
+try:
+    fitting = doc.Create.NewElbowFitting(closestConns[0], closestConns[1])
+    fittings.append(fitting.ToDSType(False))
+except:
+    pass
+TransactionManager.Instance.TransactionTaskDone()
+OUT = fittings, conn2, conn1

@@ -656,7 +656,27 @@ def closetConn(mPipe, bPipe):
     vector = connLst[1].ToRevitType()-connLst[0].ToRevitType()
     return Flatten(connLst), vector.ToVector()
 #endregion
-
+#region nearConn v2
+def closestConn(pipe1, pipe2):
+    if not pipe1 or not pipe2:
+        return None
+    connectors1 = pipe1.ConnectorManager.Connectors
+    connectors2 = pipe2.ConnectorManager.Connectors
+    min_distance = float('inf')
+    closest_connector = None
+    
+    for conn1 in connectors1:
+        if conn1.IsConnected:  # Bỏ qua connector đã kết nối
+            continue
+        for conn2 in connectors2:
+            if conn2.IsConnected:
+                continue
+            distance = conn1.Origin.DistanceTo(conn2.Origin)
+            if distance < min_distance:
+                min_distance = distance
+                closest_connector = conn1
+    return closest_connector
+#endregion
 #region ______to create pipe from list points
 def pipeCreateFromPoints(desPointsList, sel_pipingSystem, sel_PipeType, sel_Level, diameter):
     lst_Points1 = [i for i in desPointsList]
