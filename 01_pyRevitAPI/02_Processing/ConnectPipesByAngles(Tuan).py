@@ -18,11 +18,13 @@ import Autodesk
 from Autodesk.Revit import * 
 from Autodesk.Revit.DB import XYZ,Transaction,FilteredElementCollector,BuiltInCategory,BuiltInParameter,Plane,SketchPlane
 from Autodesk.Revit.UI.Selection import ISelectionFilter
+
 doc = DocumentManager.Instance.CurrentDBDocument
 uiapp = DocumentManager.Instance.CurrentUIApplication
 app = uiapp.Application
 uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
+
 pipes_list=Autodesk.Revit.DB.FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipingSystem).ToElements()
 types=FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeCurves).WhereElementIsElementType().ToElements()
 level_ids=FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Levels).WhereElementIsNotElementType().ToElements()
@@ -145,10 +147,10 @@ def get_pipes_param(pipe1,pipe2):
     for con in connectors2:
         if con not in temp:
             connectors.append(con)
-    A=connectors[0]
-    B=connectors[1]
-    C=connectors[2]
-    D=connectors[3]
+    A=connectors[0] #nearconn 1 of pipe1
+    B=connectors[1] #nearconn 1 of pipe2
+    C=connectors[2] #nearconn 2 of pipe1
+    D=connectors[3] #nearconn 2 of pipe2
     verify()
     return 0
 def create_connectors(con,con1):
