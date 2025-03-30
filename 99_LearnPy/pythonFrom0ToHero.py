@@ -113,5 +113,58 @@ intersectionSet = my_Set_1.intersection(my_Set_2) #lấy giao 2 Set
 unionSet = my_Set_1.union(my_Set_2) #Lấy hợp 2 Set
 symmetricSet = my_Set_1.symmetric_difference(my_Set_2) #lấy các phần tử chỉ có ở riêng mỗi set
 #endregion
-print(symmetricSet)
+
+#region cau truc if else
+# num1 = int(input('Nhap so can kiem tra: '))
+# if num1 % 2 == 0:
+#     print(f'so can kiem tra {num1} la so chan')
+# else:
+#     print (f'so can kiem tra {num1} la so le')
 #endregion
+
+#region loop
+#for loop -> dùng khi biết trước số lần lặp
+# list1 = [1,2,3,4,5,6]
+# for i in range(len(list1)):
+#     print(f'{i} : {list1[i]}')
+
+#while loop -> dùng khi chưa biết trước số lần lặp, và lặp đến khi điều kiện còn đúng
+# checkNum = 1
+# while checkNum < 5 :
+#     print ('ok')
+#     checkNum += 1
+
+#break and continue. 
+list2 = [1,2,3,4]
+# for i in range(len(list2)):
+    # if i == 5:
+    #     break
+    # else:
+    #     print(i)
+    # if i == 3 :
+    #     continue
+    # print(f'{i} : {list2[i]}')
+
+#endregion
+
+#region def
+import shutil
+import os
+
+def copyFile(sourceDir, desDir):
+    list_name = os.listdir(sourceDir)
+
+    for file_name in list_name:
+        shutil.copy(os.path.join(sourceDir, file_name), os.path.join(desDir, file_name))
+    return 
+# des_dir = r"C:\Users\Laptop\OneDrive\Desktop\testFolder2"
+# source_dir = r"C:\Users\Laptop\OneDrive\Desktop\testFolder1"
+# a = copyFile(source_dir , des_dir)
+
+#endregion
+# print(symmetricSet)
+#endregion
+
+def display_info(name, age):  
+    print(f"Name: {name}, Age: {age}")  
+a = display_info(age=25, name="Alice")
