@@ -162,9 +162,128 @@ def copyFile(sourceDir, desDir):
 # a = copyFile(source_dir , des_dir)
 
 #endregion
-# print(symmetricSet)
+#region _file handling in python
+#region _ đọc file
+#thủ công
+file_obj1 = open(r'C:\Users\Laptop\OneDrive\Desktop\testFolder2\testABC.txt')
+content = file_obj1.read()
+# print(content)
+file_obj1.close()
+
+#context manager
+with open(r"C:\Users\Laptop\OneDrive\Desktop\testFolder2\testABC.txt") as file_object2:
+    content = file_object2.read()
+    # print (content)
 #endregion
 
-def display_info(name, age):  
-    print(f"Name: {name}, Age: {age}")  
-a = display_info(age=25, name="Alice")
+#region _ghi file
+# import os
+
+# # Đường dẫn thư mục và tên tệp
+# folder_path = r"C:\Users\Laptop\OneDrive\Desktop\testFolder2"
+# file_name = "newfile.txt"
+# full_path = os.path.join(folder_path, file_name)
+
+# # Đảm bảo thư mục tồn tại
+# if not os.path.exists(folder_path):
+#     os.makedirs(folder_path)
+#     print(f"Created directory: {folder_path}")
+
+# # Ghi vào tệp
+# with open(full_path, 'w') as f:
+#     f.write("Hello world")
+#     print(f"Wrote 'Hello world' to {full_path}")
+
+# #endregion
+
+# #region _appen vào file
+# folder_path1 = r"C:\Users\Laptop\OneDrive\Desktop\testFolder2"
+# file_name1  =  'testABC - Copy.txt'
+# full_path1 = os.path.join(folder_path1,file_name1)
+# with open(full_path1 , 'a') as f:
+#     f.write('\n Duy dep trai')
+#endregion
+
+#region List comprehension
+#1 Tổng quan
+#print ([x**x for x in [1,2,3,4]])
+
+#2 Filter element
+#[expression for item in iterable if condition]
+# print([x**2 for x in [1,2,23,4444,22,22222,45465] if x%2 ==0])
+
+#3 apply function to each element
+#[expresion1 if condition == True else expresion2 for item in iterable]
+# print ([x + 1 if x % 2 == 0 else x + 2 for x in [1,2,3,4,5]])
+
+#4 Dictionary comprehension
+#[k:v for item in iterable]
+# print ({k: k+10 for k in [1,2,3,4,5,6]})
+
+#5 Set comprehension
+#{item for item in iterable}
+# print({x for x in 'Duy dep trai'})
+
+def flatten(listA):
+    """
+    Flatten all nested lists or tuples within listA into a single flat list.
+    """
+    if not isinstance(listA, (list, tuple)):
+        raise ValueError("Input must be a list or tuple")
+    
+    flat_list = []
+    for item in listA:
+        if isinstance(item, (list, tuple)):
+            flat_list.extend(flatten(item))
+        else:
+            flat_list.append(item)
+    return flat_list
+
+flat1 = 1
+# Ví dụ
+# print(flatten([1, (2, [3, 4]), 5])) 
+
+#endregion
+
+#endregion
+#region xu ly ngoai le
+# try:
+#     num = int(input('Nhap so A: '))
+#     result = 100/num
+# except ZeroDivisionError:
+#     print('ko the thuc hien phep chia cho 0')
+#     print(int(input('Nhap lai so A: ')))
+# except ValueError:
+#     print('so vua nhap ko hop le')
+#     print(int(input('Nhap lai so A: ')))
+# else:
+#     print(f'so vua nhap hop le, ket qua phep chia la{result}')
+# finally:
+#     print('xin chao va hen gap lai')
+#endregion
+#region OOP
+class person:
+    #class attribute - đặc trưng toàn bộ class
+    count = 0
+    #hàm khởi tạo
+    def __init__(self, name, age):
+        self.name = name #self.name chính là instance attribute gắn liền với từng đối tượng
+        self.age = age
+        person.count += 1
+    #định nghĩa method
+    def printOut(self):
+        print(f'Name : {self.name} Age:{self.age}') 
+
+#Tạo các đối tượng
+per1 = person('Duy', 100)
+per2 = person('Tuc', 1000)        
+
+print(person.count)
+
+print(f'Thong tin nguoi thu nhat la: {per1.name}, tuoi la {per1.age}')
+#endreion
+
+
+#endregion
+
+
