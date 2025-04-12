@@ -532,11 +532,33 @@ acc = 0.22652654
 name2 = 'LONG'
 loc2 = 'HaNoi'
 acc2  = 0.369845875454894564654654856 
-print(f'My name is {name2}. I am living in {loc2}!. Rat vui duoc gap ban')
-print(f'Do chinh xac la {acc:.5f}!')
+# print(f'My name is {name2}. I am living in {loc2}!. Rat vui duoc gap ban')
+# print(f'Do chinh xac la {acc:.5f}!')
 #NOTE: Template string
 from string import Template
 name3 = 'Linh'
 t = Template('Hello, $name3.')
-print(t.substitute(name3 = name3))
+# print(t.substitute(name3 = name3))
+#endregion
+
+#region _Lambda 
+#NOTE: sort list
+lst1 =  ['Long', 'Khanh','Dao','Vy']
+print(sorted(lst1, key=lambda x: len(x), reverse=False))
+
+#NOTE: filter(func, list)
+lst2 = [1,2,3,4,5,6,7,8,9,10]
+filter_lst2 = list(filter(lambda x: x%2 == 0, lst2))
+print(filter_lst2)
+
+#NOTE: map(func,iterable)
+lst3 = [1,2,3,4,5,6,7,8,9,10]
+new_lst3 = list(map(lambda x: x+3, lst3))
+print(new_lst3)
+
+#NOTE: reduce(func, iterable)
+from functools import reduce
+lst4 = [1,2,3,4,5,6,7,8,9,10]
+result = reduce(lambda x,y : x+y , lst4)
+print(result)
 #endregion

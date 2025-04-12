@@ -1,0 +1,10 @@
+{
+     "name": "Duy",
+     "age": 1000,
+     "loc": "Da Nang",
+     "hobbies": [
+          "eating",
+          "playing",
+          "reading"
+     ]
+}
