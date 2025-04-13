@@ -212,7 +212,6 @@ def flatten(nestedList):
         else:
             flatList.append(item)
     return flatList
-
 def createElbow(doc, pipes):
     elbowList = []
     bestConns = []
@@ -314,90 +313,6 @@ def find_closest_connector(mainPipe, branchPipe):
         return closest_conn, closest_xyz
     except Exception as e:
         return None, None
-def create_tee_fitting(doc, mainPipe, branchPipe):
-    """
-    Tạo Tee fitting để nối ống nhánh vào ống chính mà không xóa ống chính.
-    
-    Args:
-        doc: Active Revit Document
-        mainPipe: Pipe chính (Pipe object)
-        branchPipe: Pipe nhánh (Pipe object)
-    
-    Returns:
-        Tee fitting được tạo (hoặc None nếu lỗi)
-    """
-    # Kiểm tra đầu vào
-    # Bắt đầu giao dịch
-    t = Transaction(doc, "Create Tee Fitting")
-    t.Start()
-    try:
-        # Tìm connector gần nhất của branchPipe
-        branch_conn, branch_xyz = find_closest_connector(mainPipe, branchPipe)
-        if branch_conn is None:
-            t.RollBack()
-            return None
-        # Lấy đường cong của mainPipe
-        main_curve = mainPipe.Location.Curve
-        if not main_curve:
-            t.RollBack()
-            return None
-        # Tìm điểm giao nhau trên mainPipe
-        projection = main_curve.Project(branch_xyz)
-        if projection is None:
-            t.RollBack()
-            return None
-        split_point = projection.XYZPoint
-        # Kiểm tra khoảng cách
-        distance = branch_xyz.DistanceTo(split_point)
-        if distance > 0.1:  # Đơn vị feet
-            t.RollBack()
-            return None
-        # Lấy thông tin mainPipe
-        main_pipe_type = mainPipe.PipeType
-        main_level = mainPipe.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
-        main_system_type = mainPipe.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
-        # Lấy hai đầu của mainPipe
-        main_start = main_curve.GetEndPoint(0)
-        main_end = main_curve.GetEndPoint(1)   
-        # Tạo hai đoạn ống mới thay thế mainPipe
-        pipe1 = doc.Create.NewPipe(main_start, split_point, main_pipe_type)
-        pipe1.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).Set(main_level)
-        pipe1.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).Set(main_system_type)
-        
-        pipe2 = doc.Create.NewPipe(split_point, main_end, main_pipe_type)
-        pipe2.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).Set(main_level)
-        pipe2.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).Set(main_system_type)
-        
-        # Lấy connector của hai đoạn ống tại split_point
-        pipe1_conns = list(pipe1.ConnectorManager.Connectors)
-        pipe2_conns = list(pipe2.ConnectorManager.Connectors)
-        
-        conn1 = None
-        conn2 = None
-        for c1 in pipe1_conns:
-            if c1.Origin.IsAlmostEqualTo(split_point, 0.01):
-                conn1 = c1
-        for c2 in pipe2_conns:
-            if c2.Origin.IsAlmostEqualTo(split_point, 0.01):
-                conn2 = c2
-        
-        if conn1 is None or conn2 is None:
-            t.RollBack()
-            return None
-        
-        # Tạo Tee fitting
-        tee_fitting = doc.Create.NewTeeFitting(conn1, conn2, branch_conn)
-        
-        # Xóa mainPipe cũ
-        doc.Delete(mainPipe.Id)
-        t.Commit()
-        return tee_fitting
-        
-    except Exception as e:
-        t.RollBack()
-        return None
-#endregion
-
 #endregion
 #region input Value
 mPipe   = pickPipe()
@@ -406,41 +321,56 @@ bPipe	= pickPipe()
 #region input Angle
 class MyForm(Form):
     def __init__(self):
+        #NOTE: Để tạo UI có kích thước tương đối so với màn hình làm việc
+            #  Ta dùng Screen.PrimaryScreen.WorkingArea
+        primary_screen = Screen.PrimaryScreen.WorkingArea
+        screen_width = primary_screen.Width // 5
+        screen_height = primary_screen.Height // 6
         self.Text = ''
-        self.Size = Size(300, 180)
+        self.ClientSize = Size(screen_width, screen_height)
         self.Font = System.Drawing.Font("Meiryo UI", 7.5, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
         self.ForeColor = System.Drawing.Color.Red     
         # Create and add label
         self.label = Label()
-        self.label.Text = "Angle"
-        self.label.Size = Size(260,20)
-        self.label.Location = Point(10, 10)
+        self.label.Text = "ANGLE"
+        self.label.Size = Size(screen_width // 2, 50)
+        self.label.Location = Point(20, 20)
         self.Controls.Add(self.label)
         # Create and add text box
         self.textBox = TextBox()
-        self.textBox.Location = Point(10, 40)
-        self.textBox.Size = Size(260, 20)
+        self.textBox.Location = Point(30, 70)
+        self.textBox.Size = Size(screen_width // 1.1, 200)
+        self.textBox.KeyDown += self.textBox_KeyDown
         self.Controls.Add(self.textBox)
+        
         # Create and add OK button
         self.okButton = Button()
         self.okButton.Text = 'OK'
-        self.okButton.Location = Point(120, 90)
+        self.okButton.Size = Size(150,40)
+        self.okButton.Location = Point(screen_width - 350, 
+                                       screen_height - 70)
         self.okButton.Click += self.okButton_Click
         self.Controls.Add(self.okButton)
         # Create and add Cancel button
         self.cancelButton = Button()
-        self.cancelButton.Text = 'Cancel'
-        self.cancelButton.Location = Point(200, 90)
+        self.cancelButton.Text = 'CANCLE'
+        self.cancelButton.Size = Size(150,40)
+        self.cancelButton.Location = Point(screen_width - 180, 
+                                           screen_height - 70)
         self.cancelButton.Click += self.cancelButton_Click
         self.Controls.Add(self.cancelButton)
         self.fvcLabel = Label()
         self.fvcLabel.Text = "@FVC"
-        self.fvcLabel.Size = Size(50, 20)
-        self.fvcLabel.Location = Point(10, 110)  # Bottom left corner
+        self.fvcLabel.Size = Size(150, 40)
+        self.fvcLabel.Location = Point(20, screen_height - 50)  # Bottom left corner
         self.Controls.Add(self.fvcLabel)        
         # self.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D
         self.result = None
         ###
+    def textBox_KeyDown(self, sender, event):
+            if event.KeyCode == Keys.Enter:
+                self.okButton_Click(sender, None)  # Gọi cùng logic của OK
+                event.Handled = True        
     def okButton_Click(self, sender, event):
         self.result = self.textBox.Text
         self.DialogResult = DialogResult.OK
@@ -556,9 +486,8 @@ for c2 in tempPipe3Conns:
     if c2.Origin.IsAlmostEqualTo(projectionPoint, 0.01):
         conn2 = c2
 newTee = doc.Create.NewTeeFitting(conn1, conn2, bestConn1[0])
-# doc.Delete(mPipe.Id)
+doc.Delete(mPipe.Id)
 TransactionManager.Instance.TransactionTaskDone()
 
-# OUT = intersectPoint1.ToPoint(), tmpPoint2.ToPoint(),nearConnOfBP.ToPoint(), mPipe, bPipe
-
-OUT = bPipe, tempPipe
+# OUT = bPipe, tempPipe
+OUT = 'Hello World'

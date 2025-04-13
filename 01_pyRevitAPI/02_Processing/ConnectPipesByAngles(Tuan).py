@@ -118,7 +118,7 @@ def verify():
 #     pipe2=uidoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element , "s")
 #     pipe2=doc.GetElement(pipe2)
 #     return 0
-def get_pipes_param(pipe1,pipe2):
+def get_pipes_param(pipe1,pipe2): 
     global system_id, type_id, level_id, diameter, A, B, C, D
     system_id=pipe1.MEPSystem.GetTypeId()
     type_id=pipe1.GetTypeId()
@@ -244,6 +244,7 @@ def create_temp_pipe(A,B):
     if error is not "":
         data.append(error)
     return error if error is not "" else connect
+
 def get_vector_by_angle(A,B,C,angle):
     if distance(A,C) < distance(B,C):
         temp=A
@@ -767,7 +768,10 @@ class MainForm(Form):
         # 
         # label1
         # 
-        self._label1.Font = System.Drawing.Font("メイリオ", 6.75, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0)
+        self._label1.Font = System.Drawing.Font("メイリオ", 6.75, 
+                                                System.Drawing.FontStyle.Bold, 
+                                                System.Drawing.GraphicsUnit.Point, 
+                                                0)
         self._label1.ForeColor = System.Drawing.Color.CornflowerBlue
         self._label1.Location = System.Drawing.Point(13, 499)
         self._label1.Name = "label1"
