@@ -1159,4 +1159,109 @@ if IN[0] == True:
 
 OUT = dynpath
 
+
+def find_closest_connector(mainPipe, branchPipe):
+    """
+    Tìm connector gần nhất của ống nhánh đến đường cong của ống chính.
+    
+    Args:
+        mainPipe: Pipe chính (Pipe object)
+        branchPipe: Pipe nhánh (Pipe object)
+    
+    Returns:
+        Tuple (Connector, XYZ): Connector gần nhất và tọa độ của nó, hoặc (None, None) nếu lỗi.
+    """   
+    try:
+        # Lấy đường cong của ống chính
+        main_curve = mainPipe.Location.Curve
+        if not main_curve:
+            return None, None
+        # Lấy connectors của ống nhánh
+        branch_connectors = list(branchPipe.ConnectorManager.Connectors)
+        if not branch_connectors:
+            return None, None        
+        # Tìm connector gần nhất
+        min_distance = float("inf")
+        closest_conn = None
+        closest_xyz = None
+        for conn in branch_connectors:
+            if not hasattr(conn, "Origin"):
+                continue
+            # Chiếu điểm connector lên đường cong ống chính
+            projection = main_curve.Project(conn.Origin)
+            if projection is None:
+                continue
+            distance = conn.Origin.DistanceTo(projection.XYZPoint)
+            if distance < min_distance:
+                min_distance = distance
+                closest_conn = conn
+                closest_xyz = conn.Origin       
+        if closest_conn is None:
+            return None, None
+        return closest_conn, closest_xyz
+    except Exception as e:
+        return None, None
 #endregion
+
+def PlaneFromThreePoints(A,B,C):
+    """
+    Get plane equation: Ax+By+Cz+D=0
+    from 3 points A,B,C
+    
+    """
+    vector_AB=B.Subtract(A)
+    Vector_AC=C.Subtract(A)
+    normal=vector_AB.CrossProduct(Vector_AC)
+    normal=normal.Normalize()
+    D=-normal.DotProduct(A)  
+    A=normal.X
+    B=normal.Y
+    C=normal.Z
+    return A,B,C,D
+def find_closest_connector(mainPipe, branchPipe):
+    #NOTE: thứ tự output trả về là :closest con, closest conn XYZ, và sorted list conns
+    """
+    Tìm connector gần nhất của ống nhánh đến đường cong của ống chính.
+    
+    Args:
+        mainPipe: Pipe chính (Pipe object)
+        branchPipe: Pipe nhánh (Pipe object)
+    
+    Returns:
+        Tuple (Connector, XYZ): Connector gần nhất và tọa độ của nó, hoặc (None, None) nếu lỗi.
+    """   
+    try:
+        # Lấy đường cong của ống chính
+        main_curve = mainPipe.Location.Curve
+        if not main_curve:
+            return None, None
+        # Lấy connectors của ống nhánh
+        branch_connectors = list(branchPipe.ConnectorManager.Connectors)
+        if not branch_connectors:
+            return None, None        
+        # Tìm connector gần nhất
+        min_distance = float("inf")
+        closest_conn = None
+        closest_xyz = None
+        for conn in branch_connectors:
+            if not hasattr(conn, "Origin"):
+                continue
+            # Chiếu điểm connector lên đường cong ống chính
+            projection = main_curve.Project(conn.Origin)
+            if projection is None:
+                continue
+            distance = conn.Origin.DistanceTo(projection.XYZPoint)
+            if distance < min_distance:
+                min_distance = distance
+                closest_conn = conn
+                closest_xyz = conn.Origin       
+        if closest_conn is None:
+            return None, None
+        sorted_connectors = [closest_conn]
+        for conn in branch_connectors:
+            if conn != closest_conn:
+                sorted_connectors.append(conn)
+                break
+        return closest_conn, closest_xyz, sorted_connectors
+    except Exception as e:
+        return None, None

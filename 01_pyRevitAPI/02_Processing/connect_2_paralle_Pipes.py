@@ -311,90 +311,13 @@ def find_closest_connector(mainPipe, branchPipe):
         return closest_conn, closest_xyz, sorted_connectors
     except Exception as e:
         return None, None
-
-from Autodesk.Revit.DB import XYZ
-import math
-
-def find_point_C(A, B, D, angle_degrees, distance_AC=None):
-    """
-    Tìm tọa độ điểm C trong tam giác ABC (3D), biết A, B, D và góc BAC.
-    Đảm bảo C thuộc mặt phẳng ABD.
-    
-    Args:
-        A (XYZ): Tọa độ điểm A
-        B (XYZ): Tọa độ điểm B
-        D (XYZ): Tọa độ điểm D (đồng phẳng với A, B)
-        angle_degrees (float): Góc BAC (độ)
-        distance_AC (float, optional): Khoảng cách AC, mặc định là |AB|
-    
-    Returns:
-        list of XYZ: Danh sách [C1, C2] (hai điểm C thỏa mãn, hoặc rỗng nếu lỗi)
-    """
-    try:
-        # Chuyển góc sang radian
-        angle_radians = math.radians(angle_degrees)
-        
-        # Vectơ AB
-        AB = XYZ(B.X - A.X, B.Y - A.Y, B.Z - A.Z)
-        AB_length = AB.GetLength()
-        if AB_length == 0:
-            return []
-        
-        # Vectơ AD
-        AD = XYZ(D.X - A.X, D.Y - A.Y, D.Z - A.Z)
-        
-        # Kiểm tra đồng phẳng (AB và AD không đồng tuyến)
-        N = AB.CrossProduct(AD)  # Pháp tuyến mặt phẳng ABD
-        if N.IsZeroLength():
-            return []
-        
-        # Đặt khoảng cách AC
-        d = distance_AC if distance_AC is not None else AB_length
-        
-        # Tính điểm D' trên AB
-        cos_angle = math.cos(angle_radians)
-        D_x = d * cos_angle * (AB.X / AB_length)
-        D_y = d * cos_angle * (AB.Y / AB_length)
-        D_z = d * cos_angle * (AB.Z / AB_length)
-        D_prime = XYZ(D_x, D_y, D_z)
-        
-        # Bán kính đường tròn
-        sin_angle = math.sin(angle_radians)
-        radius = d * sin_angle
-        
-        # Tìm vectơ U1' trong mặt phẳng ABD
-        # U1' = AD - thành phần của AD song song với AB
-        AB_normalized = AB.Normalize()
-        AD_parallel = AB_normalized.Multiply(AD.DotProduct(AB_normalized))
-        U1_prime = (AD - AD_parallel).Normalize()
-        if U1_prime.IsZeroLength():
-            return []
-        
-        # Tính C1, C2 trong mặt phẳng ABD
-        C1_local = D_prime + U1_prime.Multiply(radius)
-        C2_local = D_prime + U1_prime.Multiply(-radius)
-        
-        # Dịch về hệ gốc
-        C1 = XYZ(A.X + C1_local.X, A.Y + C1_local.Y, A.Z + C1_local.Z)
-        C2 = XYZ(A.X + C2_local.X, A.Y + C2_local.Y, A.Z + C2_local.Z)
-        
-        # Kiểm tra góc (tùy chọn, để debug)
-        AC1 = XYZ(C1.X - A.X, C1.Y - A.Y, C1.Z - A.Z)
-        AC2 = XYZ(C2.X - A.X, C2.Y - A.Y, C2.Z - A.Z)
-        angle_C1 = math.degrees(math.acos(AB.DotProduct(AC1) / (AB.GetLength() * AC1.GetLength())))
-        angle_C2 = math.degrees(math.acos(AB.DotProduct(AC2) / (AB.GetLength() * AC2.GetLength())))
-        if not (abs(angle_C1 - angle_degrees) < 1e-6 and abs(angle_C2 - angle_degrees) < 1e-6):
-            pass
-        return [C1, C2]
-    
-    except Exception as e:
-        return []
-
 #endregion
+
 #region input Value
 mPipe   = pickPipe()
 bPipe	= pickPipe()
-##
+#endregion
+
 #region input Angle
 class MyForm(Form):
     def __init__(self):
@@ -455,7 +378,6 @@ class MyForm(Form):
     def cancelButton_Click(self, sender, event):
         self.DialogResult = DialogResult.Cancel
         self.Close()
-# Show the form and get the result
 form = MyForm()
 result = form.ShowDialog()
 # Output the result if OK was clicked
@@ -469,40 +391,26 @@ returnAngle = float(text_input)
 inAngle = returnAngle
 #endregion
 # Do some action in a Transaction
-#NOTE: Tại đây ta lấy về XYZ của 2 connector gần nhất của ống nhánh và ống chính với
+#NOTE: Tại đây ta lấy về XYZ của 2 connector gần nhất của ống nhánh và ống chính
 mPipeCurve = mPipe.Location.Curve
 bPipeCurve = bPipe.Location.Curve
 bestConn_bPipe = find_closest_connector(mPipe, bPipe)[1]
 bestConn_mPipe = find_closest_connector(bPipe, mPipe)[1]
-
+#NOTE: Lấy về sorted list conns của mPipe và bPipe
 sortedConns_mPipe = find_closest_connector(bPipe, mPipe)[2]
-sortedCons_bPipe = find_closest_connector(mPipe, bPipe)[2]
+sortedConns_bPipe = find_closest_connector(mPipe, bPipe)[2]
 
-#NOTE: Xác định mặ
-# tempPoints = find_point_C(bestConn_mPipe, bestConn_bPipe,sortedCons_bPipe[1].Origin, inAngle)
-
-
-# sortedXYZCons_bPipe = [c.Origin for c in sortedCons_bPipe]
-# nearConn_bPipe = sortedXYZCons_bPipe[0]
-# farConn_bPipe = sortedXYZCons_bPipe[1]
-# minD = float('inf')
-# desPoint = None
-# for c in tempPoints:
-#     tempDistance = calculateDistance(c, farConn_bPipe)
-#     if tempDistance < minD:
-#         minD = tempDistance
-#         desPoint = c
-
-#need to create temp line to project
-tempPoint_bPipe_offsetVector = sortedCons_bPipe[1].Origin - sortedCons_bPipe[0].Origin
-tempPoint_bPipe = offsetPointAlongVector(sortedCons_bPipe[1].Origin, 
+#NOTE: Scale bPipeCurve để đảm bảo luôn chiếu được bestConn của mPipe lên bPipe
+tempPoint_bPipe_offsetVector = sortedConns_bPipe[0].Origin - sortedConns_bPipe[1].Origin
+tempPoint_bPipe = offsetPointAlongVector(sortedConns_bPipe[0].Origin, 
                                          tempPoint_bPipe_offsetVector,
                                          bPipeCurve.Length)
-tempLine = Line.CreateBound(tempPoint_bPipe, sortedCons_bPipe[1].Origin)
-
-projectPoint = bPipeCurve.Project(bestConn_mPipe).XYZPoint
-dis = calculateDistance(projectPoint, bestConn_mPipe) #Khoảng cách từ điểm gióng đến best connector main pipe
-offsetVector = sortedCons_bPipe[1].Origin -sortedCons_bPipe[0].Origin
+tempLine = Line.CreateBound(tempPoint_bPipe, sortedConns_bPipe[1].Origin)
+projectPoint = tempLine.Project(bestConn_mPipe).XYZPoint
+#NOTE: Tìm điểm chiếu trên bPipe thỏa điều kiện góc nhập vào 
+#Khoảng cách từ điểm gióng đến best connector main pipe
+dis = calculateDistance(projectPoint, bestConn_mPipe) 
+offsetVector = sortedConns_bPipe[0].Origin - projectPoint
 if inAngle <= 45:
 	angle = 90 - inAngle
 	angRad = math.radians(angle)
@@ -515,14 +423,34 @@ if inAngle > 45 and inAngle <90:
 	tmpPoint = offsetPointAlongVector(projectPoint, offsetVector,offsetDis)
 if inAngle == 90:
 	tmpPoint = projectPoint
+
 #NOTE: Tại bước trên ta đã tìm được điểm gióng từ nearConn of main pipe lên
 #      trên ống branch pipe ứng với góc input do người nhập
 #      Ta đi tạo ống temp ở giữa
+
+TransactionManager.Instance.EnsureInTransaction(doc)
 tempPipePoints = [bestConn_mPipe.ToPoint(), tmpPoint.ToPoint()]
 mPipeParam = getPipeParameter(mPipe)
 tempPipe = pipeCreateFromPoints(tempPipePoints, mPipeParam[0],
                                                 mPipeParam[1],
                                                 mPipeParam[2],
                                                 mPipeParam[3])
-
-OUT =  projectPoint, bestConn_mPipe, tmpPoint
+TransactionManager.Instance.TransactionTaskDone()
+#NOTE: Tạo new bPipe
+newListPipe = [mPipe,tempPipe]
+TransactionManager.Instance.EnsureInTransaction(doc)
+farConn_bPipe = sortedConns_bPipe[1].Origin.ToPoint()
+new_bPipe_Points = [farConn_bPipe, tmpPoint.ToPoint()]
+new_bPipe = pipeCreateFromPoints(new_bPipe_Points,
+                                 mPipeParam[0],
+                                 mPipeParam[1],
+                                 mPipeParam[2],
+                                 mPipeParam[3])
+newListPipe.append(new_bPipe)
+doc.Delete(bPipe.Id)
+TransactionManager.Instance.TransactionTaskDone()
+#NOTE: Connect pipes by elbows
+TransactionManager.Instance.EnsureInTransaction(doc)
+elbows = createElbow(doc, newListPipe)
+TransactionManager.Instance.TransactionTaskDone()
+OUT =  elbows
