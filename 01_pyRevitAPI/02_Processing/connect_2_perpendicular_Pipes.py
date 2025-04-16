@@ -228,8 +228,8 @@ def createElbow(doc, pipes):
                 if not conn_manager1 or not conn_manager2:
                     continue                
                 # Lấy tất cả connector
-                connectors1 = list(conn_manager1.Connectors)
-                connectors2 = list(conn_manager2.Connectors)               
+                connectors1 = list(conn_manager1.Connectors.GetEnumerator())
+                connectors2 = list(conn_manager2.Connectors.GetEnumerator())               
                 if len(connectors1) < 1 or len(connectors2) < 1:
                     continue               
                 # Tìm cặp connector gần nhất
@@ -475,8 +475,8 @@ tempPipe3 = pipeCreateFromPoints(listPoint2,
                                 levelParam, 
                                 diamParam)
 
-tempPipe2Conns = list(tempPipe2.ConnectorManager.Connectors)
-tempPipe3Conns = list(tempPipe3.ConnectorManager.Connectors)
+tempPipe2Conns = list(tempPipe2.ConnectorManager.Connectors.GetEnumerator())
+tempPipe3Conns = list(tempPipe3.ConnectorManager.Connectors.GetEnumerator())
 conn1 = None
 conn2 = None
 for c1 in tempPipe2Conns:
@@ -484,9 +484,9 @@ for c1 in tempPipe2Conns:
         conn1 = c1
 for c2 in tempPipe3Conns:
     if c2.Origin.IsAlmostEqualTo(projectionPoint, 0.01):
-        conn2 = c2
+        conn2 = c2    
 newTee = doc.Create.NewTeeFitting(conn1, conn2, bestConn1[0])
-doc.Delete(mPipe.Id)
+# doc.Delete(mPipe.Id)
 TransactionManager.Instance.TransactionTaskDone()
 
 # OUT = bPipe, tempPipe
