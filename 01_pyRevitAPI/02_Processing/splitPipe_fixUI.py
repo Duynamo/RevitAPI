@@ -1,20 +1,20 @@
 import clr
-import sys 
-import System   
+import sys
+import System
 import math
 
 clr.AddReference("ProtoGeometry")
 from Autodesk.DesignScript.Geometry import *
 
-clr.AddReference("RevitAPI") 
+clr.AddReference("RevitAPI")
 import Autodesk
-from Autodesk.Revit.DB import* 
-from Autodesk.Revit.DB.Structure import*
-from Autodesk.Revit.DB.Plumbing import*
-clr.AddReference("RevitAPIUI") 
-from Autodesk.Revit.UI import*
+from Autodesk.Revit.DB import *
+from Autodesk.Revit.DB.Structure import *
+from Autodesk.Revit.DB.Plumbing import *
+clr.AddReference("RevitAPIUI")
+from Autodesk.Revit.UI import *
 from Autodesk.Revit.UI.Selection import ISelectionFilter
-clr.AddReference("System") 
+clr.AddReference("System")
 from System.Collections.Generic import List
 
 clr.AddReference("RevitNodes")
@@ -31,38 +31,43 @@ clr.AddReference("System.Windows.Forms")
 clr.AddReference("System.Drawing")
 clr.AddReference("System.Windows.Forms.DataVisualization")
 
-import System.Windows.Forms 
+import System.Windows.Forms
 from System.Windows.Forms import *
 import System.Drawing
 from System.Drawing import *
+
 """_______________________________________________________________________________________"""
 doc = DocumentManager.Instance.CurrentDBDocument
 uiapp = DocumentManager.Instance.CurrentUIApplication
 app = uiapp.Application
 uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
-#endregion
 """_____"""
+
 #region ___def pickPipe
 class selectionFilter(ISelectionFilter):
-	def __init__(self, category):
-		self.category = category
-	def AllowElement(self, element):
-		if element.Category.Name == self.category:
-			return True
-		else:
-			return False
+    def __init__(self, category):
+        self.category = category
+    
+    def AllowElement(self, element):
+        if element.Category.Name == self.category:
+            return True
+        else:
+            return False
+
 def pickPipe():
-	pipeFilter = selectionFilter("Pipes")
-	ref = uidoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element, pipeFilter,"pick Pipe")
-	pipe = doc.GetElement(ref.ElementId)
-	return pipe
+    pipeFilter = selectionFilter("Pipes")
+    ref = uidoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element, pipeFilter, "pick Pipe")
+    pipe = doc.GetElement(ref.ElementId)
+    return pipe
 #endregion
+
 #region ___def getPipeLocationCurve
 def getPipeLocationCurve(pipe):
     lCurve = pipe.Location.Curve
     return lCurve
 #endregion
+
 #region ___def flatten
 def flatten(nestedList):
     flatList = []
@@ -73,7 +78,8 @@ def flatten(nestedList):
             flatList.append(item)
     return flatList
 #endregion
-#region ___def devideLineSegment
+
+#region ___def divideLineSegment
 def divideLineSegment(line, length, startPoint, endPoint):
     points = []
     total_length = line.Length
@@ -85,25 +91,8 @@ def divideLineSegment(line, length, startPoint, endPoint):
         points.append(current_point.ToPoint())
     return points
 #endregion
-#region ____def splitPipeAtPoints
 
-# def splitPipeAtPoints(doc, pipe, points):
-# 	newPipes = []
-# 	currentPipe = pipe
-# 	TransactionManager.Instance.EnsureInTransaction(doc)
-# 	for point in points:
-# 		#currentPipe = pipe
-# 		pipeLocation = currentPipe.Location
-# 		if isinstance(pipeLocation, LocationCurve):
-# 			pipeCurve = pipeLocation.Curve
-# 			if pipeCurve is not None:
-# 				newPipeIds = PlumbingUtils.BreakCurve(doc, currentPipe.Id, point)             
-# 				newPipe = doc.GetElement(newPipeIds)
-# 				newPipes.append(newPipe)
-# 				currentPipe = newPipe
-# 				# currentPipe = pipe
-# 	TransactionManager.Instance.TransactionTaskDone
-# 	return newPipes
+#region ____def splitPipeAtPoints
 def splitPipeAtPoints(doc, pipe, points):
     newPipes = []
     currentPipe = pipe
@@ -138,7 +127,6 @@ def splitPipeAtPoints(doc, pipe, points):
 def is_point_on_curve(curve, point):
     projected_point = curve.Project(point)
     return projected_point.Distance < 1e-6
-		
 #endregion
 
 class MainForm(Form):
@@ -216,7 +204,6 @@ class MainForm(Form):
         self._txb_Length.Size = System.Drawing.Size(int(screen_width * 0.35), int(screen_height * 0.07))
         self._txb_Length.TabIndex = 3
         self._txb_Length.Text = '3000'
-        # self._txb_Length.TextChanged += self.Txb_LengthTextChanged
         
         # lb_splitNumber
         self._lb_splitNumber.Font = System.Drawing.Font("Meiryo UI", 7.8, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
@@ -374,11 +361,11 @@ class MainForm(Form):
         self._grb_MinMax.ResumeLayout(False)
         self.ResumeLayout(False)
 
-    def btt_pickPipeClick(self, sender, e):
+    def Btt_pickPipeClick(self, sender, e):
         _pipe = pickPipe()
         self.selPipe = _pipe
 
-    def btt_SPLITClick(self, sender, e):
+    def Btt_SPLITClick(self, sender, e):
         '''__________'''
         pipe = self.selPipe
         new_dynPoints = []
@@ -434,7 +421,6 @@ class MainForm(Form):
                     new_dynPoints = dynPoints[1:splitNumber+1]
                 else:
                     new_dynPoints = dynPoints[1:]
-
         except Exception as e:
             TransactionManager.Instance.ForceCloseTransaction()
             pass
@@ -443,7 +429,7 @@ class MainForm(Form):
         TransactionManager.Instance.TransactionTaskDone()
         pass
 
-    def btt_CANCLEClick(self, sender, e):
+    def Btt_CANCLEClick(self, sender, e):
         self.Close()
         pass
 
@@ -451,17 +437,11 @@ class MainForm(Form):
         pass
 
     def Txb_KTextChanged(self, sender, e):
-        try:
-            self.K = float(self._txb_K.Text)
-        except ValueError:
-            self.K = None
+        self.K = float(self._txb_K.Text)
         pass
 
     def Txb_LengthTextChanged(self, sender, e):
-        try:
-            self.length = float(self._txb_Length.Text)
-        except ValueError:
-            self.length = None
+        self.length = float(self._txb_Length.Text)
         pass
 
     def Cbb_sortConnectorBySelectedIndexChanged(self, sender, e):

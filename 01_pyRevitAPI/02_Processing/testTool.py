@@ -65,276 +65,139 @@ def pickPipe():
     pipe = doc.GetElement(pipeRef.ElementId)
     return pipe
 
-def pickFittings():
-    pipeFilter = selectionFilter( 'Pipe Fittings')
-    pipeRef = uidoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element, pipeFilter)
-    pipe = doc.GetElement(pipeRef.ElementId)
-    return pipe
+def getNominalDiameter(pipe):
+    """Lấy đường kính danh nghĩa của ống (đơn vị: feet)."""
+    return pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM).AsDouble()
 
-def pickPoint():
-    try:
-        point = uidoc.Selection.PickPoint("Please pick a point on Pipe A")
-        return point
-    except Exception as e:
-        # print(f"Error picking point: {str(e)}")
+def getFreeConnector(pipe, position=None):
+    """Tìm connector chưa sử dụng của ống, ưu tiên gần vị trí nếu có."""
+    connectors = list(pipe.ConnectorManager.Connectors)
+    if position is None:
+        for conn in connectors:
+            if not conn.IsConnected:
+                return conn
         return None
-def get_fittings_by_pipe_type(doc, pipe_type_id, system_type_id=None):
-    """
-    Trả về danh sách tất cả Pipe Fitting instances (FamilyInstance) thuộc PipeType của pipeA.
     
-    Args:
-        doc: Autodesk.Revit.DB.Document
-        pipe_type_id: ElementId của PipeType (từ pipeA.GetTypeId())
-        system_type_id: ElementId của SystemType (tùy chọn, để lọc thêm)
-    
-    Returns:
-        list: Danh sách các FamilyInstance (Pipe Fittings) thuộc PipeType
-    """
-    try:
-        from Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory, BuiltInParameter
-        
-        fittings = []
-        
-        # Lấy tất cả Pipe Fittings trong dự án
-        collector = FilteredElementCollector(doc).OfClass(FamilyInstance).OfCategoryId(BuiltInCategory.OST_PipeFitting)
-        
-        for fitting in collector:
-            # Kiểm tra PipeType thông qua Connector
-            connectors = list(fitting.MEPModel.ConnectorManager.Connectors) if fitting.MEPModel else []
-            if not connectors:
-                continue
-            
-            # Kiểm tra PipeType của Connector
-            pipe_type_match = False
-            for conn in connectors:
-                if hasattr(conn, "PipeType"):
-                    conn_pipe_type_id = conn.PipeType
-                    if conn_pipe_type_id == pipe_type_id:
-                        pipe_type_match = True
-                        break
-            
-            # Kiểm tra thêm SystemType (nếu cung cấp)
-            system_type_match = True
-            if system_type_id:
-                fitting_system_type_id = fitting.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
-                system_type_match = (fitting_system_type_id == system_type_id)
-            
-            # Nếu khớp PipeType và (nếu có) SystemType, thêm vào danh sách
-            if pipe_type_match and system_type_match:
-                fittings.append(fitting)
-        
-        return fittings
-    
-    except Exception as e:
-        # print(f"Error: {str(e)}")
-        return []
-def get_tee_symbol(pipe_type_id):
-    """
-    Tìm FamilySymbol của Tee phù hợp với PipeType.
-    
-    Args:
-        pipe_type_id: ElementId của PipeType
-    
-    Returns:
-        FamilySymbol: Tee symbol hoặc None
-    """
-    try:
-        collector = FilteredElementCollector(doc).OfClass(FamilySymbol).OfCategoryId(BuiltInCategory.OST_PipeFitting)
-        for symbol in collector:
-            # Kiểm tra xem có phải Tee (dựa trên tên hoặc số connector sau khi kích hoạt)
-            symbol.Activate()
-            temp_instance = doc.Create.NewFamilyInstance(XYZ(0, 0, 0), symbol, None, None, Autodesk.Revit.DB.Structure.StructuralType.NonStructural)
-            if temp_instance:
-                conns = list(temp_instance.MEPModel.ConnectorManager.Connectors)
-                doc.Delete(temp_instance.Id)
-                if len(conns) == 3:  # Tee có 3 connector
-                    return symbol
-        # print("Error: No suitable Tee FamilySymbol found.")
-        return None
-    except Exception as e:
-        # print(f"Error finding Tee symbol: {str(e)}")
-        return None
+    min_dist = float('inf')
+    closest_conn = None
+    for conn in connectors:
+        if not conn.IsConnected:
+            dist = (conn.Origin - position).GetLength()
+            if dist < min_dist:
+                min_dist = dist
+                closest_conn = conn
+    return closest_conn
 
-def place_tee_at_point(pipeA, point_x):
-    """
-    Đặt Tee fitting tại point_x trên pipeA.
+def findClosestConnectors(pipeA, pipeB):
+    """Tìm cặp connector gần nhất giữa pipeA và pipeB."""
+    connectorsA = list(pipeA.ConnectorManager.Connectors)
+    connectorsB = list(pipeB.ConnectorManager.Connectors)
     
-    Args:
-        pipeA: Pipe chính
-        point_x: Điểm XYZ trên pipeA
+    min_dist = float('inf')
+    best_connA = None
+    best_connB = None
     
-    Returns:
-        bool: True nếu thành công
-    """
-    try:
-        # Lấy đường cong của pipeA
-        pipeA_curve = pipeA.Location.Curve
-        P1 = pipeA_curve.GetEndPoint(0)
-        P2 = pipeA_curve.GetEndPoint(1)
-        
-        # Kiểm tra point_x có trên pipeA không
-        projection = pipeA_curve.Project(point_x)
-        if projection.Distance > 1e-6:
-            # print(f"Error: Point {point_x} is not on Pipe A (distance: {projection.Distance}).")
-            return False
-        point_x = projection.XYZPoint
-        
-        # Kiểm tra point_x không trùng P1, P2
-        if point_x.IsAlmostEqualTo(P1, 1e-6) or point_x.IsAlmostEqualTo(P2, 1e-6):
-            # print("Error: Point X is at the endpoint of Pipe A.")
-            return False
-        
-        # Lấy thông tin pipeA
-        pipe_type_id = pipeA.GetTypeId()
-        system_type_id = pipeA.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
-        level_id = pipeA.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
-        
-        # Tìm Tee FamilySymbol
-        tee_symbol = get_tee_symbol(pipe_type_id)
-        if not tee_symbol:
-            return False
-        
-        # Bắt đầu transaction
-        with Transaction(doc, "Place Tee on Pipe A") as t:
-            t.Start()
-            
-            # Chia pipeA tại point_x
-            # pipeA1: P1 -> point_x
-            # pipeA2: point_x -> P2
-            pipeA.Location.Curve = Line.CreateBound(P1, point_x)
-            pipeA2 = Autodesk.Revit.DB.Plumbing.Pipe.Create(doc, system_type_id, pipe_type_id, level_id, point_x, P2)
-            
-            # Tạo Tee tại point_x
-            tee = doc.Create.NewFamilyInstance(point_x, tee_symbol, None, None, Autodesk.Revit.DB.Structure.StructuralType.NonStructural)
-            
-            # Điều chỉnh hướng Tee
-            pipeA_dir = (P2 - P1).Normalize()
-            tee_conns = list(tee.MEPModel.ConnectorManager.Connectors)
-            if len(tee_conns) != 3:
-                print("Error: Tee does not have exactly 3 connectors.")
-                doc.Delete(tee.Id)
-                doc.Delete(pipeA2.Id)
-                t.RollBack()
-                return False
-            
-            # Tìm 2 connector chính của Tee (song song pipeA)
-            main_conns = []
-            for conn in tee_conns:
-                conn_dir = conn.CoordinateSystem.BasisZ
-                if abs(conn_dir.DotProduct(pipeA_dir)) > 0.9:  # Song song pipeA
-                    main_conns.append(conn)
-            
-            if len(main_conns) != 2:
-                print("Error: Could not identify main connectors of Tee.")
-                doc.Delete(tee.Id)
-                doc.Delete(pipeA2.Id)
-                t.RollBack()
-                return False
-            
-            # Tìm connector của pipeA và pipeA2 tại point_x
-            pipeA_conns = list(pipeA.ConnectorManager.Connectors)
-            pipeA2_conns = list(pipeA2.ConnectorManager.Connectors)
-            
-            pipeA_conn = min(
-                pipeA_conns,
-                key=lambda c: c.Origin.DistanceTo(point_x),
-                default=None
-            )
-            pipeA2_conn = min(
-                pipeA2_conns,
-                key=lambda c: c.Origin.DistanceTo(point_x),
-                default=None
-            )
-            
-            if not pipeA_conn or not pipeA2_conn:
-                print("Error: Could not find connectors at point X.")
-                doc.Delete(tee.Id)
-                doc.Delete(pipeA2.Id)
-                t.RollBack()
-                return False
-            
-            # Kết nối Tee với pipeA và pipeA2
-            pipeA_conn.ConnectTo(main_conns[0])
-            pipeA2_conn.ConnectTo(main_conns[1])
-            
-            t.Commit()
-        
-        # print(f"Placed Tee at {point_x} on Pipe A.")
-        return True, tee_symbol
+    for connA in connectorsA:
+        if not connA.IsConnected:
+            for connB in connectorsB:
+                if not connB.IsConnected:
+                    dist = (connA.Origin - connB.Origin).GetLength()
+                    if dist < min_dist:
+                        min_dist = dist
+                        best_connA = connA
+                        best_connB = connB
     
-    except Exception as e:
-        # print(f"Error: {str(e)}")
-        return False
+    return best_connA, best_connB, min_dist
 
-def rotate_tee_and_pipe(pipeA, teeA, angle_degrees):
-    """
-    Xoay teeA quanh trục của pipeA một góc angle_degrees.
+def connectPipesWithSingleReducer(pipeA, pipeB):
+    """Nối pipeA và pipeB bằng một reducer phù hợp."""
+    # if not pipeA or not isinstance(pipeA, Pipe) or not pipeB or not isinstance(pipeB, Pipe):
+    #     # print("Invalid pipe(s) selected.")
+    #     return None
     
-    Args:
-        pipeA: Pipe chính
-        teeA: Tee fitting trên pipeA
-        angle_degrees: Góc xoay (độ)
+    # Lấy đường kính
+    dn1 = getNominalDiameter(pipeA)
+    dn2 = getNominalDiameter(pipeB)
     
-    Returns:
-        bool: True nếu thành công
-    """
+    # Xác định ống lớn và nhỏ
+    large_pipe = pipeA if dn1 >= dn2 else pipeB
+    small_pipe = pipeB if dn1 >= dn2 else pipeA
+    large_dia = max(dn1, dn2)
+    small_dia = min(dn1, dn2)
+    large_dia_mm = large_dia * 304.8
+    small_dia_mm = small_dia * 304.8
+    
+    # Lấy PipeType và PipingSystem từ ống lớn
+    pipe_type = large_pipe.PipeType
+    piping_system = large_pipe.MEPSystem
+    if not pipe_type:
+        # print("Large pipe has no PipeType.")
+        return None
+    
+    # Tìm cặp connector gần nhất
+    connA, connB, distance = findClosestConnectors(pipeA, pipeB)
+    if not connA or not connB:
+        # print("No free connectors found for connection.")
+        return None
+    
+    if distance > 1.0:  # Nếu khoảng cách lớn hơn 1 feet
+        # print(f"Connectors are too far apart ({distance*304.8:.0f} mm). Please move pipes closer.")
+        return None
+    
+    # Tìm FamilySymbol của reducer (large_dia - small_dia)
+    reducer_family = None
+    for family in FilteredElementCollector(doc).OfClass(Family):
+        if family.FamilyCategory.Id.IntegerValue == int(BuiltInCategory.OST_PipeFitting):
+            for symbol_id in family.GetFamilySymbolIds():
+                symbol = doc.GetElement(symbol_id)
+                if symbol.LookupParameter("Nominal Diameter 1") and symbol.LookupParameter("Nominal Diameter 2"):
+                    nd1 = symbol.LookupParameter("Nominal Diameter 1").AsDouble()
+                    nd2 = symbol.LookupParameter("Nominal Diameter 2").AsDouble()
+                    if (abs(nd1 - large_dia) < 1e-6 and abs(nd2 - small_dia) < 1e-6) or \
+                       (abs(nd1 - small_dia) < 1e-6 and abs(nd2 - large_dia) < 1e-6):
+                        if symbol.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId() == pipe_type.Id:
+                            reducer_family = symbol
+                            break
+        if reducer_family:
+            break
+    
+    if not reducer_family:
+        # print(f"No reducer found for DN{large_dia_mm:.0f}-DN{small_dia_mm:.0f}.")
+        return None
+    
+    if not reducer_family.IsActive:
+        reducer_family.Activate()
+    
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    
+    # Đặt reducer tại điểm giữa hai connector
+    connection_point = (connA.Origin + connB.Origin) / 2
+    reducer = doc.Create.NewFamilyInstance(connection_point, reducer_family, large_pipe, StructuralType.NonStructural)
+    
+    # Kết nối large_pipe và small_pipe với reducer
     try:
-        if not teeA:
-            # print("Error: No Tee fitting provided.")
-            return False
-        
-        # Lấy trục xoay từ pipeA
-        pipeA_curve = pipeA.Location.Curve
-        P1 = pipeA_curve.GetEndPoint(0)
-        P2 = pipeA_curve.GetEndPoint(1)
-        axis_dir = (P2 - P1).Normalize()
-        
-        # Tâm xoay là vị trí teeA
-        teeA_location = teeA.Location
-        if not hasattr(teeA_location, "Point"):
-            # print("Error: TeeA has no location point.")
-            return False
-        center = teeA_location.Point
-        
-        # Tạo trục xoay
-        axis_line = Line.CreateUnbound(center, axis_dir)
-        
-        # Góc xoay (radian)
-        angle_radians = math.radians(angle_degrees)
-        
-        # Bắt đầu transaction
-        with Transaction(doc, "Rotate Tee") as t:
-            t.Start()
-            
-            # Xoay teeA
-            ElementTransformUtils.RotateElement(
-                doc, teeA.Id, axis_line, angle_radians
-            )
-            
-            t.Commit()
-        
-        # print(f"Rotated teeA {angle_degrees} degrees around pipeA.")
-        return True
+        reducer_conns = list(reducer.MEPSystem.ConnectorManager.Connectors)
+        # Kết nối large_pipe
+        for conn in reducer_conns:
+            if abs(conn.Radius - large_dia / 2) < 1e-6:  # Connector với large_dia
+                connA.ConnectTo(conn)
+                break
+        # Kết nối small_pipe
+        for conn in reducer_conns:
+            if abs(conn.Radius - small_dia / 2) < 1e-6:  # Connector với small_dia
+                connB.ConnectTo(conn)
+                break
+    except Exception as ex:
+        # print(f"Failed to connect pipes: {str(ex)}")
+        TransactionManager.Instance.TransactionTaskDone()
+        return None
     
-    except Exception as e:
-        # print(f"Error: {str(e)}")
-        return False
+    TransactionManager.Instance.TransactionTaskDone()
+    return reducer
 
 pipeA = pickPipe()
-listConns = list(pipeA.ConnectorManager.Connectors)
-listConnsXYZ = [a.Origin for a in listConns]
-cenPoint = XYZ( (listConnsXYZ[0].X + listConnsXYZ[1].X )/2, 
-                (listConnsXYZ[0].Y + listConnsXYZ[1].Y )/2,
-                (listConnsXYZ[0].Z + listConnsXYZ[1].Z )/2)
-# newTee = place_tee_at_point(pipeA, cenPoint.ToPoint())
+pipeB = pickPipe()
+reducer = connectPipesWithSingleReducer(pipeA, pipeB)
 
-# teeA = pickFittings()
-# pipeB = pickPipe()
-angle = 22.5    
-pipeATypeId = pipeA.GetTypeId()
-pipingSystemId =pipeA.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
-paramPipingSystem = doc.GetElement(pipingSystemId)
-pipeFittings = get_fittings_by_pipe_type(doc, pipeATypeId)
-# ro = rotate_tee_and_pipe(pipeA , teeA , -(90-angle))
-# OUT = '', cenPoint.ToPoint(), listConnsXYZ[0].ToPoint(), listConnsXYZ[1].ToPoint()
-OUT = pipeFittings
+
+OUT = reducer

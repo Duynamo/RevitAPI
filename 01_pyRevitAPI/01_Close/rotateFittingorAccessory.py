@@ -199,4 +199,4 @@ try:
 except Exception as e: pass
     # print(f"Error: {str(e)}")
 
-OUT = ''
+OUT = 'Bạn đã vất vả rồi'
