@@ -68,30 +68,41 @@ def offsetPointAlongVector(point, vector, offsetDistance):
     scaledVector = direction.Multiply(offsetDistance).ToVector()
     offsetPoint = point.Add(scaledVector)
     return offsetPoint    
-# def getPipeParameter(p):
-#     if p.Category.Name == 'Pipes':
-#         paramDiameter = p.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM).AsDouble() * 304.8
-        
-#         paramPipeTypeId = p.GetTypeId()
-#         paramPipeType = doc.GetElement(paramPipeTypeId)
-        
-#         paramPipingSystemId = p.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
-#         paramPipingSystem = doc.GetElement(paramPipingSystemId)
 
-#         paramLevelId = p.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
-#         paramLevel = doc.GetElement(paramLevelId)
-#     elif p.Category.Name == 'Pipe Fittings':
-#         paramDiameter = p.LookupParameter("Minimum Size").AsDouble() * 304.8
-        
-#         paramPipeTypeId = p.GetTypeId()
-#         paramPipeType = doc.GetElement(paramPipeTypeId)
-        
-#         paramPipingSystemId = p.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
-#         paramPipingSystem = doc.GetElement(paramPipingSystemId)
+def getPipeParameter(p):
+    params = {
+        "Diameter_mm": None,
+        "ReferenceLevel": None,
+        "SystemType": None,
+        "PipeType": None
+    }
+    if p.Category.Name == "Pipes":
+        paramDiameter = p.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM).AsDouble() * 304.8
+        params['Diameter_mm'] = paramDiameter
+        paramPipeTypeId = p.GetTypeId()
+        paramPipeType = doc.GetElement(paramPipeTypeId)
+        params['PipeType'] = paramPipeType
+        paramPipingSystemId = p.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
+        paramPipingSystem = doc.GetElement(paramPipingSystemId)
+        params['SystemType'] = paramPipingSystem
+        paramLevelId = p.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
+        paramLevel = doc.GetElement(paramLevelId)
+        params['ReferenceLevel'] = paramLevel
 
-#         paramLevelId = p.LookupParameter('LevelId').AsElementId()
-#         paramLevel = doc.GetElement(paramLevelId)        
-#         return [paramDiameter, paramPipingSystem, paramPipeType, paramLevel]
+    if p.Category.Name == "Pipe Fittings":
+        paramDiameter = p.LookupParameter('Maximum Size').AsDouble() * 304.8
+        params['Diameter_mm'] = paramDiameter
+        paramPipeTypeId = p.GetTypeId()
+        paramPipeType = doc.GetElement(paramPipeTypeId)
+        params['PipeType'] = paramPipeType
+        paramPipingSystemId = p.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
+        paramPipingSystem = doc.GetElement(paramPipingSystemId)
+        params['SystemType'] = paramPipingSystem
+        paramLevelId = p.get_Parameter(BuiltInParameter.FAMILY_LEVEL_PARAM).AsElementId()
+        paramLevel = doc.GetElement(paramLevelId)
+        params['ReferenceLevel'] = paramLevel        
+    return params
+
 def findClosestLevel(z_coord):
     """Tìm Level gần nhất dựa trên tọa độ Z của fitting."""
     levels = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Levels).WhereElementIsNotElementType().ToElements()
@@ -109,111 +120,44 @@ def findClosestLevel(z_coord):
             closest_level = level
     
     return closest_level
-def getPipeParameter(p):
-    """Lấy đường kính, reference level, system type, và pipe type của Pipe hoặc Pipe Fitting."""
-    if not p or not isinstance(p, (Pipe, FamilyInstance)):
-        return None
-    
-    # Dictionary để lưu kết quả
-    params = {
-        "Diameter_mm": None,
-        "ReferenceLevel": None,
-        "SystemType": None,
-        "PipeType": None
-    }
-    
-    # Xử lý Pipe
-    if p.Category.Name == "Pipes":
-        # Đường kính (mm)
-        diameter_param = p.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
-        if diameter_param:
-            params["Diameter_mm"] = diameter_param.AsDouble() * 304.8
-        
-        # Reference Level
-        level_id = p.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
-        if level_id and level_id.IntegerValue != -1:
-            level = doc.GetElement(level_id)
-            params["ReferenceLevel"] = level.Name if level else "None"
-        
-        # System Type
-        system_id = p.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
-        if system_id and system_id.IntegerValue != -1:
-            system = doc.GetElement(system_id)
-            params["SystemType"] = system.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_NAME).AsString() if system else "None"
-        
-        # Pipe Type
-        pipe_type_id = p.GetTypeId()
-        if pipe_type_id and pipe_type_id.IntegerValue != -1:
-            pipe_type = doc.GetElement(pipe_type_id)
-            params["PipeType"] = pipe_type
-    
-    # Xử lý Pipe Fitting
-    # Xử lý Pipe Fitting
-    elif p.Category.Name == "Pipe Fittings":
-        # Đường kính (mm) - Lấy Nominal Diameter lớn nhất
-        nd1 = p.LookupParameter("Nominal Diameter 1")
-        nd2 = p.LookupParameter("Nominal Diameter 2")
-        diameter = 0.0
-        if nd1 and nd1.HasValue:
-            diameter = max(diameter, nd1.AsDouble())
-        if nd2 and nd2.HasValue:
-            diameter = max(diameter, nd2.AsDouble())
-        params["Diameter_mm"] = diameter * 304.8 if diameter > 0 else None
-        
-        # Reference Level - Thử các phương pháp để lấy Level
-        level_name = None
-        # 1. Thử tham số tùy chỉnh Reference Level hoặc Level
-        level_param = p.LookupParameter("Reference Level") or p.LookupParameter("Level")
-        if level_param and level_param.HasValue:
-            level_name = level_param.AsString()
-        
-        # 2. Nếu không tìm thấy, lấy Level gần nhất dựa trên tọa độ Z
-        if not level_name:
-            location = p.Location
-            if isinstance(location, LocationPoint):
-                z_coord = location.Point.Z
-                closest_level = findClosestLevel(z_coord)
-                level_name = closest_level.Name if closest_level else "None"
-            else:
-                level_name = "None"  # Không xác định được tọa độ
-        
-        params["ReferenceLevel"] = level_name
-        
-        # System Type
-        system_id = p.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
-        if system_id and system_id.IntegerValue != -1:
-            system = doc.GetElement(system_id)
-            params["SystemType"] = system.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_NAME).AsString() if system else "None"
-        
-        # Pipe Type
-        # pipe_type_id = p.GetTypeId()
-        # if pipe_type_id and pipe_type_id.IntegerValue != -1:
-        #     pipe_type = doc.GetElement(pipe_type_id)
-        #     params["PipeType"] = pipe_type.Name if pipe_type else "None"
-    
-    return params
-
-
 
 """___"""
 #pick pipe part. 
 basePart = pickPipeOrPipePart()
 basePartParam = getPipeParameter(basePart)
-# listSetPart = pickPipeOrPipeParts() 
-# #get base part piping system parameter
-# basePart_PipingSystem_check = basePart.LookupParameter('System Type')
+listSetPart = pickPipeOrPipeParts() 
+pipe_settings = PipeSettings.GetPipeSettings(doc)
 # #NOTE: Duyệt qua từng phần tử trong list set part. Sau đó vẽ ống ảo.
-# for ele in listSetPart:
-#     conns = list(ele.ConnectorManager.Connectors)
-#     connsXYZ = [c.Origin for c in conns]
-#     connsPoint = [c.ToPoint() for c in connsXYZ]
-#     for con in conns:
-#         if con.IsConnected == True:
-#             con.Disconnect
-#         else: pass
-#         offsetVector = connsXYZ[0]-connsXYZ[1]
-#         newPoint = offsetPointAlongVector(connsXYZ[0].ToPoint(),offsetVector,100 )
-
+for ele in listSetPart:
+    conns = list(ele.MEPModel.ConnectorManager.Connectors)
+    connsXYZ = [c.Origin for c in conns]
+    connsPoint = [c.ToPoint() for c in connsXYZ]
+    # for con in conns:
+        # if con.IsConnected == True:
+        #     con.Disconnect
+        # else: pass
+        # offsetVector = connsXYZ[0]-connsXYZ[1]
+        # newPoint = offsetPointAlongVector(connsXYZ[0].ToPoint(),offsetVector,100 )
+    if ele.Category.Name == 'Pipe Fittings':
+        baseDiameter = basePartParam['Diameter_mm']
+        pipe_segment = None
+        tempSeg =  FilteredElementCollector(doc).OfClass(PipeSegment).ToElements()  
+        # Kiểm tra danh sách kích thước khả dụng
+        # matching_segments = []
+        # for segment in tempSeg:
+        #     size_exists = False
+        #     # Tìm tất cả Pipe sử dụng PipeSegment
+        #     pipes = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipeCurves).WhereElementIsNotElementType().ToElements()
+        #     for pipe in pipes:
+        #         pipe_type = doc.GetElement(pipe.GetTypeId())
+        #         diameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM).AsDouble()
+        #         if abs(diameter - baseDiameter) < 1e-6:  # So sánh với độ chính xác nhỏ
+        #             size_exists = True
+        #             break
+            
+        #     if size_exists:
+        #         matching_segments.append(segment)
+            
 # if basePart_PipingSystem_check != None:
 # 	basePart_PipingSystem = basePart_PipingSystem_check.AsElementId()
 # 	for part in listSetPart:
@@ -227,4 +171,6 @@ basePartParam = getPipeParameter(basePart)
 
 # OUT = listSetPart, updatedPart
 
-OUT = basePartParam
+# OUT = drawPipeFromFitting(basePart, pipe_length_mm=100)
+
+OUT =  FilteredElementCollector(doc).OfClass(PipeSegment).ToElements() 
