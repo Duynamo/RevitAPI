@@ -80,7 +80,10 @@ allSectionsView = getAllSections(doc)
 
 class MainForm(Form):
     def __init__(self):
+        self.filePathMap = {}  # Initialize filePathMap
+        self.last_selected_list = None  # Track last selected list
         self.InitializeComponent()    
+    
     def InitializeComponent(self):
         # Lấy kích thước màn hình chính (WorkingArea)
         primary_screen = Screen.PrimaryScreen.WorkingArea
@@ -110,6 +113,8 @@ class MainForm(Form):
         self._ckb_AllNoneSectionView = System.Windows.Forms.CheckBox()
         self._lbl_TotalSecTionView = System.Windows.Forms.Label()
         self._txb_TotalView = System.Windows.Forms.TextBox()
+        self._btt_Up = System.Windows.Forms.Button()
+        self._btt_Down = System.Windows.Forms.Button()
         self._btt_Run = System.Windows.Forms.Button()
         self._btt_Cancle = System.Windows.Forms.Button()
         self._lbl_vitaminD = System.Windows.Forms.Label()
@@ -124,7 +129,6 @@ class MainForm(Form):
         self._grb_SectionView.SuspendLayout()
         self._grb_SectionPoint.SuspendLayout()
         self.SuspendLayout()
-        self.filePathMap = {}
 
         # grb_SectionView
         group_box_width = int(275 * width_ratio)
@@ -352,13 +356,16 @@ class MainForm(Form):
         self._btt_Reset.Click += self.Btt_ResetClick
 
         # btt_Run
+        button_width = int(85 * width_ratio)
+        button_height = int(29 * height_ratio)
+        cancle_x = int(869 * width_ratio)
         self._btt_Run.AutoSize = True
         self._btt_Run.BackColor = System.Drawing.SystemColors.ButtonHighlight
         self._btt_Run.Cursor = System.Windows.Forms.Cursors.AppStarting
         self._btt_Run.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
         self._btt_Run.ForeColor = System.Drawing.Color.Red
         self._btt_Run.Location = System.Drawing.Point(int(778 * width_ratio), int(297 * height_ratio))
-        self._btt_Run.Size = System.Drawing.Size(int(85 * width_ratio), int(29 * height_ratio))
+        self._btt_Run.Size = System.Drawing.Size(button_width, button_height)
         self._btt_Run.Name = "btt_Run"
         self._btt_Run.TabIndex = 6
         self._btt_Run.Text = "RUN"
@@ -371,13 +378,43 @@ class MainForm(Form):
         self._btt_Cancle.Cursor = System.Windows.Forms.Cursors.AppStarting
         self._btt_Cancle.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
         self._btt_Cancle.ForeColor = System.Drawing.Color.Red
-        self._btt_Cancle.Location = System.Drawing.Point(int(869 * width_ratio), int(297 * height_ratio))
-        self._btt_Cancle.Size = System.Drawing.Size(int(85 * width_ratio), int(29 * height_ratio))
+        self._btt_Cancle.Location = System.Drawing.Point(cancle_x, int(297 * height_ratio))
+        self._btt_Cancle.Size = System.Drawing.Size(button_width, button_height)
         self._btt_Cancle.Name = "btt_Cancle"
         self._btt_Cancle.TabIndex = 7
         self._btt_Cancle.Text = "CANCLE"
         self._btt_Cancle.UseVisualStyleBackColor = False
         self._btt_Cancle.Click += self.Btt_CancleClick
+
+        # btt_Up
+        up_width = int(70 * width_ratio)
+        run_x = int(778 * width_ratio)
+        up_x = run_x - 12 - up_width
+        self._btt_Up.AutoSize = True
+        self._btt_Up.BackColor = System.Drawing.SystemColors.ButtonHighlight
+        self._btt_Up.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
+        self._btt_Up.ForeColor = System.Drawing.Color.Red
+        self._btt_Up.Location = System.Drawing.Point(up_x, int(297 * height_ratio))
+        self._btt_Up.Size = System.Drawing.Size(up_width, button_height)
+        self._btt_Up.Name = "btt_Up"
+        self._btt_Up.TabIndex = 8
+        self._btt_Up.Text = "Up"
+        self._btt_Up.UseVisualStyleBackColor = False
+        self._btt_Up.Click += self.Btt_UpClick
+
+        # btt_Down
+        down_x = up_x - 12 - up_width
+        self._btt_Down.AutoSize = True
+        self._btt_Down.BackColor = System.Drawing.SystemColors.ButtonHighlight
+        self._btt_Down.Font = System.Drawing.Font("Meiryo UI", 9, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 128)
+        self._btt_Down.ForeColor = System.Drawing.Color.Red
+        self._btt_Down.Location = System.Drawing.Point(down_x, int(297 * height_ratio))
+        self._btt_Down.Size = System.Drawing.Size(up_width, button_height)
+        self._btt_Down.Name = "btt_Down"
+        self._btt_Down.TabIndex = 9
+        self._btt_Down.Text = "Down"
+        self._btt_Down.UseVisualStyleBackColor = False
+        self._btt_Down.Click += self.Btt_DownClick
 
         # lbl_vitaminD
         self._lbl_vitaminD.AutoSize = True
@@ -393,6 +430,8 @@ class MainForm(Form):
         self.ClientSize = System.Drawing.Size(form_width, form_height)
         self.Controls.Add(self._grb_SectionPoint)
         self.Controls.Add(self._lbl_vitaminD)
+        self.Controls.Add(self._btt_Down)
+        self.Controls.Add(self._btt_Up)
         self.Controls.Add(self._btt_Cancle)
         self.Controls.Add(self._btt_Run)
         self.Controls.Add(self._grb_SectionView)
@@ -419,7 +458,11 @@ class MainForm(Form):
                 n += 1
                 self._txb_TotalView.Text = str(n)        
         else:
-            self._txb_TotalView.Text = str(0)                        
+            self._txb_TotalView.Text = str(0)
+        # Cập nhật last_selected_list và bỏ chọn các danh sách khác
+        self.last_selected_list = self._clb_SectionView
+        self._clb_SectionPoints.SelectedIndex = -1
+        self._clb_LinkCad.SelectedIndex = -1
         pass        
 
     def Ckb_AllNoneSectionViewCheckedChanged(self, sender, e):
@@ -439,19 +482,23 @@ class MainForm(Form):
 
     def Btt_LinkCadClick(self, sender, e):    
         openDialog = OpenFileDialog()
-        openDialog.Multiselect = False
+        openDialog.Multiselect = True  # Cho phép chọn nhiều file
         openDialog.Filter = "DWG Files (*.dwg)|*.dwg|All Files (*.*)|*.*"
         if openDialog.ShowDialog() == DialogResult.OK:
             filePaths = openDialog.FileNames
-            for filePath in filePaths:
-                fileName = os.path.basename(filePath)
-                self._clb_LinkCad.Items.Add(fileName)
-                self.filePathMap[fileName] = filePath
-            self._ckb_AllNoneCad.Checked = True    
+            if len(filePaths) > 0:  # Kiểm tra xem có file nào được chọn
+                for filePath in filePaths:
+                    fileName = os.path.basename(filePath)
+                    self._clb_LinkCad.Items.Add(fileName)
+                    self.filePathMap[fileName] = filePath
+                self._ckb_AllNoneCad.Checked = True
+            else:
+                System.Windows.Forms.MessageBox.Show("Không có file nào được chọn.")
         pass
 
     def Btt_ResetClick(self, sender, e):
         self._clb_LinkCad.Items.Clear()
+        self.filePathMap.Clear()
         pass
 
     def Clb_LinkCadSelectedIndexChanged(self, sender, e):
@@ -462,7 +509,11 @@ class MainForm(Form):
                 n += 1
                 self._txb_TotalCad.Text = str(n)        
         else:
-            self._txb_TotalCad.Text = str(0)                        
+            self._txb_TotalCad.Text = str(0)
+        # Cập nhật last_selected_list và bỏ chọn các danh sách khác
+        self.last_selected_list = self._clb_LinkCad
+        self._clb_SectionView.SelectedIndex = -1
+        self._clb_SectionPoints.SelectedIndex = -1
         pass
 
     def Txb_TotalCadTextChanged(self, sender, e):
@@ -533,7 +584,105 @@ class MainForm(Form):
                 n += 1
                 self._txb_ToTalPoints.Text = str(n)        
         else:
-            self._txb_ToTalPoints.Text = str(0)            
+            self._txb_ToTalPoints.Text = str(0)
+        # Cập nhật last_selected_list và bỏ chọn các danh sách khác
+        self.last_selected_list = self._clb_SectionPoints
+        self._clb_SectionView.SelectedIndex = -1
+        self._clb_LinkCad.SelectedIndex = -1
+        pass
+
+    def move_item_up(self, checklistbox, selected_index, update_count_callback):
+        if checklistbox.Items.Count > 1 and selected_index > 0:  # Có ít nhất 2 mục và không phải mục đầu
+            # Lưu trạng thái checked và mục
+            is_checked = checklistbox.GetItemChecked(selected_index)
+            selected_item = checklistbox.Items[selected_index]
+            above_item = checklistbox.Items[selected_index - 1]
+            above_checked = checklistbox.GetItemChecked(selected_index - 1)
+            # Cập nhật filePathMap nếu là clb_LinkCad
+            if checklistbox == self._clb_LinkCad:
+                selected_path = self.filePathMap.get(str(selected_item))
+                above_path = self.filePathMap.get(str(above_item))
+                if selected_path and above_path:
+                    self.filePathMap[str(selected_item)] = above_path
+                    self.filePathMap[str(above_item)] = selected_path
+            # Hoán đổi bằng RemoveAt và Insert
+            checklistbox.Items.RemoveAt(selected_index)
+            checklistbox.Items.Insert(selected_index - 1, selected_item)
+            # Cập nhật trạng thái checked
+            checklistbox.SetItemChecked(selected_index - 1, is_checked)
+            checklistbox.SetItemChecked(selected_index, above_checked)
+            # Cập nhật lựa chọn
+            checklistbox.SelectedIndex = selected_index - 1
+            # Làm mới giao diện
+            checklistbox.Refresh()
+            # Cập nhật số lượng checked
+            update_count_callback(self, System.EventArgs.Empty)
+        pass
+
+    def move_item_down(self, checklistbox, selected_index, update_count_callback):
+        if checklistbox.Items.Count > 1 and selected_index >= 0 and selected_index < checklistbox.Items.Count - 1:  # Có ít nhất 2 mục và không phải mục cuối
+            # Lưu trạng thái checked và mục
+            is_checked = checklistbox.GetItemChecked(selected_index)
+            selected_item = checklistbox.Items[selected_index]
+            below_item = checklistbox.Items[selected_index + 1]
+            below_checked = checklistbox.GetItemChecked(selected_index + 1)
+            # Cập nhật filePathMap nếu là clb_LinkCad
+            if checklistbox == self._clb_LinkCad:
+                selected_path = self.filePathMap.get(str(selected_item))
+                below_path = self.filePathMap.get(str(below_item))
+                if selected_path and below_path:
+                    self.filePathMap[str(selected_item)] = below_path
+                    self.filePathMap[str(below_item)] = selected_path
+            # Hoán đổi bằng RemoveAt và Insert
+            checklistbox.Items.RemoveAt(selected_index)
+            checklistbox.Items.Insert(selected_index + 1, selected_item)
+            # Cập nhật trạng thái checked
+            checklistbox.SetItemChecked(selected_index + 1, is_checked)
+            checklistbox.SetItemChecked(selected_index, below_checked)
+            # Cập nhật lựa chọn
+            checklistbox.SelectedIndex = selected_index + 1
+            # Làm mới giao diện
+            checklistbox.Refresh()
+            # Cập nhật số lượng checked
+            update_count_callback(self, System.EventArgs.Empty)
+        pass
+
+    def Btt_UpClick(self, sender, e):
+        # Kiểm tra danh sách nào đang được focus
+        if self._clb_SectionView.Focused and self._clb_SectionView.SelectedIndex >= 0:
+            self.move_item_up(self._clb_SectionView, self._clb_SectionView.SelectedIndex, self.Clb_SectionViewSelectedIndexChanged)
+        elif self._clb_SectionPoints.Focused and self._clb_SectionPoints.SelectedIndex >= 0:
+            self.move_item_up(self._clb_SectionPoints, self._clb_SectionPoints.SelectedIndex, self.Clb_SectionPointsSelectedIndexChanged)
+        elif self._clb_LinkCad.Focused and self._clb_LinkCad.SelectedIndex >= 0:
+            self.move_item_up(self._clb_LinkCad, self._clb_LinkCad.SelectedIndex, self.Clb_LinkCadSelectedIndexChanged)
+        # Nếu không danh sách nào được focus, dùng last_selected_list
+        elif self.last_selected_list == self._clb_SectionView and self._clb_SectionView.SelectedIndex >= 0:
+            self.move_item_up(self._clb_SectionView, self._clb_SectionView.SelectedIndex, self.Clb_SectionViewSelectedIndexChanged)
+        elif self.last_selected_list == self._clb_SectionPoints and self._clb_SectionPoints.SelectedIndex >= 0:
+            self.move_item_up(self._clb_SectionPoints, self._clb_SectionPoints.SelectedIndex, self.Clb_SectionPointsSelectedIndexChanged)
+        elif self.last_selected_list == self._clb_LinkCad and self._clb_LinkCad.SelectedIndex >= 0:
+            self.move_item_up(self._clb_LinkCad, self._clb_LinkCad.SelectedIndex, self.Clb_LinkCadSelectedIndexChanged)
+        else:
+            System.Windows.Forms.MessageBox.Show("Vui lòng chọn một mục trong danh sách Section View, Section Points hoặc Link CAD.")
+        pass
+
+    def Btt_DownClick(self, sender, e):
+        # Kiểm tra danh sách nào đang được focus
+        if self._clb_SectionView.Focused and self._clb_SectionView.SelectedIndex >= 0:
+            self.move_item_down(self._clb_SectionView, self._clb_SectionView.SelectedIndex, self.Clb_SectionViewSelectedIndexChanged)
+        elif self._clb_SectionPoints.Focused and self._clb_SectionPoints.SelectedIndex >= 0:
+            self.move_item_down(self._clb_SectionPoints, self._clb_SectionPoints.SelectedIndex, self.Clb_SectionPointsSelectedIndexChanged)
+        elif self._clb_LinkCad.Focused and self._clb_LinkCad.SelectedIndex >= 0:
+            self.move_item_down(self._clb_LinkCad, self._clb_LinkCad.SelectedIndex, self.Clb_LinkCadSelectedIndexChanged)
+        # Nếu không danh sách nào được focus, dùng last_selected_list
+        elif self.last_selected_list == self._clb_SectionView and self._clb_SectionView.SelectedIndex >= 0:
+            self.move_item_down(self._clb_SectionView, self._clb_SectionView.SelectedIndex, self.Clb_SectionViewSelectedIndexChanged)
+        elif self.last_selected_list == self._clb_SectionPoints and self._clb_SectionPoints.SelectedIndex >= 0:
+            self.move_item_down(self._clb_SectionPoints, self._clb_SectionPoints.SelectedIndex, self.Clb_SectionPointsSelectedIndexChanged)
+        elif self.last_selected_list == self._clb_LinkCad and self._clb_LinkCad.SelectedIndex >= 0:
+            self.move_item_down(self._clb_LinkCad, self._clb_LinkCad.SelectedIndex, self.Clb_LinkCadSelectedIndexChanged)
+        else:
+            System.Windows.Forms.MessageBox.Show("Vui lòng chọn một mục trong danh sách Section View, Section Points hoặc Link CAD.")
         pass
 
     def Btt_RunClick(self, sender, e):
