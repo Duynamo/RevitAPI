@@ -57,7 +57,7 @@ def select_excel_file():
         return dialog.FileName
     return None
 
-def read_excel_data(file_path, sheet_name="Sheet1"):
+def read_excel_data(file_path, sheet_name):
     """Đọc dữ liệu từ file Excel bằng Microsoft.Office.Interop.Excel."""
     try:
         excel = Excel.ApplicationClass()
@@ -75,20 +75,35 @@ def read_excel_data(file_path, sheet_name="Sheet1"):
         # Xác định phạm vi dữ liệu
         used_range = sheet.UsedRange
         last_row = used_range.Rows.Count
-        headers = ["Element_ID", "FVC_Manufactured Day", "FVC_Delivery Day", 
-                   "FVC_Installation Day", "FVC_Installer", "FVC_Cost", "FVC_Other"]
+        last_col = used_range.Columns.Count
         data = []
         
         # Kiểm tra sheet có dữ liệu không
-        if last_row < 2:
+        if last_row < 1:
             workbook.Close(False)
             excel.Quit()
             System.Runtime.InteropServices.Marshal.ReleaseComObject(sheet)
             System.Runtime.InteropServices.Marshal.ReleaseComObject(workbook)
             System.Runtime.InteropServices.Marshal.ReleaseComObject(excel)
-            return None, "Sheet '%s' rỗng hoặc chỉ có tiêu đề" % sheet_name
+            return None, "Sheet '%s' rỗng" % sheet_name
         
-        # Đọc dữ liệu từ dòng 2 (bỏ tiêu đề)
+        # Đọc tiêu đề từ dòng 1
+        headers = []
+        for col_idx in range(1, last_col + 1):
+            cell = sheet.Cells[1, col_idx]
+            header_value = str(cell.Value2) if cell.Value2 is not None else "Column_%s" % col_idx
+            headers.append(header_value)
+        
+        # Kiểm tra có tiêu đề Element_ID không
+        if "Element_ID" not in headers:
+            workbook.Close(False)
+            excel.Quit()
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(sheet)
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(workbook)
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(excel)
+            return None, "Sheet '%s' thiếu tiêu đề 'Element_ID'" % sheet_name
+        
+        # Đọc dữ liệu từ dòng 2
         for row_idx in range(2, last_row + 1):
             row_data = {}
             for idx, header in enumerate(headers):
@@ -108,6 +123,7 @@ def read_excel_data(file_path, sheet_name="Sheet1"):
         System.Runtime.InteropServices.Marshal.ReleaseComObject(workbook)
         System.Runtime.InteropServices.Marshal.ReleaseComObject(excel)
         return headers, data
+    
     except Exception as e:
         try:
             workbook.Close(False)
@@ -188,11 +204,12 @@ def process_excel_data(headers, data):
     return results
 
 # Chọn file Excel
+sheet_name = "WorkSheet1"
 file_path = select_excel_file()
 if not file_path:
     pass
 else:
-    headers, data = read_excel_data(file_path)
+    headers, data = read_excel_data(file_path, sheet_name)
     if headers is None:
         pass
     else:
@@ -201,4 +218,4 @@ else:
         TransactionManager.Instance.TransactionTaskDone()
         OUT = results
 
-OUT = read_excel_data(file_path)
+OUT = read_excel_data(file_path, sheet_name)
