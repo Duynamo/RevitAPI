@@ -344,7 +344,7 @@ class MainForm(Form):
             filePath = openDialog.FileName
             if len(filePath) > 0: 
                 fileName = os.path.basename(filePath)
-                self._txb_linkExcel.Text = fileName
+                self._txb_linkExcel.Text = filePath
         
         excel = Excel.ApplicationClass()
         excel.Visible = False
@@ -354,7 +354,9 @@ class MainForm(Form):
         sheet_names = [str(sheet.Name) for sheet in workbook.Worksheets]
         for sheet_name in sheet_names:
             self._comboBox1.Items.Add(sheet_name)
-            self._comboBox1.SelectedItem = sheet_names[0]
+            if self._comboBox1.Items.Count > 0 :
+                self._comboBox1.SelectedIndex = 0
+            # self._comboBox1.SelectedItem = sheet_names[0]
         
         # Đóng Excel
         workbook.Close(False)
@@ -369,6 +371,19 @@ class MainForm(Form):
         pass
 
     def Btt_RunClick(self, sender, e):
+        sheet_name = self._comboBox1.SelectedItem
+        file_path = self._txb_linkExcel.Text
+        if not file_path:
+            pass
+        else:
+            headers, data = read_excel_data(file_path, sheet_name)
+            if headers is None:
+                pass
+            else:
+                TransactionManager.Instance.EnsureInTransaction(doc)
+                results = process_excel_data(headers, data)
+                TransactionManager
+        self.Close()
         pass
 
     def Btt_CancleClick(self, sender, e):
