@@ -1,27 +1,21 @@
-"""Copyright by: vudinhduybm@gmail.com"""
-#region ___import all Library
-import clr
-import sys 
-import System   
-import math
-import collections
 import os
-from System import DateTime, TimeSpan
-clr.AddReference("ProtoGeometry")
+import clr
+import sys
+import System
+import math
 
+clr.AddReference("ProtoGeometry")
 from Autodesk.DesignScript.Geometry import *
 
-clr.AddReference("RevitAPI") 
+clr.AddReference("RevitAPI")
 import Autodesk
-from Autodesk.Revit.DB import* 
-from Autodesk.Revit.DB.Structure import*
-from Autodesk.Revit.DB import Line, XYZ, IntersectionResultArray, SetComparisonResult
-from Autodesk.Revit.DB.Events import *
-clr.AddReference("RevitAPIUI") 
+from Autodesk.Revit.DB import *
+from Autodesk.Revit.DB.Structure import *
+from Autodesk.Revit.DB.Plumbing import *
+clr.AddReference("RevitAPIUI")
+from Autodesk.Revit.UI import *
 from Autodesk.Revit.UI.Selection import ISelectionFilter
-from Autodesk.Revit.UI import*
-
-clr.AddReference("System") 
+clr.AddReference("System")
 from System.Collections.Generic import List
 
 clr.AddReference("RevitNodes")
@@ -38,14 +32,15 @@ clr.AddReference("System.Windows.Forms")
 clr.AddReference("System.Drawing")
 clr.AddReference("System.Windows.Forms.DataVisualization")
 
-import System.Windows.Forms 
+import System.Windows.Forms
 from System.Windows.Forms import *
 import System.Drawing
 from System.Drawing import *
 
+clr.AddReference("System.Windows.Forms")
+from System.Windows.Forms import OpenFileDialog
 clr.AddReference("Microsoft.Office.Interop.Excel")
 from Microsoft.Office.Interop import Excel
-import System.Runtime.InteropServices
 
 """___"""
 doc = DocumentManager.Instance.CurrentDBDocument
@@ -54,6 +49,7 @@ app = uiapp.Application
 uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
 view = doc.ActiveView
 """___"""
+
 #region _function
 def select_excel_file():
     """Hiển thị hộp thoại để chọn file Excel."""
@@ -141,7 +137,7 @@ def read_excel_data(file_path, sheet_name):
         except:
             pass
         return None, "Lỗi đọc file Excel: %s" % str(e)
-    
+
 def get_element_by_id(element_id):
     """Tìm phần tử Revit theo Element ID."""
     try:
@@ -209,8 +205,46 @@ def process_excel_data(headers, data):
     
     TransactionManager.Instance.TransactionTaskDone()
     return results
-#endregion
-
+def get_excel_worksheet_names(file_path):
+    """Trả về danh sách tên của tất cả worksheet trong file Excel."""
+    try:
+        import clr
+        clr.AddReference("Microsoft.Office.Interop.Excel")
+        from Microsoft.Office.Interop import Excel
+        import System.Runtime.InteropServices
+        
+        excel = Excel.ApplicationClass()
+        excel.Visible = False
+        workbook = excel.Workbooks.Open(file_path)
+        
+        # Lấy danh sách tên worksheet
+        sheet_names = [str(sheet.Name) for sheet in workbook.Worksheets]
+        
+        # Đóng Excel
+        workbook.Close(False)
+        excel.Quit()
+        
+        # Giải phóng COM objects
+        for sheet in workbook.Worksheets:
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(sheet)
+        System.Runtime.InteropServices.Marshal.ReleaseComObject(workbook)
+        System.Runtime.InteropServices.Marshal.ReleaseComObject(excel)
+        
+        return sheet_names
+    
+    except Exception as e:
+        pass
+        # try:
+        #     workbook.Close(False)
+        #     excel.Quit()
+        #     for sheet in workbook.Worksheets:
+        #         System.Runtime.InteropServices.Marshal.ReleaseComObject(sheet)
+        #     System.Runtime.InteropServices.Marshal.ReleaseComObject(workbook)
+        #     System.Runtime.InteropServices.Marshal.ReleaseComObject(excel)
+        # except:
+        #     pass
+        # return None
+#enregion 
 
 class MainForm(Form):
     def __init__(self):
@@ -250,9 +284,9 @@ class MainForm(Form):
         # btt_Cancle
         self._btt_Cancle.BackColor = System.Drawing.Color.FromArgb(255, 192, 255)
         self._btt_Cancle.Font = System.Drawing.Font("Meiryo UI", 15, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 128)
-        self._btt_Cancle.Location = System.Drawing.Point(int(form_width * 0.68), int(form_height * 0.814))
+        self._btt_Cancle.Location = System.Drawing.Point(int(form_width * 0.707), int(form_height * 0.814))
         self._btt_Cancle.Name = "btt_Cancle"
-        self._btt_Cancle.Size = System.Drawing.Size(int(form_width * 0.29), int(form_height * 0.131))
+        self._btt_Cancle.Size = System.Drawing.Size(int(form_width * 0.268), int(form_height * 0.131))
         self._btt_Cancle.TabIndex = 1
         self._btt_Cancle.Text = "CANCLE"
         self._btt_Cancle.UseVisualStyleBackColor = False
@@ -320,7 +354,6 @@ class MainForm(Form):
         self._comboBox1.UseWaitCursor = True
         self._comboBox1.SelectedIndexChanged += self.ComboBox1SelectedIndexChanged
         
-        
         # MainForm
         self.ClientSize = System.Drawing.Size(int(form_width), int(form_height))
         self.Controls.Add(self._lbl_D)
@@ -340,50 +373,31 @@ class MainForm(Form):
         openDialog = OpenFileDialog()
         openDialog.Multiselect = False
         openDialog.Filter = "Excel Files (*.xlsx)|*.xlsx|All Files (*.*)|*.*"
-        if openDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK:
-            filePath = openDialog.FileName
-            if len(filePath) > 0: 
-                fileName = os.path.basename(filePath)
-                self._txb_linkExcel.Text = filePath
-        
-        excel = Excel.ApplicationClass()
-        excel.Visible = False
-        workbook = excel.Workbooks.Open(filePath)
-        
-        # Lấy danh sách tên worksheet
-        sheet_names = [str(sheet.Name) for sheet in workbook.Worksheets]
-        for sheet_name in sheet_names:
-            self._comboBox1.Items.Add(sheet_name)
-            if self._comboBox1.Items.Count > 0 :
-                self._comboBox1.SelectedIndex = 0
-            # self._comboBox1.SelectedItem = sheet_names[0]
-        
-        # Đóng Excel
-        workbook.Close(False)
-        excel.Quit()            
-        pass
-
+        if openDialog.ShowDialog() == DialogResult.OK:
+            file_path = openDialog.FileName  # Lấy đường dẫn file duy nhất
+            self._txb_linkExcel.Text = file_path  # Hiển thị đường dẫn đầy đủ
+            
+            # Xóa danh sách cũ trong comboBox1
+            self._comboBox1.Items.Clear()
+            
+            # Lấy danh sách tên worksheet
+            sheet_names = get_excel_worksheet_names(file_path)
+            if sheet_names :
+                for sheet_name in sheet_names:
+                    self._comboBox1.Items.Add(sheet_name)
+                # Chọn mặc định sheet đầu tiên (nếu có)
+                if self._comboBox1.Items.Count > 0:
+                    self._comboBox1.SelectedIndex = 0
+            else:
+                pass
     def Txb_linkExcelTextChanged(self, sender, e):
+
         pass
 
     def ComboBox1SelectedIndexChanged(self, sender, e):
-
         pass
 
     def Btt_RunClick(self, sender, e):
-        sheet_name = self._comboBox1.SelectedItem
-        file_path = self._txb_linkExcel.Text
-        if not file_path:
-            pass
-        else:
-            headers, data = read_excel_data(file_path, sheet_name)
-            if headers is None:
-                pass
-            else:
-                TransactionManager.Instance.EnsureInTransaction(doc)
-                results = process_excel_data(headers, data)
-                TransactionManager
-        self.Close()
         pass
 
     def Btt_CancleClick(self, sender, e):

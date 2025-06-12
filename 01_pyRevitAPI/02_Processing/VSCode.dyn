@@ -841,7 +841,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "re  = open(r\"C:\\Users\\95053\\Desktop\\pyRevit\\RevitAPI\\01_pyRevitAPI\\02_Processing\\nonGeometryParameter_250611.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
+      "Code": "re  = open(r\"C:\\Users\\95053\\Desktop\\pyRevit\\RevitAPI\\01_pyRevitAPI\\02_Processing\\timeTracker_250612.py\", \"r\")\r\n\r\ninterpret = re.read()\r\n\r\nOUT =  interpret",
       "Engine": "IronPython2",
       "EngineName": "IronPython2",
       "VariableInputPorts": true,
@@ -883,7 +883,7 @@
     {
       "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
       "NodeType": "BooleanInputNode",
-      "InputValue": true,
+      "InputValue": false,
       "Id": "063aae72cd684d979d178f3b524ec1f7",
       "Inputs": [],
       "Outputs": [
@@ -902,8 +902,8 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": null,
-      "InputValue": ".\\nonGeometryParameter_250611.py",
+      "HintPath": "C:\\Users\\95053\\Desktop\\pyRevit\\RevitAPI\\01_pyRevitAPI\\02_Processing\\timeTracker_250612.py",
+      "InputValue": ".\\timeTracker_250612.py",
       "NodeType": "ExtensionNode",
       "Id": "68a1bb24b748457081266de5d4a41a56",
       "Inputs": [],
@@ -1096,6 +1096,13 @@
       "ReferenceType": "External",
       "Nodes": [
         "2e2e0fb86cd54360a8523d313661606d"
+      ]
+    },
+    {
+      "Name": "timeTracker_250612.py",
+      "ReferenceType": "External",
+      "Nodes": [
+        "68a1bb24b748457081266de5d4a41a56"
       ]
     }
   ],
@@ -1403,8 +1410,8 @@
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 74.204853073120148,
-        "Y": 1753.0299559174837
+        "X": 77.025613047834327,
+        "Y": 1755.8507158921977
       },
       {
         "Name": "Python Script",
@@ -1412,8 +1419,8 @@
         "Id": "015dbe2d10284e3f9d5b8aceb018f9b2",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
-        "Excluded": false,
-        "X": -169.25205627148034,
+        "Excluded": true,
+        "X": -168.09218337396146,
         "Y": 1756.7088945701203
       },
       {
@@ -1438,8 +1445,8 @@
       }
     ],
     "Annotations": [],
-    "X": 418.81911981375481,
-    "Y": -793.57540720720476,
-    "Zoom": 0.56722302299476468
+    "X": 668.24891527856755,
+    "Y": -1627.0554938710554,
+    "Zoom": 1.0337065647592421
   }
 }

@@ -203,6 +203,7 @@ def process_excel_data(headers, data):
     TransactionManager.Instance.TransactionTaskDone()
     return results
 
+<<<<<<< HEAD
 # Chọn file Excel
 sheet_name = "WorkSheet1"
 file_path = select_excel_file()
@@ -219,3 +220,70 @@ else:
         OUT = results
 
 OUT = read_excel_data(file_path, sheet_name)
+=======
+def get_excel_worksheet_names(file_path):
+    """Trả về danh sách tên của tất cả worksheet trong file Excel."""
+    try:
+        import clr
+        clr.AddReference("Microsoft.Office.Interop.Excel")
+        from Microsoft.Office.Interop import Excel
+        import System.Runtime.InteropServices
+        
+        excel = Excel.ApplicationClass()
+        excel.Visible = False
+        workbook = excel.Workbooks.Open(file_path)
+        
+        # Lấy danh sách tên worksheet
+        sheet_names = [str(sheet.Name) for sheet in workbook.Worksheets]
+        
+        # Đóng Excel
+        workbook.Close(False)
+        excel.Quit()
+        
+        # Giải phóng COM objects
+        for sheet in workbook.Worksheets:
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(sheet)
+        System.Runtime.InteropServices.Marshal.ReleaseComObject(workbook)
+        System.Runtime.InteropServices.Marshal.ReleaseComObject(excel)
+        
+        return sheet_names
+    
+    except Exception as e:
+        try:
+            workbook.Close(False)
+            excel.Quit()
+            for sheet in workbook.Worksheets:
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(sheet)
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(workbook)
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(excel)
+        except:
+            pass
+        return ["AAA - %s" % str(e)]
+
+# Chọn file Excel
+sheetName = "Worksheet1"
+file_path = select_excel_file()
+# if not file_path:
+#     pass
+# else:
+#     headers, data = read_excel_data(file_path, sheetName)
+#     if headers is None:
+#         pass
+#     else:
+#         TransactionManager.Instance.EnsureInTransaction(doc)
+#         results = process_excel_data(headers, data)
+#         TransactionManager.Instance.TransactionTaskDone()
+#         OUT = results
+
+excel = Excel.ApplicationClass()
+excel.Visible = False
+workbook = excel.Workbooks.Open(file_path)
+
+# Lấy danh sách tên worksheet
+sheet_names = [str(sheet.Name) for sheet in workbook.Worksheets]
+workbook.Close(False)
+excel.Quit()
+
+
+OUT = sheet_names
+>>>>>>> d66d480 (s)
