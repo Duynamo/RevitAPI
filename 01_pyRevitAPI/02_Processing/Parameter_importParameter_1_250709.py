@@ -273,9 +273,9 @@ def get_elements_in_active_view():
         # Sử dụng FilteredElementCollector với view hiện tại và danh mục
         # WhereElementIsNotElementType để lấy instance (không phải type)
         elements = FilteredElementCollector(doc, active_view_id)\
-                   .OfCategory(category)\
-                   .WhereElementIsNotElementType()\
-                   .ToElements()
+                    .OfCategory(category)\
+                    .WhereElementIsNotElementType()\
+                    .ToElements()
         # Gộp các phần tử vào danh sách chung
         all_elements.extend(elements)
     

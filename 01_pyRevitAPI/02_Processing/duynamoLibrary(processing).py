@@ -1265,3 +1265,44 @@ def find_closest_connector(mainPipe, branchPipe):
         return closest_conn, closest_xyz, sorted_connectors
     except Exception as e:
         return None, None
+    
+
+def get_elements_in_active_view():
+    """Lấy tất cả các đối tượng thuộc các danh mục Pipe, Pipe Fittings, Pipe Accessories, và Generic Model trong view hiện tại."""
+    all_elements_Id = []  # Danh sách để lưu kết quả (ID của các phần tử)
+
+    # Lấy view hiện tại từ tài liệu Revit
+    active_view_id = doc.ActiveView.Id
+
+    # Định nghĩa các danh mục cần lọc
+    categories = [
+        BuiltInCategory.OST_PipeCurves,      # Danh mục Pipe
+        BuiltInCategory.OST_PipeFitting,     # Danh mục Pipe Fittings
+        BuiltInCategory.OST_PipeAccessory,   # Danh mục Pipe Accessories
+        BuiltInCategory.OST_GenericModel     # Danh mục Generic Model
+    ]
+
+    # Tạo danh sách để lưu tất cả phần tử từ các danh mục
+    all_elements = []
+    
+    # Lặp qua từng danh mục và lấy các phần tử trong view hiện tại
+    for category in categories:
+        # Sử dụng FilteredElementCollector với view hiện tại và danh mục
+        # WhereElementIsNotElementType để lấy instance (không phải type)
+        elements = FilteredElementCollector(doc, active_view_id)\
+                    .OfCategory(category)\
+                    .WhereElementIsNotElementType()\
+                    .ToElements()
+        # Gộp các phần tử vào danh sách chung
+        all_elements.extend(elements)
+    
+    # Nếu không tìm thấy phần tử nào, trả về None
+    if not all_elements:
+        all_elements_Id.append(None)
+        return all_elements_Id
+    
+    # Lấy ID của các phần tử và thêm vào kết quả
+    for element in all_elements:
+        all_elements_Id.append(element.Id.IntegerValue)
+    
+    return all_elements, all_elements_Id
