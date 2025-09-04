@@ -64,27 +64,26 @@ def pickMultiFittingOrAccessory(doc):
         ele = doc.GetElement(ref.ElementId)
         desEles.append(ele)
     return desEles
+def pickPipes(doc):
+    desEles = []
+    category = "Pipes"
+    pipeFilter = selectionFilter(category)
+    refs = uidoc.Selection.PickObjects(Autodesk.Revit.UI.Selection.ObjectType.Element, pipeFilter, "Pick Pipes")
+    for ref in refs:
+        ele = doc.GetElement(ref.ElementId)
+        desEles.append(ele)
+    return desEles
 #endregion
 #region __code here
-OUT = pickMultiFittingOrAccessory(doc)
+pipeList = pickPipes(doc)
+pipeDiameter = 300
+for pipe in pipeList:
+    pipeParam = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    pipeParam.Set(pipeDiameter/304.8)
+    TransactionManager.Instance.TransactionTaskDone()
+OUT = pipeParam
 #endregion
 
 
 
-
-import clr
-import sys
-import System
-clr.AddReference('System.Windows.Forms')
-clr.AddReference('System.Drawing')
-clr.AddReference('System')
-
-from System.Drawing import Point, Font
-from System.Windows.Forms import OpenFileDialog
-from System.Windows.Forms import OpenFileDialog
-
-openDialog = OpenFileDialog()
-openDialog.Multiselect = True
-openDialog.Filter = "All files|*.*"
-openDialog.ShowDialog()
-OUT = openDialog.FileNames
