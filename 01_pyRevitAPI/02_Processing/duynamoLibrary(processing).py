@@ -448,6 +448,20 @@ def allPipesInActiveView():
 
 
 #endregion
+#region ___pick pipe or pipe part
+class selectionFilter(ISelectionFilter):
+    def __init__(self,categories):
+        self.categories = categories
+    def AllowElement(self, element):
+        eleName = element.Category.Name in self.categories
+        return eleName
+def pickPipeOrPipePart():
+    categories = ['Pipe Fittings', 'Pipe Accessories','Pipes']
+    fittingFilter = selectionFilter(categories)
+    ref = uidoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element, fittingFilter, 'Pick fitting or Accessory or Pipe')
+    desEle = doc.GetElement(ref.ElementId)
+    return desEle
+#endregion
 
 #region ___to pick multi points in floors plane or section planes
 def pickPoints(doc):
@@ -703,7 +717,7 @@ def pipeCreateFromPoints(desPointsList, sel_pipingSystem, sel_PipeType, sel_Leve
             pipesList.append(pipe.ToDSType(False))
             pipesList1.append(pipe)
             # param_Length.Set()
-            TransactionManager.Instance.TransactionTaskDone()
+            TransactionManager.Instance.EnsureInTransaction(doc)
         except:
             pipesList.append(None)				
     TransactionManager.Instance.TransactionTaskDone()
