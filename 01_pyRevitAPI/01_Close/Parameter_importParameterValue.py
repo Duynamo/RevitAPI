@@ -156,26 +156,24 @@ def get_element_by_id(element_id):
         return None
 
 def update_parameter(element, param_name, param_value):
-    """Cập nhật tham số kiểu text của phần tử Revit (instance hoặc type)."""
     try:
-        # Tìm instance parameter
         param = element.LookupParameter(param_name)
         if not param:
-            # Tìm type parameter nếu instance không tồn tại
             element_type = doc.GetElement(element.GetTypeId())
             if element_type:
                 param = element_type.LookupParameter(param_name)
         if not param:
-            return False
+            return False, "Ko ton tai tham so"
         if param.IsReadOnly:
-            return False
+            return False, "Tham số chi doc"
+        
         TransactionManager.Instance.EnsureInTransaction(doc)
         param.Set(str(param_value) if param_value is not None else "")
         TransactionManager.Instance.TransactionTaskDone()
-        return True
-    except Exception as e:
-        return False
-
+        return True, "Cập nhật OK"
+    except:
+        return False, "Lỗi khi cập nhật"
+    
 def process_excel_data(headers, data):
     """Xử lý dữ liệu Excel và cập nhật mô hình Revit."""
     results = []
@@ -189,18 +187,18 @@ def process_excel_data(headers, data):
         element_id = row.get("Element_ID")
         element = get_element_by_id(element_id)
         if not element:
-            pass
+            results.append("Element_ID %s: Không tìm thấy phần tử" % element_id)
+            continue
             # results.append("Element_ID %s: Không tìm thấy phần tử" % element_id)
             # continue
         
         row_result = "Element_ID %s: " % element_id
         param_results = []
-        for param_name in headers[1:]:  # Bỏ Element_ID
-            TransactionManager.Instance.EnsureInTransaction(doc)
+        for param_name in headers[1:]:
             param_value = row.get(param_name)
             success, message = update_parameter(element, param_name, param_value)
-            TransactionManager.Instance.TransactionTaskDone()
-            param_results.append(message)
+            if success:
+                param_results.append(message)
         
         if param_results:
             row_result += "; ".join(param_results)
