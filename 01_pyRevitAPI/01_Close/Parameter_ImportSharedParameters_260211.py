@@ -136,7 +136,8 @@ def get_elements_in_categories():
         BuiltInCategory.OST_PipeCurves,      # Danh mục Pipe
         BuiltInCategory.OST_PipeFitting,     # Danh mục Pipe Fittings
         BuiltInCategory.OST_PipeAccessory,   # Danh mục Pipe Accessories
-        BuiltInCategory.OST_GenericModel     # Danh mục Generic Model
+        BuiltInCategory.OST_GenericModel,     # Danh mục Generic Model
+        BuiltInCategory.OST_Columns
     ]
     
     # Lấy view hiện tại
@@ -162,60 +163,69 @@ def get_elements_in_categories():
 
 # Hàm tạo và gán shared parameters cho các phần tử
 def create_and_bind_shared_parameters(param_names):
-    """Tạo và gán shared parameters từ danh sách tên parameter vào các danh mục."""
-    # Định nghĩa các danh mục để gán parameter
+    """Phiên bản an toàn - dùng ReInsert khi parameter đã tồn tại"""
     category_ids = [
-        BuiltInCategory.OST_PipeCurves,      # Pipes
-        BuiltInCategory.OST_PipeFitting,     # Pipe Fittings
-        BuiltInCategory.OST_PipeAccessory,   # Pipe Accessories
-        BuiltInCategory.OST_GenericModel     # Generic Model
+        BuiltInCategory.OST_PipeCurves,
+        BuiltInCategory.OST_PipeFitting,
+        BuiltInCategory.OST_PipeAccessory,
+        BuiltInCategory.OST_GenericModel,
+        BuiltInCategory.OST_Columns
     ]
-    
-    # Bắt đầu transaction
-    t = Transaction(doc, "Add Shared Parameters")
+
+    t = Transaction(doc, "Add/Update Shared Parameters")
     t.Start()
-    
+
     try:
-        # Mở hoặc tạo file shared parameter
+        # Đảm bảo có Shared Parameter File
+        # if app.SharedParameterFile is None:
+        #     # Tạo file tạm (không khuyến khích lâu dài)
+        #     import tempfile
+        #     temp_file = tempfile.mktemp(suffix=".txt")
+        #     app.SharedParameterFile = temp_file
+
         shared_param_file = app.OpenSharedParameterFile()
-        if shared_param_file is None:
-            app.SharedParameterFile = app.OpenSharedParameterFile()
-            shared_param_file = app.OpenSharedParameterFile()
-        
-        # Tạo hoặc lấy group trong file shared parameter
         group_name = "ProjectParameters"
-        group = shared_param_file.Groups.get_Item(group_name)
-        if group is None:
-            group = shared_param_file.Groups.Create(group_name)
-        
-        # Tạo CategorySet để gán parameter
+        group = shared_param_file.Groups.get_Item(group_name) or shared_param_file.Groups.Create(group_name)
+
+        # Tạo CategorySet
         cat_set = app.Create.NewCategorySet()
         for cat_id in category_ids:
-            category = doc.Settings.Categories.get_Item(cat_id)
-            if category:
-                cat_set.Insert(category)
-        
-        # Tạo hoặc cập nhật shared parameters
+            cat = doc.Settings.Categories.get_Item(cat_id)
+            if cat:
+                cat_set.Insert(cat)
+
         for param_name in param_names:
-            # Kiểm tra xem parameter đã tồn tại chưa
-            def_exists = group.Definitions.get_Item(param_name)
-            if def_exists is None:
-                # Tạo external definition mới với định dạng Text
-                external_def_creation_options = ExternalDefinitionCreationOptions(param_name, SpecTypeId.String.Text) # Sửa lỗi: thay ParameterType.Text thành SpecTypeId.String.Text
-                external_def_creation_options.Visible = True
-                external_def_creation_options.UserModifiable = True
-                def_exists = group.Definitions.Create(external_def_creation_options)
-            
-            # Gán parameter vào các danh mục
-            binding = app.Create.NewInstanceBinding(cat_set)
-            doc.ParameterBindings.Insert(def_exists, binding, BuiltInParameterGroup.PG_DATA)
-        
+            # Lấy hoặc tạo definition
+            definition = group.Definitions.get_Item(param_name)
+            if definition is None:
+                opt = ExternalDefinitionCreationOptions(param_name, SpecTypeId.String.Text)
+                opt.Visible = True
+                opt.UserModifiable = True
+                definition = group.Definitions.Create(opt)
+
+            # Kiểm tra đã bind chưa
+            binding_map = doc.ParameterBindings
+            existing_binding = None
+            it = binding_map.ForwardIterator()
+            it.Reset()
+            while it.MoveNext():
+                if it.Key == definition:          # So sánh theo Definition (an toàn)
+                    existing_binding = it.Current
+                    break
+
+            instance_binding = app.Create.NewInstanceBinding(cat_set)
+
+            if existing_binding is None:
+                binding_map.Insert(definition, instance_binding, BuiltInParameterGroup.PG_DATA)
+            else:
+                # Đã tồn tại → ReInsert để cập nhật CategorySet (rất quan trọng với IFC)
+                binding_map.ReInsert(definition, instance_binding, BuiltInParameterGroup.PG_DATA)
+
         t.Commit()
-        return True, "Shared parameters added successfully."
-    
+        return True
     except Exception as e:
         t.RollBack()
-        return False, "Error: " + str(e)
+        return False
 
 # Chọn file Excel và đọc dữ liệu từ sheet "Shared Parameter"
 excelPath = select_excel_file()

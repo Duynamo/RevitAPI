@@ -103,13 +103,13 @@ def read_excel_data(file_path, sheet_name):
             headers.append(header_value)
         
         # Kiểm tra có tiêu đề Element_ID không
-        if "Element_ID" not in headers:
+        if "ElementID" not in headers:
             workbook.Close(False)
             excel.Quit()
             System.Runtime.InteropServices.Marshal.ReleaseComObject(sheet)
             System.Runtime.InteropServices.Marshal.ReleaseComObject(workbook)
             System.Runtime.InteropServices.Marshal.ReleaseComObject(excel)
-            return None, "Sheet '%s' thiếu tiêu đề 'Element_ID'" % sheet_name
+            return None, "Sheet '%s' thiếu tiêu đề 'ElementID'" % sheet_name
         
         # Đọc dữ liệu từ dòng 2
         for row_idx in range(2, last_row + 1):
@@ -118,7 +118,7 @@ def read_excel_data(file_path, sheet_name):
                 cell = sheet.Cells[row_idx, idx + 1]
                 cell_value = cell.Value2 if cell.Value2 is not None else None
                 row_data[header] = cell_value
-            if row_data.get("Element_ID"):
+            if row_data.get("ElementID"):
                 data.append(row_data)
             else:
                 data.append({"Error": "Dòng %s: Thiếu hoặc rỗng Element_ID" % row_idx})
@@ -184,15 +184,15 @@ def process_excel_data(headers, data):
             results.append(row["Error"])
             continue
         
-        element_id = row.get("Element_ID")
+        element_id = row.get("ElementID")
         element = get_element_by_id(element_id)
         if not element:
-            results.append("Element_ID %s: Không tìm thấy phần tử" % element_id)
+            results.append("ElementID %s: Không tìm thấy phần tử" % element_id)
             continue
             # results.append("Element_ID %s: Không tìm thấy phần tử" % element_id)
             # continue
         
-        row_result = "Element_ID %s: " % element_id
+        row_result = "ElementID %s: " % element_id
         param_results = []
         for param_name in headers[1:]:
             param_value = row.get(param_name)
