@@ -401,9 +401,10 @@ else:
 
 # ── Di chuyển ống nhánh đến vị trí mới ───────────────────────
 if tmpPoint2:
-    farEnd   = sortNearConnsBP[1]          # đầu xa giữ nguyên vị trí
-    newCurve = Line.CreateBound(farEnd, tmpPoint2)
-    bPipe.Location.Curve = newCurve
+    transVector = tmpPoint2 - sortNearConnsBP[0]
+    ElementTransformUtils.MoveElement(doc, bPipe.Id, transVector)
+
+TransactionManager.Instance.TransactionTaskDone()
 
 # ═══════════════════════════════════════════════════════════════
 #  TÍNH MIDPOINT: điểm nối giữa ống vuông góc và ống góc user
@@ -502,6 +503,16 @@ for c2 in tempPipe3Conns:
 
 # Tạo tee: 2 nửa ống chính + connector của tempPipe_perp
 newTee = doc.Create.NewTeeFitting(conn1, conn2, bestConn1[0])
+try:
+    # Đảm bảo tất cả elements mới đã được tạo và connect thành công
+    if newTee is not None and tempPipe2 is not None and tempPipe3 is not None:
+        # Xóa ống chính gốc
+        doc.Delete(mPipe.Id)
+        print("Đã xóa ống chính gốc thành công.")
+    else:
+        print("Cảnh báo: Không xóa ống chính vì TEE hoặc pipes mới chưa tạo đúng.")
+except Exception as ex:
+    print("Lỗi khi xóa ống chính: " + str(ex))
 
 TransactionManager.Instance.TransactionTaskDone()
 
