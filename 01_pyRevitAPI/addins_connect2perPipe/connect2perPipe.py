@@ -401,10 +401,9 @@ else:
 
 # ── Di chuyển ống nhánh đến vị trí mới ───────────────────────
 if tmpPoint2:
-    transVector = tmpPoint2 - sortNearConnsBP[0]
-    ElementTransformUtils.MoveElement(doc, bPipe.Id, transVector)
-
-TransactionManager.Instance.TransactionTaskDone()
+    farEnd   = sortNearConnsBP[1]          # đầu xa giữ nguyên vị trí
+    newCurve = Line.CreateBound(farEnd, tmpPoint2)
+    bPipe.Location.Curve = newCurve
 
 # ═══════════════════════════════════════════════════════════════
 #  TÍNH MIDPOINT: điểm nối giữa ống vuông góc và ống góc user

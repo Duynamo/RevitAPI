@@ -1,21 +1,25 @@
-"""Pipe Accessory Placer Tool - @FVC"""
-#region ___imports
-import clr, System, math, re
+"""Copyright by: vudinhduybm@gmail.com"""
+#region ___import all Library
+import clr
+import sys 
+import System   
+import math
+import collections
 
 clr.AddReference("ProtoGeometry")
 from Autodesk.DesignScript.Geometry import *
 
-clr.AddReference("RevitAPI")
+clr.AddReference("RevitAPI") 
 import Autodesk
-from Autodesk.Revit.DB import *
-from Autodesk.Revit.DB.Structure import *
-from Autodesk.Revit.DB.Plumbing import *
+from Autodesk.Revit.DB import* 
+from Autodesk.Revit.DB.Structure import*
+from Autodesk.Revit.DB import Line, XYZ, IntersectionResultArray, SetComparisonResult
 
-clr.AddReference("RevitAPIUI")
+clr.AddReference("RevitAPIUI") 
 from Autodesk.Revit.UI.Selection import ISelectionFilter
-from Autodesk.Revit.UI import *
+from Autodesk.Revit.UI import*
 
-clr.AddReference("System")
+clr.AddReference("System") 
 from System.Collections.Generic import List
 
 clr.AddReference("RevitNodes")
@@ -30,652 +34,475 @@ from RevitServices.Transactions import TransactionManager
 
 clr.AddReference("System.Windows.Forms")
 clr.AddReference("System.Drawing")
-import System.Windows.Forms
+clr.AddReference("System.Windows.Forms.DataVisualization")
+
+import System.Windows.Forms 
 from System.Windows.Forms import *
 import System.Drawing
 from System.Drawing import *
 #endregion
 
-#region ___doc/app/ui
+#region ___Current doc/app/ui
 doc   = DocumentManager.Instance.CurrentDBDocument
 uiapp = DocumentManager.Instance.CurrentUIApplication
-uidoc = uiapp.ActiveUIDocument
+app   = uiapp.Application
+uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
+view  = doc.ActiveView
 #endregion
 
-#region ___selection filters
-class PipeFilter(ISelectionFilter):
-    """Filter chi danh cho Pipe element"""
-    def AllowElement(self, e):
-        return (e.Category is not None and
-                e.Category.Id.IntegerValue == int(BuiltInCategory.OST_PipeCurves))
-    def AllowReference(self, r, pt): return False
-
-class PipeFaceFilter(ISelectionFilter):
-    """
-    Filter cho phep pick diem tren be mat ong (PickObject PointOnElement).
-    AllowElement: chi chap nhan Pipe.
-    AllowReference: chi chap nhan face (Reference.ElementReferenceType = SURFACE).
-    """
-    def AllowElement(self, e):
-        return (e.Category is not None and
-                e.Category.Id.IntegerValue == int(BuiltInCategory.OST_PipeCurves))
-    def AllowReference(self, r, pt):
-        try:
-            return r.ElementReferenceType == ElementReferenceType.REFERENCE_TYPE_SURFACE
-        except:
-            return True
-#endregion
-
-#region ___helpers
-
-def getPipeDiameter_mm(pipe):
-    p = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
-    return round(p.AsDouble() * 304.8, 1) if p else 0.0
-
-# ─────────────────────────────────────────────────────────────
-# Lay DN tu instances thuc te trong project
-# ─────────────────────────────────────────────────────────────
-def _buildSymbolDnMap():
-    """symbolId(int) -> set{dn_mm} tu instances dang co trong project"""
-    sym_map = {}
-    instances = (FilteredElementCollector(doc)
-                 .OfCategory(BuiltInCategory.OST_PipeAccessory)
-                 .WhereElementIsNotElementType()
-                 .ToElements())
-    for inst in instances:
-        try:
-            sid = inst.GetTypeId().IntegerValue
-            cm  = inst.MEPModel.ConnectorManager
-            if cm is None: continue
-            for c in cm.Connectors:
-                try:
-                    if c.ConnectorType == ConnectorType.End and c.Radius > 0:
-                        dn = round(c.Radius * 2 * 304.8, 1)
-                        if sid not in sym_map:
-                            sym_map[sid] = set()
-                        sym_map[sid].add(dn)
-                except: pass
-        except: pass
-    return sym_map
-
-def _dnFromSymbolParams(symbol):
-    """Fallback: doc parameter DN tren FamilySymbol"""
-    NAMES = ["Nominal Diameter", "DN", "Size", "Diameter",
-             "Nominal Size", "NPS", "ND", "Pipe Diameter"]
-    for name in NAMES:
-        p = symbol.LookupParameter(name)
-        if p is None: continue
-        try:
-            if p.StorageType == StorageType.Double and p.AsDouble() > 0:
-                return round(p.AsDouble() * 304.8, 1)
-            if p.StorageType == StorageType.String:
-                nums = re.findall(r'\d+\.?\d*', p.AsString() or '')
-                if nums: return float(nums[0])
-        except: pass
+#region ___someFunctions
+def uwList(input):
+    result = input if isinstance(input, list) else [input]
+    return UnwrapElement(input)
+def flatten(nestedList):
+    flatList = []
+    for item in nestedList:
+        if isinstance(item, list):
+            flatList.extend(flatten(item))
+        else:
+            flatList.append(item)
+    return flatList    
+def projectPointToCurve(mPipe, bPipe):
+    mPCurve = mPipe.Location.Curve
+    nearestConOfBPipe = closetConn(mPipe, bPipe)
+    pMid = mPCurve.Project(nearestConOfBPipe).XYZPoint.ToPoint()
+    return pMid
+def NearestConnector(ConnectorSet, curCurve):
+    MinLength = float("inf")
+    result = None 
+    for n in ConnectorSet:
+        distance = curCurve.Location.Curve.Distance(n.Origin)
+        if distance < MinLength:
+            MinLength = distance
+            result = n
+    return result
+def closetConn(mPipe, bPipe):
+    connectors1 = list(bPipe.ConnectorManager.Connectors.GetEnumerator())
+    Connector1  = NearestConnector(connectors1, mPipe)
+    XYZconn     = Connector1.Origin
+    return XYZconn
+def pullPointToOxy(XYZpoint):
+    newPoint = XYZ(XYZpoint.X, XYZpoint.Y, 0)
+    return newPoint
+def pullPipeToOxy(pipe):
+    pCurve     = pipe.Location.Curve
+    startPoint = pCurve.GetEndPoint(0)
+    endPoint   = pCurve.GetEndPoint(1)
+    oxySP      = pullPointToOxy(startPoint)
+    oxyEP      = pullPointToOxy(endPoint)
+    oxyCurve   = Line.CreateBound(oxySP, oxyEP)
+    return oxyCurve
+def sortNFConn_bPipe(mPipe, bPipe):
+    tmp1     = []
+    connList = list(bPipe.ConnectorManager.Connectors.GetEnumerator())
+    nearConn = NearestConnector(connList, mPipe)
+    tmp1.append(nearConn)
+    tmp1.append([c for c in connList if c != nearConn])
+    sortConnList = flatten(tmp1)
+    originConns  = flatten([[c.Origin for c in sortConnList]])
+    return originConns	
+def offsetPointAlongVector(point, vector, offsetDistance):
+    direction   = vector.Normalize()
+    scaledVector = direction.Multiply(offsetDistance)
+    offsetPoint  = point.Add(scaledVector)
+    return offsetPoint
+def findIntersection(line1, line2):
+    intersectionResultArray = clr.Reference[Autodesk.Revit.DB.IntersectionResultArray]()
+    result = line1.Intersect(line2, intersectionResultArray)
+    if result == SetComparisonResult.Overlap and intersectionResultArray.Size > 0:
+        return intersectionResultArray.get_Item(0).XYZPoint
     return None
-
-def getSymbolDisplayName(symbol):
-    try:
-        fname = symbol.Family.Name
-        tname = symbol.get_Parameter(
-            BuiltInParameter.SYMBOL_NAME_PARAM).AsString()
-        return "{0} : {1}".format(fname, tname)
-    except:
-        try: return symbol.Name
-        except: return "ID_{0}".format(symbol.Id.IntegerValue)
-
-class SymbolWrapper(object):
-    def __init__(self, symbol, dn_set=None):
-        self.Symbol   = symbol
-        self.Name     = getSymbolDisplayName(symbol)
-        self.DN       = dn_set or set()
-        self.Resolved = bool(dn_set)
-    def __str__(self): return self.Name
-
-def loadAccessoriesByDN(dn_mm, tol=1.0):
-    inst_map   = _buildSymbolDnMap()
-    collector  = (FilteredElementCollector(doc)
-                  .OfCategory(BuiltInCategory.OST_PipeAccessory)
-                  .WhereElementIsElementType()
-                  .ToElements())
-    matched    = []
-    unresolved = []
-    for sym in collector:
-        if not isinstance(sym, FamilySymbol): continue
-        try:
-            sid    = sym.Id.IntegerValue
-            dn_set = inst_map.get(sid, set())
-            if not dn_set:
-                d = _dnFromSymbolParams(sym)
-                if d: dn_set = {d}
-            wrapper = SymbolWrapper(sym, dn_set if dn_set else None)
-            if not dn_set:
-                wrapper.Name = "[?] " + wrapper.Name
-                unresolved.append(wrapper)
-            elif any(abs(d - dn_mm) <= tol for d in dn_set):
-                matched.append(wrapper)
-        except:
-            w      = SymbolWrapper(sym)
-            w.Name = "[?] " + w.Name
-            unresolved.append(w)
-    matched.sort(key=lambda w: w.Name.lower())
-    unresolved.sort(key=lambda w: w.Name.lower())
-    return matched + unresolved
-
-# ─────────────────────────────────────────────────────────────
-# Chieu diem len duong tam ong
-# ─────────────────────────────────────────────────────────────
-def projectOntoCenterline(pipe, point):
-    """
-    Chieu XYZ point len Location.Curve (duong tam ong).
-    Tra ve XYZ chinh xac tren truc ong.
-    """
-    curve = pipe.Location.Curve
-    try:
-        result = curve.Project(point)
-        if result is not None:
-            return result.XYZPoint
-    except: pass
-    # fallback: tim diem gan nhat tren doan thang
-    p0 = curve.GetEndPoint(0)
-    p1 = curve.GetEndPoint(1)
-    v  = p1 - p0
-    w  = point - p0
-    t  = w.DotProduct(v) / v.DotProduct(v)
-    t  = max(0.0, min(1.0, t))
-    return p0 + v.Multiply(t)
-
-# ─────────────────────────────────────────────────────────────
-# Dat accessory + xoay dung huong pipe
-# ─────────────────────────────────────────────────────────────
-def placeAccessory(pipe, insert_pt, symbol):
-    """
-    insert_pt: XYZ da chieu len duong tam ong
-    Dat FamilyInstance tai insert_pt, xoay can huong pipe.
-    """
+def createPlaneContainingLine(line):
+    startPoint = line.GetEndPoint(0)
+    direction  = line.Direction
+    normal     = direction.CrossProduct(XYZ.BasisZ)  
+    plane      = Plane.CreateByNormalAndOrigin(normal, startPoint)
+    return plane
+def find_intersection(line, plane):
+    plane_normal  = plane.Normal
+    plane_origin  = plane.Origin
+    line_direction = line.Direction
+    line_point    = line.GetEndPoint(0)
+    dot_product   = plane_normal.DotProduct(line_direction)
+    if abs(dot_product) < 1e-9:
+        return None
+    t = plane_normal.DotProduct(plane_origin - line_point) / dot_product
+    return line_point + t * line_direction
+def calculateDistance(pointA, pointB):
+    dx = pointA.X - pointB.X
+    dy = pointA.Y - pointB.Y
+    dz = pointA.Z - pointB.Z
+    return math.sqrt(dx**2 + dy**2 + dz**2)
+def pipeCreateFromPoints(desPointsList, sel_pipingSystem, sel_PipeType, sel_Level, diameter):
+    lst_Points1 = [i for i in desPointsList]
+    lst_Points2 = [i for i in desPointsList[1:]]
+    linesList   = []
+    for pt1, pt2 in zip(lst_Points1, lst_Points2):
+        line = Autodesk.DesignScript.Geometry.Line.ByStartPointEndPoint(pt1, pt2)
+        linesList.append(line)
+    firstPoint  = [x.StartPoint for x in linesList]
+    secondPoint = [x.EndPoint   for x in linesList]
     TransactionManager.Instance.EnsureInTransaction(doc)
+    pipe = None
+    for i, x in enumerate(firstPoint):
+        try:
+            levelId    = sel_Level.Id
+            sysTypeId  = sel_pipingSystem.Id
+            pipeTypeId = sel_PipeType.Id
+            diam       = diameter
+            pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(
+                doc, sysTypeId, pipeTypeId, levelId,
+                x.ToXyz(), secondPoint[i].ToXyz())
+            param_Diameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
+            param_Diameter.SetValueString(diam.ToString())
+            TransactionManager.Instance.EnsureInTransaction(doc)
+            TransactionManager.Instance.TransactionTaskDone()
+        except: pass			
+    TransactionManager.Instance.TransactionTaskDone()
+    return pipe
+def getPipeParameter(p):
+    paramDiameter = p.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM).AsDouble() * 304.8
+    paramPipeTypeId   = p.GetTypeId()
+    paramPipeType     = doc.GetElement(paramPipeTypeId)
+    paramPipingSystemId = p.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM).AsElementId()
+    paramPipingSystem   = doc.GetElement(paramPipingSystemId)
+    paramLevelId = p.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
+    paramLevel   = doc.GetElement(paramLevelId)
+    pipingSystemName = paramPipingSystem.LookupParameter("System Classification").AsValueString()
+    pipeTypeName     = paramPipeType.LookupParameter("Type Name").AsString()
+    return [paramDiameter, paramPipingSystem, paramPipeType, paramLevel], \
+           [paramDiameter, pipingSystemName, pipeTypeName, paramLevel]
+
+def createElbowBetweenPipes(doc, pipe1, pipe2):
+    """
+    Tạo elbow giữa 2 pipe, tìm cặp connector gần nhất.
+    Trả về fitting hoặc None nếu thất bại.
+    """
     try:
-        if not symbol.IsActive:
-            symbol.Activate()
-            doc.Regenerate()
-
-        pipe_dir = pipe.Location.Curve.Direction.Normalize()
-
-        # Level tu pipe
-        lvl_id = pipe.get_Parameter(
-            BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId()
-        level  = doc.GetElement(lvl_id)
-
-        # Dat instance
-        instance = doc.Create.NewFamilyInstance(
-            insert_pt, symbol, level, StructuralType.NonStructural)
-        doc.Regenerate()
-
-        # ── Xoay can huong pipe ──────────────────────────────
-        # Lay huong connector mac dinh cua instance
-        default_dir = None
-        try:
-            for c in instance.MEPModel.ConnectorManager.Connectors:
-                if c.ConnectorType == ConnectorType.End:
-                    default_dir = c.CoordinateSystem.BasisZ.Normalize()
-                    break
-        except: pass
-        if default_dir is None:
-            default_dir = XYZ.BasisX
-
-        # Truc xoay: BasisZ (ong nam ngang), BasisX (ong thang dung)
-        if abs(pipe_dir.DotProduct(XYZ.BasisZ)) > 0.99:
-            rot_axis = XYZ.BasisX
-        else:
-            rot_axis = XYZ.BasisZ
-
-        rot_line = Line.CreateBound(insert_pt, insert_pt.Add(rot_axis))
-
-        def flatProj(v, n):
-            r = v - n.Multiply(v.DotProduct(n))
-            return r if r.GetLength() > 1e-6 else None
-
-        d_f = flatProj(default_dir, rot_axis)
-        p_f = flatProj(pipe_dir,    rot_axis)
-
-        if d_f and p_f:
-            d_f   = d_f.Normalize()
-            p_f   = p_f.Normalize()
-            angle = d_f.AngleTo(p_f)
-            if d_f.CrossProduct(p_f).DotProduct(rot_axis) < 0:
-                angle = -angle
-            if abs(angle) > 1e-6:
-                ElementTransformUtils.RotateElement(
-                    doc, instance.Id, rot_line, angle)
-                doc.Regenerate()
-
-        TransactionManager.Instance.TransactionTaskDone()
-        return instance, None
-
+        conns1 = list(pipe1.ConnectorManager.Connectors.GetEnumerator())
+        conns2 = list(pipe2.ConnectorManager.Connectors.GetEnumerator())
+        min_dist   = float('inf')
+        best_conn1 = None
+        best_conn2 = None
+        for c1 in conns1:
+            for c2 in conns2:
+                d = c1.Origin.DistanceTo(c2.Origin)
+                if d < min_dist:
+                    min_dist   = d
+                    best_conn1 = c1
+                    best_conn2 = c2
+        if best_conn1 is None or best_conn2 is None:
+            return None
+        if min_dist > 1.0:
+            return None
+        fitting = doc.Create.NewElbowFitting(best_conn1, best_conn2)
+        return fitting
     except Exception as ex:
-        try: TransactionManager.Instance.TransactionTaskDone()
-        except: pass
-        return None, str(ex)
+        return None
+
+def find_closest_connector(mainPipe, branchPipe):
+    try:
+        main_curve        = mainPipe.Location.Curve
+        branch_connectors = list(branchPipe.ConnectorManager.Connectors)
+        min_distance  = float("inf")
+        closest_conn  = None
+        closest_xyz   = None
+        for conn in branch_connectors:
+            if not hasattr(conn, "Origin"):
+                continue
+            projection = main_curve.Project(conn.Origin)
+            if projection is None:
+                continue
+            distance = conn.Origin.DistanceTo(projection.XYZPoint)
+            if distance < min_distance:
+                min_distance = distance
+                closest_conn = conn
+                closest_xyz  = conn.Origin       
+        return closest_conn, closest_xyz
+    except:
+        return None, None
+
+def calcMidPoint(intersectPoint1, tmpPoint2, mPipeCurve, inAngle):
+    """
+    Tính midPoint trên đường vuông góc với ống chính từ intersectPoint1,
+    sao cho pipe từ midPoint đến tmpPoint2 có góc = inAngle so với ống chính.
+
+    Sơ đồ:
+        intersectPoint1 ---[perp pipe 90 deg]---> midPoint
+                                                      |
+                                              [angled pipe @ inAngle]
+                                                      |
+                                                  tmpPoint2 (bPipe connector)
+    """
+    main_dir_n   = mPipeCurve.Direction.Normalize()
+    total_vec    = tmpPoint2 - intersectPoint1
+
+    # Phân tích thành thành phần song song và vuông góc với ống chính
+    along_scalar  = total_vec.DotProduct(main_dir_n)
+    along_vec     = main_dir_n.Multiply(along_scalar)
+    perp_vec_raw  = total_vec - along_vec
+    perp_len      = perp_vec_raw.GetLength()
+
+    if perp_len < 1e-6:
+        # tmpPoint2 nằm trên trục ống chính, không có thành phần vuông góc
+        return intersectPoint1, False
+
+    perp_n_local = perp_vec_raw.Normalize()
+
+    if inAngle >= 90 or abs(along_scalar) < 1e-6:
+        # Góc 90 deg: toàn bộ là đoạn vuông góc, không cần pipe góc
+        return intersectPoint1.Add(perp_n_local.Multiply(perp_len)), False
+
+    # Tính L1: độ dài đoạn vuông góc
+    # Từ midPoint đến tmpPoint2 phải tạo góc inAngle so với ống chính:
+    #   tan(inAngle) = (perp_len - L1) / |along_scalar|
+    #   => L1 = perp_len - |along_scalar| * tan(inAngle)
+    theta_rad = math.radians(inAngle)
+    L1        = perp_len - abs(along_scalar) * math.tan(theta_rad)
+
+    # Đảm bảo L1 > 0 và đủ dài để tạo pipe hợp lệ (min 0.05 ft)
+    MIN_PIPE_LEN = 0.05
+    if L1 < MIN_PIPE_LEN:
+        L1 = MIN_PIPE_LEN
+
+    midPoint   = intersectPoint1.Add(perp_n_local.Multiply(L1))
+    need_angle = midPoint.DistanceTo(tmpPoint2) > MIN_PIPE_LEN
+    return midPoint, need_angle
 #endregion
 
-#region ___UI
-class AccessoryPlacerForm(Form):
-    W, H   = 560, 630
-    PAD    = 12
-    BTN_W  = 88
-    BTN_H  = 34
+#region ___input: Pick pipes
+mPipe = pickPipe() if 'pickPipe' in dir() else None
 
+class selectionFilter(ISelectionFilter):
+    def __init__(self, category):
+        self.category = category
+    def AllowElement(self, element):
+        return element.Category.Name == self.category
+
+def pickPipe():
+    pipeFilter = selectionFilter('Pipes')
+    pipeRef    = uidoc.Selection.PickObject(
+        Autodesk.Revit.UI.Selection.ObjectType.Element, pipeFilter)
+    return doc.GetElement(pipeRef.ElementId)
+
+mPipe = pickPipe()
+bPipe = pickPipe()
+#endregion
+
+#region ___input: Angle UI
+class MyForm(Form):
     def __init__(self):
-        self._pipe        = None
-        self._dn_mm       = 0.0
-        self._symbols     = []
-        self._insertPt    = None
-        self._logLines    = []
-        self._clb_lastIdx = -1
-        self.InitializeComponent()
+        primary_screen = Screen.PrimaryScreen.WorkingArea
+        screen_width   = primary_screen.Width  // 5
+        screen_height  = primary_screen.Height // 6
+        self.Text        = ''
+        self.ClientSize  = Size(screen_width, screen_height)
+        self.Font        = System.Drawing.Font(
+            "Meiryo UI", 7.5, System.Drawing.FontStyle.Bold,
+            System.Drawing.GraphicsUnit.Point, 128)
+        self.ForeColor   = System.Drawing.Color.Red
 
-    def InitializeComponent(self):
-        p, w, h = self.PAD, self.W, self.H
+        self.label      = Label()
+        self.label.Text = "ANGLE (degrees)"
+        self.label.Size = Size(screen_width // 2, 50)
+        self.label.Location = Point(20, 20)
+        self.Controls.Add(self.label)
 
-        # ── Title ─────────────────────────────────────────────
-        self._lb_title           = Label()
-        self._lb_title.Text      = "Pipe Accessory Placer"
-        self._lb_title.Font      = Font("Meiryo UI", 11,
-                                        System.Drawing.FontStyle.Bold)
-        self._lb_title.ForeColor = Color.Red
-        self._lb_title.Location  = Point(p, 10)
-        self._lb_title.Size      = Size(w - p*2, 24)
+        self.textBox          = TextBox()
+        self.textBox.Location = Point(30, 70)
+        self.textBox.Size     = Size(int(screen_width // 1.1), 200)
+        self.textBox.KeyDown += self.textBox_KeyDown
+        self.Controls.Add(self.textBox)
 
-        # ── GroupBox: Pipe ─────────────────────────────────────
-        self._grb_pipe           = GroupBox()
-        self._grb_pipe.Text      = "Pipe"
-        self._grb_pipe.Font      = Font("Meiryo UI", 8,
-                                        System.Drawing.FontStyle.Bold)
-        self._grb_pipe.ForeColor = Color.Red
-        self._grb_pipe.Location  = Point(p, 38)
-        self._grb_pipe.Size      = Size(w - p*2, 54)
+        self.okButton          = Button()
+        self.okButton.Text     = 'OK'
+        self.okButton.Size     = Size(150, 40)
+        self.okButton.Location = Point(screen_width - 350, screen_height - 70)
+        self.okButton.Click   += self.okButton_Click
+        self.Controls.Add(self.okButton)
 
-        self._btt_pickPipe           = Button()
-        self._btt_pickPipe.Text      = "Pick Pipe"
-        self._btt_pickPipe.Font      = Font("Meiryo UI", 8,
-                                            System.Drawing.FontStyle.Bold)
-        self._btt_pickPipe.ForeColor = Color.Blue
-        self._btt_pickPipe.Location  = Point(6, 18)
-        self._btt_pickPipe.Size      = Size(90, 26)
-        self._btt_pickPipe.UseVisualStyleBackColor = True
-        self._btt_pickPipe.Click    += self.Btt_pickPipeClick
+        self.cancelButton          = Button()
+        self.cancelButton.Text     = 'CANCEL'
+        self.cancelButton.Size     = Size(150, 40)
+        self.cancelButton.Location = Point(screen_width - 180, screen_height - 70)
+        self.cancelButton.Click   += self.cancelButton_Click
+        self.Controls.Add(self.cancelButton)
 
-        self._lb_pipe            = Label()
-        self._lb_pipe.Text       = "No pipe selected"
-        self._lb_pipe.Font       = Font("Meiryo UI", 8,
-                                        System.Drawing.FontStyle.Bold)
-        self._lb_pipe.ForeColor  = Color.DimGray
-        self._lb_pipe.Location   = Point(104, 22)
-        self._lb_pipe.Size       = Size(w - p*2 - 108, 20)
-        self._lb_pipe.AutoSize   = False
+        self.fvcLabel          = Label()
+        self.fvcLabel.Text     = "@FVC"
+        self.fvcLabel.Size     = Size(150, 40)
+        self.fvcLabel.Location = Point(20, screen_height - 50)
+        self.Controls.Add(self.fvcLabel)
+        self.result = None
 
-        self._grb_pipe.Controls.Add(self._btt_pickPipe)
-        self._grb_pipe.Controls.Add(self._lb_pipe)
+    def textBox_KeyDown(self, sender, event):
+        if event.KeyCode == Keys.Enter:
+            self.okButton_Click(sender, None)
+            event.Handled = True
 
-        # ── GroupBox: Accessories ──────────────────────────────
-        self._grb_acc            = GroupBox()
-        self._grb_acc.Text       = "Accessories"
-        self._grb_acc.Font       = Font("Meiryo UI", 8,
-                                        System.Drawing.FontStyle.Bold)
-        self._grb_acc.ForeColor  = Color.Red
-        self._grb_acc.Location   = Point(p, 98)
-        self._grb_acc.Size       = Size(w - p*2, 284)
+    def okButton_Click(self, sender, event):
+        self.result       = self.textBox.Text
+        self.DialogResult = DialogResult.OK
+        self.Close()
 
-        self._lb_filterLbl           = Label()
-        self._lb_filterLbl.Text      = "Filter:"
-        self._lb_filterLbl.Font      = Font("Meiryo UI", 8,
-                                            System.Drawing.FontStyle.Bold)
-        self._lb_filterLbl.ForeColor = Color.Black
-        self._lb_filterLbl.Location  = Point(6, 22)
-        self._lb_filterLbl.Size      = Size(40, 20)
+    def cancelButton_Click(self, sender, event):
+        self.DialogResult = DialogResult.Cancel
+        self.Close()
 
-        self._txb_filter          = TextBox()
-        self._txb_filter.Font     = Font("Meiryo UI", 8,
-                                         System.Drawing.FontStyle.Bold)
-        self._txb_filter.Location = Point(50, 20)
-        self._txb_filter.Size     = Size(w - p*2 - 58, 22)
-        self._txb_filter.TextChanged += self.Txb_filterChanged
+form   = MyForm()
+result = form.ShowDialog()
+if result == DialogResult.OK:
+    text_input = form.result
+else:
+    text_input = None
 
-        self._lb_count           = Label()
-        self._lb_count.Text      = "0 items"
-        self._lb_count.Font      = Font("Meiryo UI", 7,
-                                        System.Drawing.FontStyle.Italic)
-        self._lb_count.ForeColor = Color.Gray
-        self._lb_count.Location  = Point(6, 46)
-        self._lb_count.Size      = Size(w - p*2 - 14, 16)
-
-        self._clb                    = CheckedListBox()
-        self._clb.DisplayMember       = 'Name'
-        self._clb.Font                = Font("Meiryo UI", 7.5,
-                                             System.Drawing.FontStyle.Bold)
-        self._clb.ForeColor           = Color.DarkBlue
-        self._clb.FormattingEnabled   = True
-        self._clb.CheckOnClick         = False
-        self._clb.HorizontalScrollbar  = True
-        self._clb.Location            = Point(6, 64)
-        self._clb.Size                = Size(w - p*2 - 14, 210)
-        self._clb.MouseDown           += self.Clb_MouseDown
-
-        self._grb_acc.Controls.Add(self._lb_filterLbl)
-        self._grb_acc.Controls.Add(self._txb_filter)
-        self._grb_acc.Controls.Add(self._lb_count)
-        self._grb_acc.Controls.Add(self._clb)
-
-        # ── GroupBox: Placement Point ──────────────────────────
-        self._grb_point           = GroupBox()
-        self._grb_point.Text      = "Placement Point"
-        self._grb_point.Font      = Font("Meiryo UI", 8,
-                                         System.Drawing.FontStyle.Bold)
-        self._grb_point.ForeColor = Color.Red
-        self._grb_point.Location  = Point(p, 390)
-        self._grb_point.Size      = Size(w - p*2, 72)
-
-        self._btt_pickPt           = Button()
-        self._btt_pickPt.Text      = "Pick on Pipe"
-        self._btt_pickPt.Font      = Font("Meiryo UI", 8,
-                                          System.Drawing.FontStyle.Bold)
-        self._btt_pickPt.ForeColor = Color.Blue
-        self._btt_pickPt.Location  = Point(6, 18)
-        self._btt_pickPt.Size      = Size(100, 26)
-        self._btt_pickPt.UseVisualStyleBackColor = True
-        self._btt_pickPt.Click    += self.Btt_pickPointClick
-
-        self._lb_point_raw        = Label()
-        self._lb_point_raw.Text   = "Surface : -"
-        self._lb_point_raw.Font   = Font("Meiryo UI", 7.5,
-                                         System.Drawing.FontStyle.Regular)
-        self._lb_point_raw.ForeColor = Color.DimGray
-        self._lb_point_raw.Location  = Point(114, 18)
-        self._lb_point_raw.Size      = Size(w - p*2 - 118, 18)
-
-        self._lb_point_proj        = Label()
-        self._lb_point_proj.Text   = "Centerline : -"
-        self._lb_point_proj.Font   = Font("Meiryo UI", 7.5,
-                                          System.Drawing.FontStyle.Bold)
-        self._lb_point_proj.ForeColor = Color.DimGray
-        self._lb_point_proj.Location  = Point(114, 40)
-        self._lb_point_proj.Size      = Size(w - p*2 - 118, 18)
-
-        self._grb_point.Controls.Add(self._btt_pickPt)
-        self._grb_point.Controls.Add(self._lb_point_raw)
-        self._grb_point.Controls.Add(self._lb_point_proj)
-
-        # ── GroupBox: Log ──────────────────────────────────────
-        self._grb_log            = GroupBox()
-        self._grb_log.Text       = "Log"
-        self._grb_log.Font       = Font("Meiryo UI", 8,
-                                        System.Drawing.FontStyle.Bold)
-        self._grb_log.ForeColor  = Color.Red
-        self._grb_log.Location   = Point(p, 470)
-        self._grb_log.Size       = Size(w - p*2, 80)
-
-        self._txb_log            = TextBox()
-        self._txb_log.Multiline  = True
-        self._txb_log.ReadOnly   = True
-        self._txb_log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        self._txb_log.Font       = Font("Consolas", 7)
-        self._txb_log.BackColor  = Color.White
-        self._txb_log.Location   = Point(6, 18)
-        self._txb_log.Size       = Size(w - p*2 - 14, 54)
-        self._grb_log.Controls.Add(self._txb_log)
-
-        # ── Status ────────────────────────────────────────────
-        self._lb_status           = Label()
-        self._lb_status.Text      = "Start: click 'Pick Pipe'."
-        self._lb_status.Font      = Font("Meiryo UI", 7.5,
-                                         System.Drawing.FontStyle.Bold)
-        self._lb_status.ForeColor = Color.Gray
-        self._lb_status.Location  = Point(p, 556)
-        self._lb_status.Size      = Size(w - p*2, 18)
-
-        # ── Buttons ───────────────────────────────────────────
-        bw, bh = self.BTN_W, self.BTN_H
-        by     = h - bh - 14
-
-        self._btt_RUN            = Button()
-        self._btt_RUN.Text       = "RUN"
-        self._btt_RUN.Font       = Font("Meiryo UI", 9,
-                                        System.Drawing.FontStyle.Bold)
-        self._btt_RUN.ForeColor  = Color.Red
-        self._btt_RUN.Location   = Point(w - bw*2 - p - 6, by)
-        self._btt_RUN.Size       = Size(bw, bh)
-        self._btt_RUN.UseVisualStyleBackColor = True
-        self._btt_RUN.Click     += self.Btt_RUNClick
-
-        self._btt_CLOSE           = Button()
-        self._btt_CLOSE.Text      = "CANCEL"
-        self._btt_CLOSE.Font      = Font("Meiryo UI", 9,
-                                         System.Drawing.FontStyle.Bold)
-        self._btt_CLOSE.ForeColor = Color.Red
-        self._btt_CLOSE.Location  = Point(w - bw - p, by)
-        self._btt_CLOSE.Size      = Size(bw, bh)
-        self._btt_CLOSE.UseVisualStyleBackColor = True
-        self._btt_CLOSE.Click    += lambda s, e: self.Close()
-
-        self._lb_fvc             = Label()
-        self._lb_fvc.Text        = "@FVC"
-        self._lb_fvc.Font        = Font("Meiryo UI", 4.8,
-                                        System.Drawing.FontStyle.Bold)
-        self._lb_fvc.ForeColor   = Color.LightGray
-        self._lb_fvc.Location    = Point(p, by + 10)
-        self._lb_fvc.Size        = Size(48, 16)
-
-        self.Text            = "Pipe Accessory Placer"
-        self.ClientSize      = Size(w, h)
-        self.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D
-        self.TopMost         = True
-        self.Controls.Add(self._lb_title)
-        self.Controls.Add(self._grb_pipe)
-        self.Controls.Add(self._grb_acc)
-        self.Controls.Add(self._grb_point)
-        self.Controls.Add(self._grb_log)
-        self.Controls.Add(self._lb_status)
-        self.Controls.Add(self._btt_RUN)
-        self.Controls.Add(self._btt_CLOSE)
-        self.Controls.Add(self._lb_fvc)
-
-    # ── Helpers ───────────────────────────────────────────────
-    def _setStatus(self, text, color=None):
-        self._lb_status.Text      = text
-        self._lb_status.ForeColor = color or Color.Gray
-        System.Windows.Forms.Application.DoEvents()
-
-    def _addLog(self, text):
-        self._logLines.append(text)
-        if len(self._logLines) > 100:
-            self._logLines = self._logLines[-100:]
-        self._txb_log.Text = "\r\n".join(reversed(self._logLines))
-
-    def _refreshList(self):
-        ft = self._txb_filter.Text.strip().lower()
-        self._clb.BeginUpdate()
-        self._clb.Items.Clear()
-        self._clb_lastIdx = -1
-        for wrapper in self._symbols:
-            if ft == "" or ft in wrapper.Name.lower():
-                self._clb.Items.Add(wrapper)
-        self._clb.EndUpdate()
-        matched = sum(1 for i in range(self._clb.Items.Count)
-                      if not self._clb.Items[i].Name.startswith("[?]"))
-        total   = self._clb.Items.Count
-        self._lb_count.Text = "{0} matched DN  +  {1} unresolved  =  {2} total".format(
-            matched, total - matched, total)
-        self._updateHExtent()
-
-    def _updateHExtent(self):
-        max_w = 0
-        g = self._clb.CreateGraphics()
-        for i in range(self._clb.Items.Count):
-            tw = int(g.MeasureString(
-                self._clb.Items[i].Name, self._clb.Font).Width) + 20
-            if tw > max_w: max_w = tw
-        g.Dispose()
-        self._clb.HorizontalExtent = max_w
-
-    # ── Shift+Click ───────────────────────────────────────────
-    def Clb_MouseDown(self, sender, e):
-        idx = self._clb.IndexFromPoint(e.X, e.Y)
-        if idx < 0: return
-        isShift = (System.Windows.Forms.Control.ModifierKeys ==
-                   System.Windows.Forms.Keys.Shift)
-        if isShift and self._clb_lastIdx >= 0:
-            target = self._clb.GetItemChecked(self._clb_lastIdx)
-            for i in range(min(self._clb_lastIdx, idx),
-                           max(self._clb_lastIdx, idx) + 1):
-                self._clb.SetItemChecked(i, target)
-        else:
-            self._clb.SetItemChecked(idx, not self._clb.GetItemChecked(idx))
-            self._clb_lastIdx = idx
-
-    def Txb_filterChanged(self, sender, e):
-        self._refreshList()
-
-    # ── Pick Pipe ─────────────────────────────────────────────
-    def Btt_pickPipeClick(self, sender, e):
-        self.Hide()
-        try:
-            ref  = uidoc.Selection.PickObject(
-                Autodesk.Revit.UI.Selection.ObjectType.Element,
-                PipeFilter(), "Pick a pipe")
-            pipe = doc.GetElement(ref.ElementId)
-            self._pipe    = pipe
-            self._dn_mm   = getPipeDiameter_mm(pipe)
-            self._setStatus("Loading accessories...", Color.DarkOrange)
-            self.Show()
-            System.Windows.Forms.Application.DoEvents()
-            self.Hide()
-
-            self._symbols = loadAccessoriesByDN(self._dn_mm)
-
-            pipe_type = ""
-            try:
-                pipe_type = " | {0}".format(
-                    doc.GetElement(pipe.GetTypeId()).Name)
-            except: pass
-
-            matched = sum(1 for w in self._symbols
-                          if not w.Name.startswith("[?]"))
-            self._lb_pipe.Text      = "DN {0} mm{1}".format(
-                self._dn_mm, pipe_type)
-            self._lb_pipe.ForeColor = Color.DarkGreen
-            self._refreshList()
-            self._setStatus(
-                "DN = {0} mm | {1} matched, {2} unresolved.".format(
-                    self._dn_mm, matched,
-                    len(self._symbols) - matched),
-                Color.DarkGreen)
-        except Exception as ex:
-            err = str(ex)
-            if "cancel" not in err.lower() and "operation" not in err.lower():
-                self._setStatus("Error: {0}".format(err), Color.OrangeRed)
-            else:
-                self._setStatus("Pick cancelled.", Color.Gray)
-        finally:
-            self.Show()
-            self.TopMost = True
-            self.BringToFront()
-
-    # ── Pick Point on Pipe Face ───────────────────────────────
-    def Btt_pickPointClick(self, sender, e):
-        if self._pipe is None:
-            MessageBox.Show("Please pick a pipe first.", "No Pipe",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            return
-        self.Hide()
-        try:
-            # PickObject PointOnElement: bat buoc click tren be mat element
-            # Chi cho phep chon be mat ong (PipeFaceFilter)
-            ref = uidoc.Selection.PickObject(
-                Autodesk.Revit.UI.Selection.ObjectType.PointOnElement,
-                PipeFaceFilter(),
-                "Click on the pipe surface")
-
-            # Diem tren be mat ong (raw)
-            raw_xyz = ref.GlobalPoint
-
-            # Chieu len duong tam ong
-            self._insertPt = projectOntoCenterline(self._pipe, raw_xyz)
-
-            # Hien thi ca 2 diem
-            def fmt(pt):
-                return "({0:.0f}, {1:.0f}, {2:.0f}) mm".format(
-                    pt.X * 304.8, pt.Y * 304.8, pt.Z * 304.8)
-
-            self._lb_point_raw.Text      = "Surface    : {0}".format(fmt(raw_xyz))
-            self._lb_point_raw.ForeColor = Color.DimGray
-            self._lb_point_proj.Text     = "Centerline : {0}".format(
-                fmt(self._insertPt))
-            self._lb_point_proj.ForeColor = Color.DarkGreen
-
-            self._setStatus(
-                "Point on centerline ready. Select accessory and click RUN.",
-                Color.DarkOrange)
-        except Exception as ex:
-            err = str(ex)
-            if "cancel" not in err.lower() and "operation" not in err.lower():
-                self._setStatus("Error: {0}".format(err), Color.OrangeRed)
-            else:
-                self._setStatus("Pick cancelled.", Color.Gray)
-        finally:
-            self.Show()
-            self.TopMost = True
-            self.BringToFront()
-
-    # ── RUN ───────────────────────────────────────────────────
-    def Btt_RUNClick(self, sender, e):
-        if self._pipe is None:
-            MessageBox.Show("Please pick a pipe first.", "No Pipe",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            return
-        if self._insertPt is None:
-            MessageBox.Show("Please pick a point on the pipe surface.",
-                "No Point", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            return
-        checked = list(self._clb.CheckedItems)
-        if not checked:
-            MessageBox.Show("Please select at least one accessory.",
-                "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            return
-
-        ok_n = fail_n = 0
-        for wrapper in checked:
-            inst, err = placeAccessory(
-                self._pipe, self._insertPt, wrapper.Symbol)
-            if inst:
-                ok_n += 1
-                self._addLog("[OK]   {0}".format(wrapper.Name))
-            else:
-                fail_n += 1
-                self._addLog("[FAIL] {0} -> {1}".format(wrapper.Name, err))
-
-        # Reset point
-        self._insertPt = None
-        self._lb_point_raw.Text       = "Surface    : -"
-        self._lb_point_raw.ForeColor  = Color.DimGray
-        self._lb_point_proj.Text      = "Centerline : -"
-        self._lb_point_proj.ForeColor = Color.DimGray
-
-        # Uncheck list
-        for i in range(self._clb.Items.Count):
-            self._clb.SetItemChecked(i, False)
-
-        if fail_n == 0:
-            self._setStatus(
-                "Placed {0} ok. Pick next point to continue.".format(ok_n),
-                Color.DarkGreen)
-        else:
-            self._setStatus(
-                "Done: {0} ok, {1} failed. Pick next point.".format(
-                    ok_n, fail_n), Color.OrangeRed)
+inAngle = float(text_input)
 #endregion
 
-f = AccessoryPlacerForm()
-Application.Run(f)
-OUT = "Done"
+# ═══════════════════════════════════════════════════════════════
+#  MAIN GEOMETRY CALCULATION
+# ═══════════════════════════════════════════════════════════════
+TransactionManager.Instance.EnsureInTransaction(doc)
 
+nearConnOfBP    = closetConn(mPipe, bPipe)
+sortNearConnsBP = sortNFConn_bPipe(mPipe, bPipe)
 
+mPipeCurve    = mPipe.Location.Curve
+bPipeCurve    = bPipe.Location.Curve
+offsetVector  = sortNearConnsBP[0] - sortNearConnsBP[1]
+newNearConn   = offsetPointAlongVector(sortNearConnsBP[0], offsetVector, 100)
+
+# Mặt phẳng chứa ống chính
+tmpLine       = Line.CreateBound(newNearConn, sortNearConnsBP[0])
+tmpPlane      = createPlaneContainingLine(mPipeCurve)
+intersectPoint = find_intersection(tmpLine, tmpPlane)
+
+# Mặt phẳng vuông góc qua ống nhánh
+tmpPlane1      = createPlaneContainingLine(tmpLine)
+intersectPoint1 = find_intersection(mPipeCurve, tmpPlane1)
+
+# Khoảng cách giữa 2 giao điểm
+dis          = calculateDistance(intersectPoint, intersectPoint1)
+offsetVector1 = nearConnOfBP - intersectPoint
+
+# ── Tính tmpPoint2 theo góc người dùng nhập ───────────────────
+if inAngle <= 45:
+    angle   = 90 - inAngle
+    angRad  = math.radians(angle)
+    tmpDis  = dis * math.tan(angRad)
+    tmpPoint2 = offsetPointAlongVector(intersectPoint, offsetVector1, tmpDis)
+elif inAngle < 90:
+    angle   = inAngle
+    angRad  = math.radians(angle)
+    tmpDis  = dis * math.tan(angRad)
+    tmpPoint2 = offsetPointAlongVector(intersectPoint, offsetVector1, tmpDis)
+else:
+    tmpPoint2 = intersectPoint
+
+# ── Di chuyển ống nhánh đến vị trí mới ───────────────────────
+if tmpPoint2:
+    farEnd   = sortNearConnsBP[1]          # đầu xa giữ nguyên vị trí
+    newCurve = Line.CreateBound(farEnd, tmpPoint2)
+    bPipe.Location.Curve = newCurve
+
+# ═══════════════════════════════════════════════════════════════
+#  TÍNH MIDPOINT: điểm nối giữa ống vuông góc và ống góc user
+#
+#   intersectPoint1 --(perp 90 deg)--> midPoint --(inAngle)--> tmpPoint2
+# ═══════════════════════════════════════════════════════════════
+midPoint, need_angle_pipe = calcMidPoint(
+    intersectPoint1, tmpPoint2, mPipeCurve, inAngle)
+
+# ── Lấy thông số ống chính để tạo ống mới ────────────────────
+basePipeParam     = getPipeParameter(mPipe)
+diamParam         = basePipeParam[0][0]
+pipingSystemParam = basePipeParam[0][1]
+pipeTypeParam     = basePipeParam[0][2]
+levelParam        = basePipeParam[0][3]
+
+# ═══════════════════════════════════════════════════════════════
+#  BƯỚC 1: Tạo ống vuông góc (90 deg từ ống chính)
+#          intersectPoint1 --> midPoint
+# ═══════════════════════════════════════════════════════════════
+pointList_perp = [intersectPoint1.ToPoint(), midPoint.ToPoint()]
+TransactionManager.Instance.EnsureInTransaction(doc)
+tempPipe_perp = pipeCreateFromPoints(
+    pointList_perp, pipingSystemParam, pipeTypeParam, levelParam, diamParam)
+TransactionManager.Instance.TransactionTaskDone()
+
+# ═══════════════════════════════════════════════════════════════
+#  BƯỚC 2: Tạo ống góc user (inAngle từ ống chính)
+#          midPoint --> tmpPoint2
+#  Chỉ tạo nếu midPoint khác tmpPoint2
+# ═══════════════════════════════════════════════════════════════
+tempPipe_angle = None
+if need_angle_pipe:
+    pointList_angle = [midPoint.ToPoint(), tmpPoint2.ToPoint()]
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    tempPipe_angle = pipeCreateFromPoints(
+        pointList_angle, pipingSystemParam, pipeTypeParam, levelParam, diamParam)
+    TransactionManager.Instance.TransactionTaskDone()
+
+# ═══════════════════════════════════════════════════════════════
+#  BƯỚC 3: Tạo elbow 90 deg
+#          Nối tempPipe_perp -- tempPipe_angle (hoặc bPipe nếu ko có angle pipe)
+# ═══════════════════════════════════════════════════════════════
+TransactionManager.Instance.EnsureInTransaction(doc)
+if need_angle_pipe and tempPipe_angle is not None:
+    # Elbow 90 deg giữa ống vuông góc và ống góc user
+    elbow_90 = createElbowBetweenPipes(doc, tempPipe_perp, tempPipe_angle)
+else:
+    # Không có ống góc: nối thẳng tempPipe_perp với bPipe
+    elbow_90 = createElbowBetweenPipes(doc, tempPipe_perp, bPipe)
+TransactionManager.Instance.TransactionTaskDone()
+
+# ═══════════════════════════════════════════════════════════════
+#  BƯỚC 4: Tạo elbow góc user
+#          Nối tempPipe_angle -- bPipe
+# ═══════════════════════════════════════════════════════════════
+if need_angle_pipe and tempPipe_angle is not None:
+    TransactionManager.Instance.EnsureInTransaction(doc)
+    elbow_user = createElbowBetweenPipes(doc, tempPipe_angle, bPipe)
+    TransactionManager.Instance.TransactionTaskDone()
+
+# ═══════════════════════════════════════════════════════════════
+#  BƯỚC 5: Tạo tee tại ống chính
+#          Nối 2 nửa ống chính với tempPipe_perp
+# ═══════════════════════════════════════════════════════════════
+TransactionManager.Instance.EnsureInTransaction(doc)
+
+mPipeConns  = list(mPipe.ConnectorManager.Connectors)
+
+# Tìm connector của tempPipe_perp gần ống chính nhất
+bestConn1   = find_closest_connector(mPipe, tempPipe_perp)
+projection  = mPipeCurve.Project(bestConn1[1])
+projectionPoint = projection.XYZPoint
+
+# Tạo 2 nửa ống chính
+listPoint1 = [mPipeConns[0].Origin.ToPoint(), projectionPoint.ToPoint()]
+listPoint2 = [mPipeConns[1].Origin.ToPoint(), projectionPoint.ToPoint()]
+
+tempPipe2 = pipeCreateFromPoints(
+    listPoint1, pipingSystemParam, pipeTypeParam, levelParam, diamParam)
+tempPipe3 = pipeCreateFromPoints(
+    listPoint2, pipingSystemParam, pipeTypeParam, levelParam, diamParam)
+
+# Tìm connector tại projectionPoint của mỗi nửa
+tempPipe2Conns = list(tempPipe2.ConnectorManager.Connectors.GetEnumerator())
+tempPipe3Conns = list(tempPipe3.ConnectorManager.Connectors.GetEnumerator())
+
+conn1 = None
+conn2 = None
+for c1 in tempPipe2Conns:
+    if c1.Origin.IsAlmostEqualTo(projectionPoint, 0.01):
+        conn1 = c1
+for c2 in tempPipe3Conns:
+    if c2.Origin.IsAlmostEqualTo(projectionPoint, 0.01):
+        conn2 = c2
+
+# Tạo tee: 2 nửa ống chính + connector của tempPipe_perp
+newTee = doc.Create.NewTeeFitting(conn1, conn2, bestConn1[0])
+
+TransactionManager.Instance.TransactionTaskDone()
+
+OUT = 'Done'
