@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ScriptInfo>
+	<ScriptGroup>
+		<ScriptName>GATE_VALVE_FL</ScriptName>
+		<Group>Valves</Group>
+		<FirstPortEndtypes>FL</FirstPortEndtypes>
+	</ScriptGroup>
+	<ScriptGroup>
+		<ScriptName>PNEU_GLOBE_VALVE</ScriptName>
+		<Group>Valves</Group>
+		<FirstPortEndtypes>FL</FirstPortEndtypes>
+	</ScriptGroup>
+	<ScriptGroup>
+		<ScriptName>SO_Flange</ScriptName>
+		<Group>Flange</Group>
+		<FirstPortEndtypes>FL</FirstPortEndtypes>
+	</ScriptGroup>
+</ScriptInfo>

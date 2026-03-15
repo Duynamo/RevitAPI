@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfScript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Script Name="GATE_VALVE_FL" LDesId="GATE_VALVE_FL_L" SDesId="GATE_VALVE_FL" ConnPortNum="2" LengthUnit="mm" >
+		<Params>
+			<Param Name="D" LDesId="GATE_VALVE_FL.D" SDesId="GATE_VALVE_FL.D" Type="LENGTH" Ask4Dist="false" Value="100.0" pg="MainDimensions" />
+			<Param Name="L" LDesId="GATE_VALVE_FL.L" SDesId="GATE_VALVE_FL.L" Type="LENGTH" Ask4Dist="false" Value="360.0" pg="MainDimensions" />
+			<Param Name="D1" LDesId="GATE_VALVE_FL.D1" SDesId="GATE_VALVE_FL.D1" Type="LENGTH" Ask4Dist="false" Value="210.0" pg="MainDimensions" />
+			<Param Name="TF" LDesId="GATE_VALVE_FL.TF" SDesId="GATE_VALVE_FL.TF" Type="LENGTH" Ask4Dist="false" Value="22.0" pg="MainDimensions" />
+			<Param Name="HB" LDesId="GATE_VALVE_FL.HB" SDesId="GATE_VALVE_FL.HB" Type="LENGTH" Ask4Dist="false" Value="220.0" pg="MainDimensions" />
+			<Param Name="DHW" LDesId="GATE_VALVE_FL.DHW" SDesId="GATE_VALVE_FL.DHW" Type="LENGTH" Ask4Dist="false" Value="200.0" pg="Handwheel" />
+			<Param Name="THW" LDesId="GATE_VALVE_FL.THW" SDesId="GATE_VALVE_FL.THW" Type="LENGTH" Ask4Dist="false" Value="14.0" pg="Handwheel" />
+		</Params>
+	</Script>
+</ArrayOfScript>

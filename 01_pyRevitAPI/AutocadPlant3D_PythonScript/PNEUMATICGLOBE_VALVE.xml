@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfScript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Script Name="PNEU_GLOBE_VALVE" LDesId="PNEU_GLOBE_VALVE_L" SDesId="PNEU_GLOBE_VALVE" ConnPortNum="2" LengthUnit="mm" >
+		<Params>
+			<Param Name="D" LDesId="PNEU_GLOBE_VALVE.D" SDesId="PNEU_GLOBE_VALVE.D" Type="LENGTH" Ask4Dist="false" Value="100.0" pg="MainDimensions" />
+			<Param Name="L" LDesId="PNEU_GLOBE_VALVE.L" SDesId="PNEU_GLOBE_VALVE.L" Type="LENGTH" Ask4Dist="false" Value="400.0" pg="MainDimensions" />
+			<Param Name="D1" LDesId="PNEU_GLOBE_VALVE.D1" SDesId="PNEU_GLOBE_VALVE.D1" Type="LENGTH" Ask4Dist="false" Value="210.0" pg="MainDimensions" />
+			<Param Name="TF" LDesId="PNEU_GLOBE_VALVE.TF" SDesId="PNEU_GLOBE_VALVE.TF" Type="LENGTH" Ask4Dist="false" Value="22.0" pg="MainDimensions" />
+			<Param Name="HB" LDesId="PNEU_GLOBE_VALVE.HB" SDesId="PNEU_GLOBE_VALVE.HB" Type="LENGTH" Ask4Dist="false" Value="200.0" pg="MainDimensions" />
+			<Param Name="DACT" LDesId="PNEU_GLOBE_VALVE.DACT" SDesId="PNEU_GLOBE_VALVE.DACT" Type="LENGTH" Ask4Dist="false" Value="200.0" pg="Actuator" />
+			<Param Name="HACT" LDesId="PNEU_GLOBE_VALVE.HACT" SDesId="PNEU_GLOBE_VALVE.HACT" Type="LENGTH" Ask4Dist="false" Value="150.0" pg="Actuator" />
+		</Params>
+	</Script>
+</ArrayOfScript>

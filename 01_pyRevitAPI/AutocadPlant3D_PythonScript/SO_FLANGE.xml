@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfScript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Script Name="SO_Flange" LDesId="SO_Flange_L" SDesId="SO_Flange" ConnPortNum="2" LengthUnit="mm" >
+		<Params>
+			<Param Name="D" LDesId="SO_Flange.D" SDesId="SO_Flange.D" Type="LENGTH" Ask4Dist="false" Value="210.0" pg="MainDimensions" />
+			<Param Name="D1" LDesId="SO_Flange.D1" SDesId="SO_Flange.D1" Type="LENGTH" Ask4Dist="false" Value="114.3" pg="MainDimensions" />
+			<Param Name="T" LDesId="SO_Flange.T" SDesId="SO_Flange.T" Type="LENGTH" Ask4Dist="false" Value="10" pg="MainDimensions" />
+			<Param Name="OF" LDesId="SO_Flange.OF" SDesId="SO_Flange.OF" Type="LENGTH" Ask4Dist="false" Value="-1" pg="MainDimensions" />
+			<Param Name="K" LDesId="SO_Flange.K" SDesId="SO_Flange.K" Type="ENUM" Ask4Dist="false" Value="1" pg="meaningless enum" />
+		</Params>
+	</Script>
+</ArrayOfScript>

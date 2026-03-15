@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MsgList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<ToolTipLongColl>
+		<Data id="GATE_VALVE_FL_L">Parametric flanged gate valve with 3-spoke handwheel</Data>
+		<Data id="PNEU_GLOBE_VALVE_L">Parametric pneumatic actuated globe valve with flanged ends</Data>
+		<Data id="SO_Flange_L">Slip On Flange</Data>
+		<Data id="SO_Flange.T">Thickness of the Flange</Data>
+		<Data id="SO_Flange.OF">Weld offset</Data>
+	</ToolTipLongColl>
+	<ToolTipShortColl>
+		<Data id="GATE_VALVE_FL">Gate Valve Flanged</Data>
+		<Data id="GATE_VALVE_FL.D">Nominal bore diameter</Data>
+		<Data id="GATE_VALVE_FL.L">Face-to-face length</Data>
+		<Data id="GATE_VALVE_FL.D1">Flange outside diameter</Data>
+		<Data id="GATE_VALVE_FL.TF">Flange thickness</Data>
+		<Data id="GATE_VALVE_FL.HB">Bonnet height above centreline</Data>
+		<Data id="GATE_VALVE_FL.DHW">Handwheel diameter</Data>
+		<Data id="GATE_VALVE_FL.THW">Handwheel thickness</Data>
+		<Data id="PNEU_GLOBE_VALVE">Pneumatic Globe Valve</Data>
+		<Data id="PNEU_GLOBE_VALVE.D">Nominal bore diameter</Data>
+		<Data id="PNEU_GLOBE_VALVE.L">Face-to-face length</Data>
+		<Data id="PNEU_GLOBE_VALVE.D1">Flange outside diameter</Data>
+		<Data id="PNEU_GLOBE_VALVE.TF">Flange thickness</Data>
+		<Data id="PNEU_GLOBE_VALVE.HB">Bonnet height above centreline</Data>
+		<Data id="PNEU_GLOBE_VALVE.DACT">Actuator cylinder diameter</Data>
+		<Data id="PNEU_GLOBE_VALVE.HACT">Actuator cylinder height</Data>
+		<Data id="SO_Flange">SO_Flange</Data>
+		<Data id="SO_Flange.D">Outer Diameter of the Flange</Data>
+		<Data id="SO_Flange.D1">Pipe Diameter of the Flange</Data>
+	</ToolTipShortColl>
+	<ParamGroups>
+		<Data id="MainDimensions">MainDimensions</Data>
+		<Data id="Handwheel">Handwheel</Data>
+		<Data id="Actuator">Actuator</Data>
+		<Data id="meaningless enum">meaningless enum</Data>
+	</ParamGroups>
+	<EnumColl>
+		<Enum id="K">
+			<EnumItems>
+				<Item value="1">align X</Item>
+				<Item value="2">align Y</Item>
+				<Item value="3">align Z</Item>
+			</EnumItems>
+		</Enum>
+	</EnumColl>
+</MsgList>
