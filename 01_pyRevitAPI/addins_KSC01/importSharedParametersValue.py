@@ -547,8 +547,7 @@ class MainForm(Form):
                 MessageBox.Show(detail, "Import Finished (with issues)",
                                 MessageBoxButtons.OK, MessageBoxIcon.Warning)
             else:
-                detail = u"Successfully updated %d elements.\n\n" % success
-                detail += u"\n".join(log)
+                detail = u"Successfully updated %d elements." % success
                 MessageBox.Show(detail, "Import Finished",
                                 MessageBoxButtons.OK, MessageBoxIcon.Information)
 
