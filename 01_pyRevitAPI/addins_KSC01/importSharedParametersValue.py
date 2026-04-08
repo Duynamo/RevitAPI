@@ -236,6 +236,29 @@ def set_offset_builtin(elem, offset_mm):
     return False
 
 
+def get_element_level_name(elem):
+    """
+    Read the element's current Level name from BuiltInParameters.
+    Returns the level name string, or None if not found.
+    """
+    bips = [
+        BuiltInParameter.LEVEL_PARAM,
+        BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM,
+        BuiltInParameter.FAMILY_LEVEL_PARAM,
+        BuiltInParameter.FAMILY_BASE_LEVEL_PARAM,
+        BuiltInParameter.WALL_BASE_CONSTRAINT,
+    ]
+    for bip in bips:
+        p = elem.get_Parameter(bip)
+        if p is not None and p.StorageType == StorageType.ElementId:
+            lvl_id = p.AsElementId()
+            if lvl_id is not None and lvl_id != ElementId.InvalidElementId:
+                lvl_obj = doc.GetElement(lvl_id)
+                if lvl_obj is not None:
+                    return lvl_obj.Name
+    return None
+
+
 # ══════════════════════════════════════════════════════════════════════════
 #  MAIN PROCESS  (uses a native Revit Transaction — NOT TransactionManager)
 # ══════════════════════════════════════════════════════════════════════════
@@ -308,6 +331,20 @@ def process_excel_data(headers, data):
             row_data = excel_map.get(unicode(room_val).strip())
             if row_data is None:
                 continue
+
+            # ── Level validation: only process if current Level matches Excel ──
+            excel_level = row_data.get(CONST_FLOOR_LEVEL)
+            if excel_level is not None:
+                excel_lvl_name = unicode(excel_level).strip()
+                elem_lvl_name  = get_element_level_name(elem)
+                if elem_lvl_name is None or elem_lvl_name != excel_lvl_name:
+                    log.append(
+                        u"[SKIP] %s (id=%s) — Level mismatch: element='%s', excel='%s'"
+                        % (room_val, elem.Id,
+                           elem_lvl_name if elem_lvl_name else u"N/A",
+                           excel_lvl_name)
+                    )
+                    continue
 
             matched += 1
             elem_ok  = False
