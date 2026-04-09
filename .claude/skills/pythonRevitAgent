@@ -1,0 +1,944 @@
+# SKILL: pythonRevitAgent
+# Hướng dẫn tạo Revit Tool bằng IronPython + WinForms/WPF UI
+# Nguồn: My_pyRevit_Knowledge.md + Revit2026_AI_Training_Data.md
+
+---
+
+## 0. QUY TẮC NGÔN NGỮ (BẮT BUỘC TUÂN THỦ)
+
+### 0a. Giao tiếp với người dùng
+- **Luôn trao đổi bằng tiếng Việt** trong toàn bộ cuộc hội thoại.
+- Giải thích logic, hỏi làm rõ yêu cầu, trình bày kết quả → tất cả bằng **tiếng Việt**.
+
+### 0b. Trong source code Python
+| Thành phần | Ngôn ngữ | Ví dụ |
+|---|---|---|
+| `# comment` dòng | **Tiếng Việt** | `# Lấy tất cả pipe trong view hiện tại` |
+| `"""docstring"""` hàm/class | **Tiếng Việt** | `"""Tạo elbow giữa 2 connector gần nhất."""` |
+| `#region` / `#endregion` label | **Tiếng Việt** | `#region _xử lý dữ liệu Excel` |
+| `MessageBox.Show(...)` nội dung | **Tiếng Anh** | `"Please select a valid pipe."` |
+| `MessageBox.Show(...)` title | **Tiếng Anh** | `"Validation Error"` |
+| `TaskDialog.Show(...)` | **Tiếng Anh** | `"No elements found in selection."` |
+| `PickObject(...)` prompt | **Tiếng Anh** | `"Select a pipe (ESC to cancel)"` |
+| `Transaction(doc, ...)` tên | **Tiếng Anh** | `Transaction(doc, "Place Accessory")` |
+| `raise Exception(...)` message | **Tiếng Anh** | `raise Exception("Excel file not found.")` |
+| `str` trong log / kết quả trả về | **Tiếng Anh** | `return False, "Parameter not found"` |
+
+### 0c. Ví dụ chuẩn
+
+```python
+# -*- coding: utf-8 -*-
+# Lấy danh sách tất cả pipe trong dự án
+def get_all_pipes():
+    """Trả về list tất cả pipe instances trong document."""
+    # Dùng FilteredElementCollector để lọc theo category
+    pipes = FilteredElementCollector(doc)\
+        .OfCategory(BuiltInCategory.OST_PipeCurves)\
+        .WhereElementIsNotElementType()\
+        .ToElements()
+    return list(pipes)
+
+def place_accessory(symbol, pipe, distance_mm):
+    """Đặt accessory lên pipe tại khoảng cách xác định từ đầu pipe."""
+    # Kiểm tra đầu vào hợp lệ
+    if symbol is None:
+        MessageBox.Show("No accessory selected. Please choose a valid symbol.",
+                        "Validation Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        return False
+
+    # Kích hoạt symbol trước khi đặt
+    if not symbol.IsActive:
+        symbol.Activate()
+        doc.Regenerate()
+
+    # Tạo transaction để đặt family instance
+    t = Transaction(doc, "Place Pipe Accessory")
+    t.Start()
+    try:
+        # Tính điểm chèn (convert mm sang feet)
+        insert_pt = compute_insert_point(pipe, distance_mm / 304.8)
+        inst = doc.Create.NewFamilyInstance(
+            insert_pt, symbol,
+            Autodesk.Revit.DB.Structure.StructuralType.NonStructural)
+        doc.Regenerate()
+        t.Commit()
+        return True
+    except Exception as ex:
+        try: t.RollBack()
+        except: pass
+        # Thông báo lỗi bằng tiếng Anh
+        MessageBox.Show("Failed to place accessory: " + str(ex),
+                        "Placement Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error)
+        return False
+```
+
+> **Tóm tắt nhanh**: Comment = Việt · MessageBox/Error/Log = Anh.
+
+---
+
+## 1. TỔNG QUAN KIẾN TRÚC
+
+Mỗi Revit tool chạy trên nền **IronPython** (Python 2.7 chạy trên .NET CLR),
+tích hợp vào Dynamo hoặc pyRevit. Giao diện dùng **System.Windows.Forms** (WinForms)
+– đây là cách đúng dùng trong môi trường IronPython Revit (KHÔNG dùng WPF thuần vì
+phức tạp hơn và ít patterns trong codebase; WinForms được gọi tắt là "WPF-style UI"
+trong context này nhưng thực chất là System.Windows.Forms).
+
+Cấu trúc file script:
+```
+1️⃣  Import Libraries  (#region ___import)
+2️⃣  Get doc/uidoc/app   (#region ___Current doc)
+3️⃣  Helper Functions    (#region _function)
+4️⃣  UI Form Class       (class MainForm(Form))
+5️⃣  Entry Point         (Application.Run(MainForm()))
+```
+
+---
+
+## 2. IMPORT CHUẨN (IronPython + RevitAPI)
+
+```python
+# -*- coding: utf-8 -*-
+"""Copyright by: vudinhduybm@gmail.com"""
+#region ___import all Library
+import clr
+import sys
+import System
+import math
+import collections
+import os
+
+clr.AddReference("RevitAPI")
+import Autodesk
+from Autodesk.Revit.DB import *
+from Autodesk.Revit.DB.Plumbing import Pipe
+from Autodesk.Revit.DB.Structure import *
+
+clr.AddReference("RevitAPIUI")
+from Autodesk.Revit.UI import *
+from Autodesk.Revit.UI.Selection import ISelectionFilter, ObjectType, ObjectSnapTypes
+import Autodesk.Revit.Exceptions as RevitExceptions
+
+clr.AddReference("System")
+from System.Collections.Generic import List
+
+# UI
+clr.AddReference("System.Windows.Forms")
+clr.AddReference("System.Drawing")
+import System.Windows.Forms
+from System.Windows.Forms import *
+import System.Drawing
+from System.Drawing import *
+
+# RevitServices (chỉ dùng trong Dynamo context)
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+from RevitServices.Transactions import TransactionManager
+#endregion
+
+#region ___Current doc/app/ui
+doc   = DocumentManager.Instance.CurrentDBDocument
+uiapp = DocumentManager.Instance.CurrentUIApplication
+app   = uiapp.Application
+uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
+view  = doc.ActiveView
+#endregion
+```
+
+> **Lưu ý pyRevit context** (không dùng DocumentManager):
+> ```python
+> from pyrevit import revit, DB, UI
+> doc   = revit.doc
+> uidoc = revit.uidoc
+> app   = doc.Application
+> ```
+
+---
+
+## 3. DESIGN PALETTE – MÀU SẮC UI CHUẨN
+
+Dùng nhất quán bộ màu Material Design sau:
+
+```python
+# Material Colors (dùng trong InitializeComponent)
+c_primary    = Color.FromArgb(98, 0, 238)      # Purple 600 – tiêu đề, nút chính
+c_success    = Color.FromArgb(76, 175, 80)     # Green 500  – nút RUN
+c_bg_main    = Color.FromArgb(245, 245, 246)   # Light Gray – nền form
+c_surface    = Color.White                     # Card/Panel surface
+c_text_dark  = Color.FromArgb(33, 33, 33)      # Near Black – text chính
+c_btn_cancel = Color.FromArgb(224, 224, 224)   # Gray       – nút Cancel
+c_accent     = Color.FromArgb(3, 169, 244)     # Light Blue – accent phụ
+```
+
+Font chuẩn:
+```python
+Font("Segoe UI", 10)                           # Font mặc định form
+Font("Segoe UI", 12, FontStyle.Bold)           # Panel title
+Font("Segoe UI", 10, FontStyle.Bold)           # Button / Label header
+Font("Segoe UI", 7, FontStyle.Bold)            # Watermark @D
+```
+
+---
+
+## 4. TEMPLATE MAINFORM – UI PATTERN CHUẨN
+
+```python
+class MainForm(Form):
+    def __init__(self):
+        self.InitializeComponent()
+
+    def InitializeComponent(self):
+        # ── Colors ─────────────────────────────────────────────────────────
+        c_primary    = Color.FromArgb(98, 0, 238)
+        c_success    = Color.FromArgb(76, 175, 80)
+        c_bg_main    = Color.FromArgb(245, 245, 246)
+        c_surface    = Color.White
+        c_text_dark  = Color.FromArgb(33, 33, 33)
+        c_btn_cancel = Color.FromArgb(224, 224, 224)
+
+        # ── Form settings ──────────────────────────────────────────────────
+        self.Text            = "Tool Name"
+        self.ClientSize      = Size(520, 340)
+        self.StartPosition   = FormStartPosition.CenterScreen
+        self.FormBorderStyle = FormBorderStyle.FixedDialog
+        self.MaximizeBox     = False
+        self.MinimizeBox     = False
+        self.BackColor       = c_bg_main
+        self.Font            = Font("Segoe UI", 10)
+        self.TopMost         = True
+
+        # ── Card Panel ─────────────────────────────────────────────────────
+        card = Panel()
+        card.BackColor = c_surface
+        card.Location  = Point(20, 20)
+        card.Size      = Size(480, 230)
+        self.Controls.Add(card)
+
+        # ── Panel Title ────────────────────────────────────────────────────
+        lbl_title = Label()
+        lbl_title.Text      = "Settings"
+        lbl_title.Font      = Font("Segoe UI", 12, FontStyle.Bold)
+        lbl_title.ForeColor = c_primary
+        lbl_title.Location  = Point(20, 15)
+        lbl_title.AutoSize  = True
+        card.Controls.Add(lbl_title)
+
+        # ── Helper: row label (purple badge) ───────────────────────────────
+        def make_label(text, y, x=20, w=160, h=34):
+            lbl = Label()
+            lbl.Text      = text
+            lbl.Font      = Font("Segoe UI", 9, FontStyle.Bold)
+            lbl.BackColor = c_primary
+            lbl.ForeColor = Color.White
+            lbl.Location  = Point(x, y)
+            lbl.Size      = Size(w, h)
+            lbl.TextAlign = ContentAlignment.MiddleCenter
+            lbl.AutoSize  = False
+            return lbl
+
+        # ── Row layout metrics ─────────────────────────────────────────────
+        x_lbl  = 20;  w_lbl  = 160
+        x_ctrl = 190; w_ctrl = 270
+        row1 = 60; row2 = 115; row3 = 170
+        h_ctrl = 28
+
+        # ── Row 1: example input ───────────────────────────────────────────
+        card.Controls.Add(make_label("INPUT A", row1))
+        self.txb_inputA = TextBox()
+        self.txb_inputA.Location    = Point(x_ctrl, row1 + 3)
+        self.txb_inputA.Size        = Size(w_ctrl, h_ctrl)
+        self.txb_inputA.BorderStyle = BorderStyle.FixedSingle
+        card.Controls.Add(self.txb_inputA)
+
+        # ── Row 2: dropdown ────────────────────────────────────────────────
+        card.Controls.Add(make_label("SELECT TYPE", row2))
+        self.cb_type = ComboBox()
+        self.cb_type.DropDownStyle = ComboBoxStyle.DropDownList
+        self.cb_type.Location      = Point(x_ctrl, row2 + 3)
+        self.cb_type.Size          = Size(w_ctrl, h_ctrl)
+        self.cb_type.DropDownWidth = 400
+        self.cb_type.BackColor     = Color.White
+        card.Controls.Add(self.cb_type)
+
+        # ── Watermark ──────────────────────────────────────────────────────
+        lbl_wm = Label()
+        lbl_wm.Text      = "@D"
+        lbl_wm.Font      = Font("Segoe UI", 7, FontStyle.Bold)
+        lbl_wm.ForeColor = Color.DarkGray
+        lbl_wm.Location  = Point(20, 200)
+        lbl_wm.AutoSize  = True
+        card.Controls.Add(lbl_wm)
+
+        # ── RUN Button ─────────────────────────────────────────────────────
+        btn_run = Button()
+        btn_run.Text                        = "RUN"
+        btn_run.Font                        = Font("Segoe UI", 10, FontStyle.Bold)
+        btn_run.BackColor                   = c_success
+        btn_run.ForeColor                   = Color.White
+        btn_run.FlatStyle                   = FlatStyle.Flat
+        btn_run.FlatAppearance.BorderSize   = 0
+        btn_run.Location                    = Point(230, 270)
+        btn_run.Size                        = Size(140, 42)
+        btn_run.Click                      += self.on_run
+        self.Controls.Add(btn_run)
+
+        # ── CANCEL Button ──────────────────────────────────────────────────
+        btn_cancel = Button()
+        btn_cancel.Text                      = "CANCEL"
+        btn_cancel.Font                      = Font("Segoe UI", 10, FontStyle.Bold)
+        btn_cancel.BackColor                 = c_btn_cancel
+        btn_cancel.ForeColor                 = c_text_dark
+        btn_cancel.FlatStyle                 = FlatStyle.Flat
+        btn_cancel.FlatAppearance.BorderSize = 0
+        btn_cancel.Location                  = Point(385, 270)
+        btn_cancel.Size                      = Size(115, 42)
+        btn_cancel.Click                    += self.on_cancel
+        self.Controls.Add(btn_cancel)
+
+    # ── Event handlers ─────────────────────────────────────────────────────
+    def on_run(self, sender, e):
+        # Validate
+        if not self.txb_inputA.Text.strip():
+            MessageBox.Show("Please enter a valid value.", "Validation",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            return
+        # Execute logic
+        try:
+            run_logic(self.txb_inputA.Text.strip())
+            self.Close()
+        except Exception as ex:
+            MessageBox.Show("Error: " + str(ex), "Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error)
+
+    def on_cancel(self, sender, e):
+        self.Close()
+```
+
+---
+
+## 5. TRANSACTION PATTERNS
+
+### 5a. Transaction đơn giản
+```python
+t = Transaction(doc, "Transaction Name")
+t.Start()
+try:
+    # ... thao tác Revit ...
+    t.Commit()
+except Exception as ex:
+    try: t.RollBack()
+    except: pass
+    MessageBox.Show("Error: " + str(ex), "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error)
+```
+
+### 5b. TransactionManager (Dynamo context)
+```python
+TransactionManager.Instance.EnsureInTransaction(doc)
+# ... thao tác ...
+TransactionManager.Instance.TransactionTaskDone()
+```
+
+### 5c. using-style (C# → IronPython)
+```python
+# Không có 'using' trong Python → dùng try/finally
+t = Transaction(doc, "Tx Name")
+t.Start()
+try:
+    # thao tác
+    t.Commit()
+finally:
+    if t.GetStatus() == TransactionStatus.Started:
+        t.RollBack()
+```
+
+---
+
+## 6. FILTEREDelement COLLECTOR PATTERNS
+
+```python
+# Lấy tất cả Pipe instances
+pipes = FilteredElementCollector(doc)\
+    .OfCategory(BuiltInCategory.OST_PipeCurves)\
+    .WhereElementIsNotElementType()\
+    .ToElements()
+
+# Lấy FamilySymbol của Pipe Accessories
+accessories = FilteredElementCollector(doc)\
+    .OfCategory(BuiltInCategory.OST_PipeAccessory)\
+    .OfClass(FamilySymbol)\
+    .ToElements()
+
+# Lọc trong active view
+elems_in_view = FilteredElementCollector(doc, doc.ActiveView.Id)\
+    .WhereElementIsNotElementType()\
+    .ToElements()
+
+# Lấy Levels
+levels = FilteredElementCollector(doc)\
+    .OfClass(Level)\
+    .ToElements()
+level_dict = {lvl.Name: lvl for lvl in levels}
+```
+
+---
+
+## 7. PARAMETER PATTERNS
+
+```python
+# Đọc parameter
+def get_param_value(element, param_name):
+    """Trả về giá trị string của parameter, None nếu không tìm thấy."""
+    p = element.LookupParameter(param_name)
+    if not p:
+        elem_type = doc.GetElement(element.GetTypeId())
+        if elem_type:
+            p = elem_type.LookupParameter(param_name)
+    if not p:
+        return None
+    if p.StorageType == StorageType.String:
+        return p.AsString()
+    elif p.StorageType == StorageType.Double:
+        return p.AsDouble()
+    elif p.StorageType == StorageType.Integer:
+        return p.AsInteger()
+    elif p.StorageType == StorageType.ElementId:
+        return p.AsElementId()
+    return None
+
+# Ghi parameter
+def set_param_value(element, param_name, value):
+    """Ghi giá trị vào parameter. Trả về (True, msg) hoặc (False, err)."""
+    try:
+        p = element.LookupParameter(param_name)
+        if not p:
+            elem_type = doc.GetElement(element.GetTypeId())
+            if elem_type:
+                p = elem_type.LookupParameter(param_name)
+        if not p:
+            return False, "Parameter '%s' not found" % param_name
+        if p.IsReadOnly:
+            return False, "Parameter '%s' is read-only" % param_name
+        if isinstance(value, str):
+            p.Set(value)
+        elif isinstance(value, float):
+            p.Set(value)
+        elif isinstance(value, int):
+            p.Set(value)
+        return True, "OK"
+    except Exception as ex:
+        return False, str(ex)
+
+# BuiltInParameter thường dùng
+# RBS_PIPE_DIAMETER_PARAM        → đường kính pipe (double, feet)
+# RBS_PIPING_SYSTEM_TYPE_PARAM   → system type id
+# RBS_START_LEVEL_PARAM          → level của pipe
+# LEVEL_PARAM                    → level của element
+# WALL_BASE_CONSTRAINT           → base constraint
+# INSTANCE_REFERENCE_LEVEL_PARAM → reference level
+# FAMILY_LEVEL_PARAM             → family level
+# SYMBOL_FAMILY_NAME_PARAM       → family name
+# SYMBOL_NAME_PARAM              → type name
+```
+
+---
+
+## 8. SELECTION FILTER PATTERN
+
+```python
+class PipeSelectionFilter(ISelectionFilter):
+    """Chỉ cho chọn Pipe."""
+    def AllowElement(self, elem):
+        return isinstance(elem, Pipe)
+    def AllowReference(self, ref, pos):
+        return False
+
+class CategorySelectionFilter(ISelectionFilter):
+    """Cho chọn theo tên category."""
+    def __init__(self, category_names):
+        self.category_names = category_names  # list of str
+    def AllowElement(self, element):
+        if element.Category is None:
+            return False
+        return element.Category.Name in self.category_names
+    def AllowReference(self, ref, pos):
+        return False
+
+# Dùng:
+pipe_filter = PipeSelectionFilter()
+ref = uidoc.Selection.PickObject(ObjectType.Element, pipe_filter, "Pick a pipe")
+pipe = doc.GetElement(ref.ElementId)
+```
+
+---
+
+## 9. CONNECTOR PATTERNS
+
+```python
+def get_connector_list(element):
+    """Lấy list connectors từ pipe hoặc fitting."""
+    try:
+        return list(element.MEPModel.ConnectorManager.Connectors)
+    except:
+        return list(element.ConnectorManager.Connectors)
+
+def find_nearest_connector(element, xyz_point):
+    """Tìm connector gần nhất với xyz_point."""
+    conn_list = get_connector_list(element)
+    conn_list.sort(key=lambda c: c.Origin.DistanceTo(xyz_point))
+    return conn_list[0] if conn_list else None
+
+def connect_two_connectors(conn_a, conn_b):
+    """Kết nối 2 connector với nhau."""
+    try:
+        conn_a.ConnectTo(conn_b)
+        return True
+    except:
+        return False
+```
+
+---
+
+## 10. PIPE CREATION
+
+```python
+# Tạo Pipe mới
+def create_pipe(doc, system_type_id, pipe_type_id, level_id,
+                start_xyz, end_xyz, diameter_feet=None):
+    """Tạo một đoạn pipe từ start đến end."""
+    pipe = Autodesk.Revit.DB.Plumbing.Pipe.Create(
+        doc, system_type_id, pipe_type_id, level_id,
+        start_xyz, end_xyz)
+    if diameter_feet is not None:
+        p = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
+        if p and not p.IsReadOnly:
+            p.Set(diameter_feet)
+    return pipe
+
+# Tạo Elbow giữa 2 connector
+def create_elbow(doc, conn_a, conn_b):
+    """Tạo elbow fitting giữa 2 connectors."""
+    try:
+        fitting = doc.Create.NewElbowFitting(conn_a, conn_b)
+        return fitting
+    except Exception as ex:
+        return None
+
+# Break pipe tại điểm
+def break_pipe_at_point(doc, pipe, break_point):
+    """Chia pipe thành 2 đoạn tại break_point. Trả về element id của đoạn mới."""
+    import Autodesk.Revit.DB.Plumbing as Plumbing
+    new_id = Plumbing.PlumbingUtils.BreakCurve(doc, pipe.Id, break_point)
+    return doc.GetElement(new_id)
+```
+
+---
+
+## 11. EXCEL INTEGRATION (IronPython)
+
+```python
+def get_hidden_excel(file_path):
+    """Mở Excel ẩn, trả về (excel, workbook)."""
+    excel_type = System.Type.GetTypeFromProgID("Excel.Application")
+    if excel_type is None:
+        raise Exception("Excel is not installed.")
+    excel = System.Activator.CreateInstance(excel_type)
+    excel.Visible        = False
+    excel.ScreenUpdating = False
+    excel.DisplayAlerts  = False
+    try:
+        workbook = excel.Workbooks.Open(file_path)
+        return excel, workbook
+    except Exception as ex:
+        try: excel.Quit()
+        except: pass
+        raise ex
+
+def read_excel_sheet(file_path, sheet_name):
+    """
+    Đọc sheet trong Excel, trả về (headers, data) hoặc (None, error_msg).
+    headers: list of str
+    data:    list of dict {header: value}
+    """
+    excel = workbook = None
+    try:
+        excel, workbook = get_hidden_excel(file_path)
+        sheet = None
+        for i in range(1, workbook.Worksheets.Count + 1):
+            if str(workbook.Worksheets(i).Name) == str(sheet_name):
+                sheet = workbook.Worksheets(i)
+                break
+        if sheet is None:
+            return None, "Sheet '%s' not found." % sheet_name
+
+        used = sheet.UsedRange
+        last_row = used.Rows.Count
+        last_col = used.Columns.Count
+
+        headers = []
+        for c in range(1, last_col + 1):
+            cell = sheet.Cells(1, c)
+            val = cell.Value2
+            headers.append(unicode(val) if val is not None else "Col_%d" % c)
+
+        data = []
+        for r in range(2, last_row + 1):
+            row = {}
+            for idx, h in enumerate(headers):
+                cell = sheet.Cells(r, idx + 1)
+                row[h] = cell.Value2
+            data.append(row)
+
+        return headers, data
+    except Exception as ex:
+        return None, str(ex)
+    finally:
+        if workbook:
+            try: workbook.Close(False)
+            except: pass
+        if excel:
+            try: excel.Quit()
+            except: pass
+
+def open_excel_dialog():
+    """Hiển thị OpenFileDialog chọn file Excel."""
+    dlg = OpenFileDialog()
+    dlg.Multiselect = False
+    dlg.Filter      = "Excel Files (*.xlsx)|*.xlsx"
+    dlg.Title       = "Select Excel File"
+    if dlg.ShowDialog() == DialogResult.OK:
+        return dlg.FileName
+    return None
+
+def get_sheet_names(file_path):
+    """Lấy danh sách tên sheet từ Excel file."""
+    excel = workbook = None
+    try:
+        excel, workbook = get_hidden_excel(file_path)
+        names = []
+        for i in range(1, workbook.Worksheets.Count + 1):
+            names.append(unicode(workbook.Worksheets(i).Name))
+        return names
+    except:
+        return []
+    finally:
+        if workbook:
+            try: workbook.Close(False)
+            except: pass
+        if excel:
+            try: excel.Quit()
+            except: pass
+```
+
+---
+
+## 12. UNIT CONVERSION
+
+```python
+# Revit API dùng đơn vị feet (1 foot = 304.8 mm)
+MM_TO_FEET  = 1.0 / 304.8
+FEET_TO_MM  = 304.8
+
+def mm_to_feet(mm):   return mm / 304.8
+def feet_to_mm(ft):   return ft * 304.8
+def m_to_feet(m):     return m / 0.3048
+def feet_to_m(ft):    return ft * 0.3048
+
+# Đọc đường kính từ parameter:
+diameter_feet = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM).AsDouble()
+diameter_mm   = diameter_feet * 304.8
+```
+
+---
+
+## 13. UNICODE / ENCODING (IronPython 2.7)
+
+```python
+# Khai báo encoding ở đầu file
+# -*- coding: utf-8 -*-
+
+# Chữ Nhật / UTF-8 literal phải decode
+CONST_NAME = "01_室名".decode('utf-8')
+
+# Ép kiểu unicode an toàn
+def to_unicode(val):
+    if val is None:
+        return u""
+    if isinstance(val, unicode):
+        return val
+    try:
+        return unicode(val)
+    except:
+        return str(val).decode('utf-8', errors='replace')
+```
+
+---
+
+## 14. MESSAGEBOX HELPERS
+
+```python
+def show_info(msg, title="Info"):
+    MessageBox.Show(msg, title, MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+def show_warning(msg, title="Warning"):
+    MessageBox.Show(msg, title, MessageBoxButtons.OK, MessageBoxIcon.Warning)
+
+def show_error(msg, title="Error"):
+    MessageBox.Show(msg, title, MessageBoxButtons.OK, MessageBoxIcon.Error)
+
+def ask_yes_no(msg, title="Confirm"):
+    result = MessageBox.Show(msg, title,
+                             MessageBoxButtons.YesNo,
+                             MessageBoxIcon.Question)
+    return result == DialogResult.Yes
+```
+
+---
+
+## 15. ENTRY POINT PATTERN
+
+```python
+# Khởi chạy UI (là dòng cuối mỗi script)
+def main():
+    form = MainForm()
+    Application.Run(form)
+
+main()
+```
+
+Hoặc vòng lặp (loop-back sau khi pick):
+```python
+def main():
+    while True:
+        form = MainForm(data)
+        Application.Run(form)
+        if form.user_cancelled:
+            break
+        # pick object, process...
+        try:
+            ref = uidoc.Selection.PickObject(ObjectType.Element, filter, "Pick...")
+            # ...
+        except Autodesk.Revit.Exceptions.OperationCanceledException:
+            pass  # ESC → quay về UI
+        except Exception as ex:
+            show_error(str(ex))
+
+main()
+```
+
+---
+
+## 16. REVIT API CLASS REFERENCES QUAN TRỌNG
+
+| Class / Method | Namespace | Dùng để |
+|---|---|---|
+| `FilteredElementCollector` | `Autodesk.Revit.DB` | Lọc elements |
+| `Transaction` | `Autodesk.Revit.DB` | Bao gói thay đổi |
+| `ElementId` | `Autodesk.Revit.DB` | ID element |
+| `XYZ` | `Autodesk.Revit.DB` | Tọa độ 3D |
+| `Line.CreateBound` | `Autodesk.Revit.DB` | Tạo Line |
+| `ElementTransformUtils.MoveElement` | `Autodesk.Revit.DB` | Di chuyển element |
+| `ElementTransformUtils.RotateElement` | `Autodesk.Revit.DB` | Xoay element |
+| `Pipe.Create` | `Autodesk.Revit.DB.Plumbing` | Tạo pipe |
+| `PlumbingUtils.BreakCurve` | `Autodesk.Revit.DB.Plumbing` | Chia pipe |
+| `doc.Create.NewElbowFitting` | `Document` | Tạo elbow |
+| `doc.Create.NewFamilyInstance` | `Document` | Tạo family instance |
+| `BuiltInCategory.OST_PipeCurves` | Built-in | Category pipe |
+| `BuiltInCategory.OST_PipeAccessory` | Built-in | Category accessory |
+| `BuiltInCategory.OST_PipeFittings` | Built-in | Category fitting |
+| `BuiltInCategory.OST_Levels` | Built-in | Category level |
+| `TaskDialog.Show` | `Autodesk.Revit.UI` | Dialog đơn giản (không cần form) |
+
+---
+
+## 17. ANTI-PATTERNS – TRÁNH LàM
+
+❌ **Không dùng** `clr.AddReference("RevitNodes")` trong pyRevit (chỉ Dynamo mới có)
+❌ **Không gọi** `TransactionManager` ngoài Dynamo context
+❌ **Không để** transaction mở khi hiện UI form
+❌ **Không dùng** `System.Windows.Threading` hay WPF `Window` class trực tiếp
+❌ **Không set** `param.SetValueString()` cho double parameter (dùng `param.Set(double)`)
+❌ **Không bỏ qua** `symbol.Activate()` trước khi dùng FamilySymbol
+❌ **Không dùng** `str()` cho Japanese text → dùng `unicode()`
+
+✅ **Luôn**:
+- Khai báo `# -*- coding: utf-8 -*-` ở dòng 1
+- Dùng `try/except/finally` bao quanh transaction
+- Gọi `doc.Regenerate()` sau khi đặt family instance
+- Dùng `TopMost = True` cho form
+- Dùng `FormBorderStyle.FixedDialog` để cố định kích thước
+
+---
+
+## 18. TEMPLATE ADDIN ĐẦY ĐỦ (SKELETON)
+
+```python
+# -*- coding: utf-8 -*-
+"""
+Tool Name: [Tên tool]
+Description: [Mô tả]
+Author: vudinhduybm@gmail.com
+"""
+#region ___import
+import clr, sys, System, math, os
+
+clr.AddReference("RevitAPI");   from Autodesk.Revit.DB import *
+clr.AddReference("RevitAPIUI"); from Autodesk.Revit.UI import *
+from Autodesk.Revit.UI.Selection import ISelectionFilter, ObjectType
+import Autodesk.Revit.Exceptions as RevitExceptions
+
+clr.AddReference("System.Windows.Forms")
+clr.AddReference("System.Drawing")
+from System.Windows.Forms import *
+from System.Drawing import *
+
+clr.AddReference("RevitServices")
+from RevitServices.Persistence import DocumentManager
+from RevitServices.Transactions import TransactionManager
+#endregion
+
+#region ___doc
+doc   = DocumentManager.Instance.CurrentDBDocument
+uiapp = DocumentManager.Instance.CurrentUIApplication
+app   = uiapp.Application
+uidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
+view  = doc.ActiveView
+#endregion
+
+#region _helpers
+# --- Đặt helper functions ở đây ---
+def mm_to_feet(mm): return mm / 304.8
+#endregion
+
+#region _logic
+def run_tool(param_a, param_b):
+    """Core logic – chạy trong transaction."""
+    t = Transaction(doc, "Run Tool")
+    t.Start()
+    try:
+        # TODO: thao tác Revit
+        t.Commit()
+        return True, "Success"
+    except Exception as ex:
+        try: t.RollBack()
+        except: pass
+        return False, str(ex)
+#endregion
+
+#region _ui
+class MainForm(Form):
+    def __init__(self):
+        self.result = None
+        self.InitializeComponent()
+
+    def InitializeComponent(self):
+        c_primary    = Color.FromArgb(98, 0, 238)
+        c_success    = Color.FromArgb(76, 175, 80)
+        c_bg         = Color.FromArgb(245, 245, 246)
+        c_surface    = Color.White
+        c_dark       = Color.FromArgb(33, 33, 33)
+        c_cancel     = Color.FromArgb(224, 224, 224)
+
+        self.Text            = "Tool Name"
+        self.ClientSize      = Size(500, 310)
+        self.StartPosition   = FormStartPosition.CenterScreen
+        self.FormBorderStyle = FormBorderStyle.FixedDialog
+        self.MaximizeBox     = False
+        self.MinimizeBox     = False
+        self.BackColor       = c_bg
+        self.Font            = Font("Segoe UI", 10)
+        self.TopMost         = True
+
+        # Card
+        card = Panel()
+        card.BackColor = c_surface
+        card.Location  = Point(20, 20)
+        card.Size      = Size(460, 200)
+        self.Controls.Add(card)
+
+        lbl_title = Label()
+        lbl_title.Text      = "Configuration"
+        lbl_title.Font      = Font("Segoe UI", 12, FontStyle.Bold)
+        lbl_title.ForeColor = c_primary
+        lbl_title.Location  = Point(20, 15)
+        lbl_title.AutoSize  = True
+        card.Controls.Add(lbl_title)
+
+        # --- Thêm rows vào đây ---
+
+        # RUN
+        btn_run = Button()
+        btn_run.Text                      = "RUN"
+        btn_run.Font                      = Font("Segoe UI", 10, FontStyle.Bold)
+        btn_run.BackColor                 = c_success
+        btn_run.ForeColor                 = Color.White
+        btn_run.FlatStyle                 = FlatStyle.Flat
+        btn_run.FlatAppearance.BorderSize = 0
+        btn_run.Location                  = Point(215, 245)
+        btn_run.Size                      = Size(130, 42)
+        btn_run.Click                    += self.on_run
+        self.Controls.Add(btn_run)
+
+        # CANCEL
+        btn_cancel = Button()
+        btn_cancel.Text                      = "CANCEL"
+        btn_cancel.Font                      = Font("Segoe UI", 10, FontStyle.Bold)
+        btn_cancel.BackColor                 = c_cancel
+        btn_cancel.ForeColor                 = c_dark
+        btn_cancel.FlatStyle                 = FlatStyle.Flat
+        btn_cancel.FlatAppearance.BorderSize = 0
+        btn_cancel.Location                  = Point(360, 245)
+        btn_cancel.Size                      = Size(115, 42)
+        btn_cancel.Click                    += self.on_cancel
+        self.Controls.Add(btn_cancel)
+
+    def on_run(self, sender, e):
+        try:
+            ok, msg = run_tool("param_a", "param_b")
+            if ok:
+                MessageBox.Show(msg, "Done",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information)
+                self.Close()
+            else:
+                MessageBox.Show(msg, "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error)
+        except Exception as ex:
+            MessageBox.Show(str(ex), "Unexpected Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error)
+
+    def on_cancel(self, sender, e):
+        self.Close()
+#endregion
+
+Application.Run(MainForm())
+```
+
+---
+
+## 19. NOTES CHO AI KHI VIẾT CODE MỚI
+
+1. **Context**: Script chạy trong Dynamo → dùng `DocumentManager` + `TransactionManager`.
+   Script chạy trong pyRevit → dùng `from pyrevit import revit, DB`.
+
+2. **UI**: Luôn dùng `System.Windows.Forms` (không WPF Window class).
+   Palette màu chuẩn: xem mục 3. Luôn `TopMost = True`.
+
+3. **Units**: Revit API = feet. Nhân/chia 304.8 khi nhập/xuất mm.
+
+4. **Encoding**: Tiếng Nhật → `"...".decode('utf-8')`. Luôn `# -*- coding: utf-8 -*-`.
+
+5. **Transaction**: Luôn wrap trong `try/except/finally`. Không để transaction mở khi show form.
+
+6. **Pattern ưu tiên**: Tái sử dụng `make_label()` helper, `FilteredElementCollector` chain,
+   connector proximity sort (`conn_list.sort(key=lambda c: c.Origin.DistanceTo(pt))`).
+
+7. **Entry point**: `Application.Run(MainForm())` là dòng cuối.
+
+8. **Error handling**: Dùng `MessageBox.Show(..., MessageBoxIcon.Error)` thay vì raise exception.
+
+9. **Loop UI**: Khi cần chọn nhiều objects → dùng `while True:` loop + catch `OperationCanceledException`.
+
+10. **Family activation**: Luôn gọi `symbol.Activate(); doc.Regenerate()` trước khi `NewFamilyInstance`.
