@@ -1,0 +1,36 @@
+Step1: Link bản vẽ, cài đặt cao độ đúng chuẩn
+Step2: Đặt tất cả family trần tại mặt bằng đúng diện tích trang 11/162
+　　　　Tại bước này chọn sàn 一般部FL làm chuẩn.
+　　　　Đồng thời nhập tên phòng
+Step3: Chuẩn hóa file excel.
+　　　　Code sẽ dựa vào tên phòng để tìm kiếm nhập thông tin vô mô hình.
+　　　　Những nội dung sẽ nhập từ excel:
+①Cao độ sàn tham chiếu(tên trong excel sẽ trùng với tên trong bản vẽ)
+②Cao độ trần tham chiếu (nhập đơn vị milimet)
+③Bộ bản vẽ tham khảo nhận ngày?
+④Cao độ sàn tham khảo tại tài liệu nào? trang bao nhiêu(Đọc cao độ chuẩn của sàn tại trang 26 ~)
+⑤Cao độ trần tham khảo tại tài liệu nào? trang bao nhiêu.
+
+Quy định đặt tên bản vẽ tham khảo:
+260403_XXXX
+
+Step4 : 
+hãy tham khảo file importSharedParametersValue.py tại folder addins_SharedParameterManage để cải tiến lại như sau:
+
+Code sẽ lấy thông tin tên phòng 01_室名 trong file excel làm mốc để viết thông tin trên mô hình đối tượng 
+sẽ có cùng tên với excel sheet. 
+code đọc cao độ sàn tham chiếu 02_フロアレベル, tìm cao độ đó trong dự án, set đó làm chuẩn cho đối tượng
+code đọc cao độ trần tham chiếu 03_天井レベル,cài đặt height offset from level một đoạn bằng giá trị 03_天井レベル
+các giá trị 04_参考図受領日 và 05_フロアレベル参考ページ được đọc và ghi theo excel.
+
+Tool sẽ có UI giống với tool importSharedParametersValue.py tại folder addins_SharedParameterManage
+thông tin file excel tôi đã đính kèm như hình.
+Trước tiên hãy gửi bảng kế hoạch bằng tiếng việt.
+
+Đã import được nhưng chưa thể đổi level và height offset from level.
+Solution
+Hãy tìm kiếm tất cả các level có trong dự án, truy xuất về tên của level. 
+
+Lỗi không đưa chỉ thị rõ ràng:
+1. Bộ lọc tiếng nhật.  .decode('utf-8')  cần để đọc ghi parameter tiếng nhật
+2. Cần làm rõ sẽ làm việc với loại đối tượng nào?

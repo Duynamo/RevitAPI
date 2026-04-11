@@ -1,0 +1,61 @@
+[BẮT ĐẦU]
+   │
+   ▼
+[Input: Tệp RevitAPI.chm]
+   │
+   ├─► BƯỚC 1: KIỂM TRA ĐƯỜNG DẪN TERMINAL
+   │     │
+   │     ├─ Terminal có đang trỏ đúng vào thư mục chứa file .chm không?
+   │     │    ├─ CHƯA ─► Dùng lệnh `cd` hoặc Chuột phải > Open in Integrated Terminal.
+   │     │    └─ RỒI  ─► Đi tiếp.
+   │     │
+   ├─► BƯỚC 2: GIẢI NÉN (Decompile)
+   │     │
+   │     ├─ Thao tác: Chạy lệnh `hh.exe -decompile RevitAPI_Extracted RevitAPI.chm`
+   │     └─ Kết quả: Sinh ra thư mục `RevitAPI_Extracted/html`
+   │
+   ▼
+[Chuẩn bị Môi trường Python]
+   │
+   ├─ Cài đặt thư viện: `pip install beautifulsoup4`
+   │
+   ▼
+[BƯỚC 3: CẤU HÌNH SCRIPT BÓC TÁCH (extract_chm_to_md.py)]
+   │
+   ├─ Cập nhật Phiên bản (Version Control): 
+   │    1. Đổi tên file Output (VD: Revit2027_API_Dictionary.md)
+   │    2. Đổi System Prompt bên trong code (VD: "# Cơ sở dữ liệu: Revit 2027...")
+   │
+   ▼
+[BƯỚC 4: THỰC THI SCRIPT] ─► Gõ lệnh: `python extract_chm_to_md.py`
+   │
+   ├─► GIAI ĐOẠN 1: TIỀN XỬ LÝ (Pre-scan)
+   │     │
+   │     ├─ Quét toàn bộ thư mục `html`.
+   │     └─ Đếm tổng số lượng file hợp lệ (Total_files) để làm mẫu số tính %.
+   │
+   ├─► GIAI ĐOẠN 2: BÓC TÁCH & BÁO CÁO TIẾN ĐỘ (Loop) ◄──────┐
+   │     │                                                    │
+   │     ├─► Lấy từng file HTML ra đọc                        │
+   │     │                                                    │
+   │     ├─► Bóc tách dữ liệu cốt lõi:                        │
+   │     │     1. Lấy thẻ <title> làm Tiêu đề.                │
+   │     │     2. Xóa thẻ rác (<script>, <style>, <nav>...).  │
+   │     │     3. Trích xuất Text > 100 ký tự.                │
+   │     │                                                    │
+   │     ├─► [HÀNH ĐỘNG GHI] ─► Ghi vào file .md              │
+   │     │                                                    │
+   │     ├─► TÍNH TOÁN TIẾN ĐỘ (%)                            │
+   │     │     Output: In đè lên Terminal `⏳ Tiến độ: XX.X%` │
+   │     │                                                    │
+   │     └────────────────────────────────────────────────────┘
+   │
+   ▼
+[KẾT THÚC VÒNG LẶP]
+   │
+   ├─ In thông báo: ✅ HOÀN TẤT & Thống kê tổng số trang đã lưu.
+   │
+   ▼
+[Output: Tệp RevitXXXX_API_Dictionary.md sạch, chuẩn phiên bản]
+   │
+[KẾT THÚC]
