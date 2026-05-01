@@ -169,28 +169,33 @@ class _SilentPreprocessor(IFailuresPreprocessor):
 def _join_pair(doc, e1, e2, rev, do_unjoin, tx):
     """
     Join e1–e2 inside an already-open transaction.
-    Returns True if a join was created or already existed.
+    Returns True if the elements are in a joined state at the end of the operation.
     """
     is_joined = JoinGeometryUtils.AreElementsJoined(doc, e1, e2)
 
     if do_unjoin and is_joined:
         JoinGeometryUtils.UnjoinGeometry(doc, e1, e2)
-        is_joined = False
+        is_joined = False # Assume unjoin succeeded, will be re-verified below
 
     if not is_joined:
+        # Attempt to join. This might fail silently with a warning.
         JoinGeometryUtils.JoinGeometry(doc, e1, e2)
-        is_joined = True
 
-    if is_joined:
+    # CRITICAL: After attempting to join, we must re-verify the status.
+    # This is the only reliable way to know if the join exists.
+    final_is_joined = JoinGeometryUtils.AreElementsJoined(doc, e1, e2)
+
+    if final_is_joined:
         try:
+            # This part only runs if the join actually exists.
             e1_cuts = JoinGeometryUtils.IsCuttingElementInJoin(doc, e1, e2)
             need_switch = (not rev and not e1_cuts) or (rev and e1_cuts)
             if need_switch:
                 JoinGeometryUtils.SwitchJoinOrder(doc, e1, e2)
         except Exception:
-            pass
+            pass # Switching order can fail, that's acceptable.
 
-    return is_joined
+    return final_is_joined
 
 def run_autojoin(rules, scope="view", scope_ids=None, do_unjoin=False):
     """Execute all join rules."""
