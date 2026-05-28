@@ -1,0 +1,10 @@
+C:\Users\Laptop\OneDrive\Desktop\Hello World\RevitAPI\02_C#API\Revit2024\V2D_MEP\addins_SplitPipe\obj\Debug\SplitPipe.csproj.AssemblyReference.cache
+C:\Users\Laptop\OneDrive\Desktop\Hello World\RevitAPI\02_C#API\Revit2024\V2D_MEP\addins_SplitPipe\obj\Debug\SplitPipe.csproj.CoreCompileInputs.cache
+C:\Users\Laptop\OneDrive\Desktop\Hello World\RevitAPI\02_C#API\Revit2024\V2D_MEP\addins_SplitPipe\bin\Debug\SplitPipe.dll
+C:\Users\Laptop\OneDrive\Desktop\Hello World\RevitAPI\02_C#API\Revit2024\V2D_MEP\addins_SplitPipe\bin\Debug\SplitPipe.pdb
+C:\Users\Laptop\OneDrive\Desktop\Hello World\RevitAPI\02_C#API\Revit2024\V2D_MEP\addins_SplitPipe\obj\Debug\SplitPipe.dll
+C:\Users\Laptop\OneDrive\Desktop\Hello World\RevitAPI\02_C#API\Revit2024\V2D_MEP\addins_SplitPipe\obj\Debug\SplitPipe.pdb
+C:\Users\Laptop\OneDrive\Desktop\Hello World\RevitAPI\02_C#API\Revit2024\V2D_MEP\addins_SplitPipe\obj\Debug\SplitPipe_MarkupCompile.cache
+C:\Users\Laptop\OneDrive\Desktop\Hello World\RevitAPI\02_C#API\Revit2024\V2D_MEP\addins_SplitPipe\obj\Debug\SplitPipeWindow.baml
+C:\Users\Laptop\OneDrive\Desktop\Hello World\RevitAPI\02_C#API\Revit2024\V2D_MEP\addins_SplitPipe\obj\Debug\SplitPipeWindow.g.cs
+C:\Users\Laptop\OneDrive\Desktop\Hello World\RevitAPI\02_C#API\Revit2024\V2D_MEP\addins_SplitPipe\obj\Debug\SplitPipe.g.resources

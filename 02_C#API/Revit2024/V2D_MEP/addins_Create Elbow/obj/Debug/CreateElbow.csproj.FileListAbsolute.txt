@@ -1,6 +1,0 @@
-C:\Users\Laptop\OneDrive\Desktop\Hello World\RevitAPI\02_C#API\Revit2024\V2D_MEP\addins_Create Elbow\bin\Debug\CreateElbow.dll
-C:\Users\Laptop\OneDrive\Desktop\Hello World\RevitAPI\02_C#API\Revit2024\V2D_MEP\addins_Create Elbow\bin\Debug\CreateElbow.pdb
-C:\Users\Laptop\OneDrive\Desktop\Hello World\RevitAPI\02_C#API\Revit2024\V2D_MEP\addins_Create Elbow\obj\Debug\CreateElbow.csproj.AssemblyReference.cache
-C:\Users\Laptop\OneDrive\Desktop\Hello World\RevitAPI\02_C#API\Revit2024\V2D_MEP\addins_Create Elbow\obj\Debug\CreateElbow.csproj.CoreCompileInputs.cache
-C:\Users\Laptop\OneDrive\Desktop\Hello World\RevitAPI\02_C#API\Revit2024\V2D_MEP\addins_Create Elbow\obj\Debug\CreateElbow.dll
-C:\Users\Laptop\OneDrive\Desktop\Hello World\RevitAPI\02_C#API\Revit2024\V2D_MEP\addins_Create Elbow\obj\Debug\CreateElbow.pdb
