@@ -334,6 +334,82 @@ class RcsEntry(object):
         return self.get_output_xml_path()
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+#  LINK ENTRY  (RevitLink / CAD Link)
+# ─────────────────────────────────────────────────────────────────────────────
+
+class LinkEntry(object):
+    """
+    Wrapper for a RevitLinkInstance or ImportInstance (CAD link).
+    Exposes the same interface as RcsEntry so the UI can treat them uniformly.
+
+    Attributes:
+        display_name   : file title shown in UI
+        rcs_path       : full path to .rvt / .dwg (may be empty for CAD)
+        world_transform: Transform of this link in host coordinates
+        link_type      : 'revit' or 'cad'
+        is_linked      : False (this IS a top-level link, not inside one)
+        is_link_file   : True (marker to distinguish from RcsEntry)
+        pc_type_name   : '' (not applicable)
+        link_doc_name  : '' (not applicable)
+    """
+
+    def __init__(self, name, path, element_id_int, transform, link_type='revit'):
+        self.display_name    = name or u"Linked File"
+        self.rcs_path        = path or u""
+        self._element_id_int = element_id_int
+        self.world_transform = transform
+        self.link_type       = link_type   # 'revit' | 'cad'
+        self.is_linked       = False       # NOT inside another link
+        self.is_link_file    = True        # distinguish from RcsEntry
+        self.pc_type_name    = u""
+        self.link_doc_name   = u""
+
+    @property
+    def element_id(self):
+        return self._element_id_int
+
+    @property
+    def xml_filename(self):
+        safe = self.display_name
+        for ch in u'<>:"/\\|?* ':
+            safe = safe.replace(ch, u'_')
+        return u"{}_{}_{}_transform.xml".format(
+            safe, self.link_type.upper(), self._element_id_int)
+
+    def get_output_xml_path(self, custom_folder=None):
+        fname = self.xml_filename
+        if custom_folder:
+            try:
+                return Path.Combine(custom_folder, fname)
+            except:
+                pass
+        if self.rcs_path:
+            try:
+                folder = Path.GetDirectoryName(self.rcs_path)
+                if folder:
+                    return Path.Combine(folder, fname)
+            except:
+                pass
+        try:
+            host_path = doc.PathName
+            if host_path:
+                folder = Path.GetDirectoryName(host_path)
+                if folder:
+                    return Path.Combine(folder, fname)
+        except:
+            pass
+        try:
+            return Path.Combine(System.IO.Path.GetTempPath(), fname)
+        except:
+            pass
+        return u""
+
+    @property
+    def output_xml_path(self):
+        return self.get_output_xml_path()
+
+
 # ═════════════════════════════════════════════════════════════════════════════
 #  DATA COLLECTION
 # ═════════════════════════════════════════════════════════════════════════════
@@ -377,47 +453,96 @@ def collect_rcs_entries():
     return entries
 
 
+def collect_link_entries():
+    """
+    Collect all loaded RevitLinkInstances and ImportInstances (CAD links)
+    as LinkEntry objects ready for display in the UI.
+
+    Returns:
+        list[LinkEntry]
+    """
+    result = []
+
+    # -- Revit Links --
+    link_instances = list(
+        FilteredElementCollector(doc).OfClass(RevitLinkInstance)
+    )
+    for link_inst in link_instances:
+        try:
+            link_doc = link_inst.GetLinkDocument()
+            if link_doc is None:
+                continue
+            tf   = link_inst.GetTransform()
+            path = u""
+            try:
+                path = link_doc.PathName or u""
+            except:
+                pass
+            name = link_doc.Title or u"Linked File"
+            result.append(LinkEntry(name, path,
+                                    link_inst.Id.IntegerValue, tf, 'revit'))
+        except:
+            pass
+
+    # -- CAD Links (ImportInstance where IsLinked == True) --
+    try:
+        from Autodesk.Revit.DB import ImportInstance
+        import_instances = list(
+            FilteredElementCollector(doc).OfClass(ImportInstance)
+        )
+        for imp in import_instances:
+            try:
+                if not imp.IsLinked:
+                    continue
+                tf       = imp.GetTransform()
+                cad_name = u""
+                try:
+                    p = imp.LookupParameter(u"File Name")
+                    if p is not None:
+                        cad_name = p.AsString() or u""
+                except:
+                    pass
+                if not cad_name:
+                    try:
+                        cad_name = imp.Category.Name if imp.Category else u"CAD Link"
+                    except:
+                        cad_name = u"CAD Link [{0}]".format(imp.Id.IntegerValue)
+                result.append(LinkEntry(cad_name, u"",
+                                        imp.Id.IntegerValue, tf, 'cad'))
+            except:
+                pass
+    except:
+        pass
+
+    return result
+
+
 # ═════════════════════════════════════════════════════════════════════════════
 #  TRANSFORM UTILITIES
 # ═════════════════════════════════════════════════════════════════════════════
 
-# Hệ số chuyển đổi: Revit dùng feet nội bộ; ReCap và Navisworks dùng mét
-FT_TO_M = 0.3048
+# Conversion factor: Revit internal unit = feet; output = millimeters (1 ft = 304.8 mm)
+FT_TO_MM = 304.8
 
 
 def transform_to_matrix4x4(tf):
     """
-    Convert a Revit Transform to a 4x4 row-major matrix (translation in meters).
-
-    Revit Transform layout:
-      BasisX = column 0 (right vector)
-      BasisY = column 1 (up / forward depending on context)
-      BasisZ = column 2
-      Origin = column 3 (translation, in feet internally)
-
-    Output 4x4 row-major (right-handed, Z-up -- Navisworks convention):
-      [ BasisX.X  BasisY.X  BasisZ.X  Origin.X ]
-      [ BasisX.Y  BasisY.Y  BasisZ.Y  Origin.Y ]
-      [ BasisX.Z  BasisY.Z  BasisZ.Z  Origin.Z ]
-      [ 0         0         0         1        ]
-
-    Note: the translation column is multiplied by FT_TO_M (feet → meters).
+    Convert a Revit Transform to a 4x4 row-major matrix (translation in mm).
+    BasisX/Y/Z are NORMALIZED to strip any scale factor embedded by Revit
+    (linked transforms often carry a ~3.2808 scale == 1/FT_TO_MM * 1000).
     """
-    bx = tf.BasisX
-    by = tf.BasisY
-    bz = tf.BasisZ
+    bx = tf.BasisX.Normalize()
+    by = tf.BasisY.Normalize()
+    bz = tf.BasisZ.Normalize()
     o  = tf.Origin
-
-    # Chuyển translation từ feet sang mét
-    ox = o.X * FT_TO_M
-    oy = o.Y * FT_TO_M
-    oz = o.Z * FT_TO_M
-
+    ox = o.X * FT_TO_MM
+    oy = o.Y * FT_TO_MM
+    oz = o.Z * FT_TO_MM
     m = [
-        [bx.X,  by.X,  bz.X,  ox],
-        [bx.Y,  by.Y,  bz.Y,  oy],
-        [bx.Z,  by.Z,  bz.Z,  oz],
-        [0.0,   0.0,   0.0,   1.0],
+        [bx.X, by.X, bz.X, ox],
+        [bx.Y, by.Y, bz.Y, oy],
+        [bx.Z, by.Z, bz.Z, oz],
+        [0.0,  0.0,  0.0,  1.0],
     ]
     return m
 
@@ -433,47 +558,63 @@ def extract_translation_ft(tf):
 
 def extract_rotation_deg(tf):
     """
-    Extract rotation from a Transform using the Rodrigues axis-angle formula.
-
-    Returns:
-        (axis_x, axis_y, axis_z, angle_degrees)
-
-    Uses the Rodrigues formula to extract the rotation axis and angle from the rotation matrix.
+    Rodrigues axis-angle extraction.
+    CRITICAL: normalize BasisX/Y/Z first -- linked transforms carry a
+    ~3.2808 scale factor (1/FT_TO_M) that inflates the trace and makes
+    cos_a clamp to 1.0, producing angle = 0 for every file.
+    Returns: (axis_x, axis_y, axis_z, angle_degrees)
     """
-    bx = tf.BasisX
-    by = tf.BasisY
-    bz = tf.BasisZ
+    bx = tf.BasisX.Normalize()
+    by = tf.BasisY.Normalize()
+    bz = tf.BasisZ.Normalize()
 
-    # Các phần tử ma trận rotation 3x3
     r00, r10, r20 = bx.X, bx.Y, bx.Z
     r01, r11, r21 = by.X, by.Y, by.Z
     r02, r12, r22 = bz.X, bz.Y, bz.Z
 
-    # Tính angle từ trace của ma trận
     trace = r00 + r11 + r22
     cos_a = max(-1.0, min(1.0, (trace - 1.0) / 2.0))
     angle     = math.acos(cos_a)
     angle_deg = math.degrees(angle)
 
     TOL = 1e-9
-    # Không có rotation → trả về trục Z mặc định, angle = 0
     if abs(angle) < TOL:
         return 0.0, 0.0, 1.0, 0.0
-
     sin_a = math.sin(angle)
     if abs(sin_a) < TOL:
         return 0.0, 0.0, 1.0, angle_deg
 
-    # Trích axis từ phần antisymmetric của ma trận rotation
     ax = (r21 - r12) / (2.0 * sin_a)
     ay = (r02 - r20) / (2.0 * sin_a)
     az = (r10 - r01) / (2.0 * sin_a)
 
-    # Normalize trục quay
     length = math.sqrt(ax*ax + ay*ay + az*az)
     if length < 1e-12:
         return 0.0, 0.0, 1.0, angle_deg
     return ax/length, ay/length, az/length, angle_deg
+
+
+def extract_euler_zyx_deg(tf):
+    """
+    ZYX Tait-Bryan Euler angles in degrees (roll, pitch, yaw).
+    Useful as an alternative rotation representation.
+    Returns: (rx_deg, ry_deg, rz_deg)
+    """
+    bx = tf.BasisX.Normalize()
+    by = tf.BasisY.Normalize()
+    bz = tf.BasisZ.Normalize()
+    # R[row][col]: col0=bx, col1=by, col2=bz
+    r20 = bx.Z
+    ry  = math.asin(max(-1.0, min(1.0, -r20)))
+    cy  = math.cos(ry)
+    TOL = 1e-6
+    if abs(cy) > TOL:
+        rx = math.atan2(by.Z, bz.Z)
+        rz = math.atan2(bx.Y, bx.X)
+    else:
+        rz = math.atan2(-by.X, by.Y)
+        rx = 0.0
+    return math.degrees(rx), math.degrees(ry), math.degrees(rz)
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -510,7 +651,6 @@ def _get_combined_output_path(custom_folder=None):
 def _build_entry_xml_block(sb, entry, index):
     """
     Append XML block cho 1 PointCloud entry vao StringBuilder sb.
-    Dung indent 2-space ben trong the <PointCloud>.
     """
     tf  = entry.world_transform
     mat = transform_to_matrix4x4(tf)
@@ -518,9 +658,19 @@ def _build_entry_xml_block(sb, entry, index):
     tx, ty, tz      = extract_translation_ft(tf)
     ax, ay, az, ang = extract_rotation_deg(tf)
 
-    tx_m = tx * FT_TO_M
-    ty_m = ty * FT_TO_M
-    tz_m = tz * FT_TO_M
+    tx_mm = tx * FT_TO_MM
+    ty_mm = ty * FT_TO_MM
+    tz_mm = tz * FT_TO_MM
+
+    # Quick-reference comment for copy-paste
+    sb.AppendLine(u'')
+    sb.AppendLine(u'  <!--')
+    sb.AppendLine(u'    [NAVISWORKS] File Units and Transform:')
+    sb.AppendLine(u'      Units  = Millimeters')
+    sb.AppendLine(u'      Origin X={:.3f}  Y={:.3f}  Z={:.3f}'.format(tx_mm, ty_mm, tz_mm))
+    sb.AppendLine(u'      Rotation {:.4f} deg  about axis ({:.6f}, {:.6f}, {:.6f})'.format(ang, ax, ay, az))
+    sb.AppendLine(u'    [RECAP] Edit > Registration > apply Translation + 4x4 Matrix below.')
+    sb.AppendLine(u'  -->')
 
     sb.AppendLine(u'  <PointCloud index="{}">'.format(index))
 
@@ -543,39 +693,47 @@ def _build_entry_xml_block(sb, entry, index):
     sb.AppendLine(u'      <Z>{:.8f}</Z>'.format(tz))
     sb.AppendLine(u'    </Translation>')
 
-    # Translation - meters
+    # Translation - mm
     sb.AppendLine(u'')
-    sb.AppendLine(u'    <!-- Translation (meters, for ReCap / Navisworks) -->')
-    sb.AppendLine(u'    <Translation unit="meters">')
-    sb.AppendLine(u'      <X>{:.8f}</X>'.format(tx_m))
-    sb.AppendLine(u'      <Y>{:.8f}</Y>'.format(ty_m))
-    sb.AppendLine(u'      <Z>{:.8f}</Z>'.format(tz_m))
+    sb.AppendLine(u'    <!-- Translation (mm, for ReCap / Navisworks) -->')
+    sb.AppendLine(u'    <Translation unit="mm">')
+    sb.AppendLine(u'      <X>{:.4f}</X>'.format(tx_mm))
+    sb.AppendLine(u'      <Y>{:.4f}</Y>'.format(ty_mm))
+    sb.AppendLine(u'      <Z>{:.4f}</Z>'.format(tz_mm))
     sb.AppendLine(u'    </Translation>')
 
-    # Rotation
+    # Rotation (axis-angle)
     sb.AppendLine(u'')
     sb.AppendLine(u'    <!-- Rotation: axis-angle -->')
+    sb.AppendLine(u'    <!-- NAVISWORKS: File Units and Transform > Rotation field = AngleDegrees, Axis X/Y/Z below -->')
     sb.AppendLine(u'    <Rotation>')
     sb.AppendLine(u'      <Axis X="{:.8f}" Y="{:.8f}" Z="{:.8f}"/>'.format(ax, ay, az))
     sb.AppendLine(u'      <AngleDegrees>{:.6f}</AngleDegrees>'.format(ang))
     sb.AppendLine(u'    </Rotation>')
 
+    # Euler angles ZYX
+    rx, ry, rz = extract_euler_zyx_deg(tf)
+    sb.AppendLine(u'')
+    sb.AppendLine(u'    <!-- Euler ZYX: roll={:.4f} pitch={:.4f} yaw={:.4f} deg (alternative format) -->'.format(rx, ry, rz))
+    sb.AppendLine(u'    <EulerAnglesZYX roll="{:.6f}" pitch="{:.6f}" yaw="{:.6f}"/>'.format(rx, ry, rz))
+
     # 4x4 matrix
     sb.AppendLine(u'')
-    sb.AppendLine(u'    <!-- 4x4 row-major matrix (translation in meters) -->')
-    sb.AppendLine(u'    <Matrix4x4 unit="meters" row_major="true">')
+    sb.AppendLine(u'    <!-- 4x4 row-major matrix (mm) -->')
+    sb.AppendLine(u'    <!-- RECAP: Edit > Registration > Transform Matrix - enter 16 values row by row -->')
+    sb.AppendLine(u'    <Matrix4x4 unit="mm" row_major="true">')
     for i, row in enumerate(mat):
         sb.AppendLine(u'      <Row index="{}">{:.10f} {:.10f} {:.10f} {:.10f}</Row>'.format(
             i, row[0], row[1], row[2], row[3]))
     sb.AppendLine(u'    </Matrix4x4>')
 
-    # Basis vectors
+    # Basis vectors (normalized unit vectors)
     sb.AppendLine(u'')
-    sb.AppendLine(u'    <!-- Rotation basis vectors -->')
+    sb.AppendLine(u'    <!-- Normalized rotation basis vectors (unit length) -->')
     sb.AppendLine(u'    <BasisVectors>')
-    bx_v = tf.BasisX
-    by_v = tf.BasisY
-    bz_v = tf.BasisZ
+    bx_v = tf.BasisX.Normalize()
+    by_v = tf.BasisY.Normalize()
+    bz_v = tf.BasisZ.Normalize()
     sb.AppendLine(u'      <BasisX X="{:.10f}" Y="{:.10f}" Z="{:.10f}"/>'.format(bx_v.X, bx_v.Y, bx_v.Z))
     sb.AppendLine(u'      <BasisY X="{:.10f}" Y="{:.10f}" Z="{:.10f}"/>'.format(by_v.X, by_v.Y, by_v.Z))
     sb.AppendLine(u'      <BasisZ X="{:.10f}" Y="{:.10f}" Z="{:.10f}"/>'.format(bz_v.X, bz_v.Y, bz_v.Z))
@@ -584,33 +742,118 @@ def _build_entry_xml_block(sb, entry, index):
     sb.AppendLine(u'  </PointCloud>')
 
 
+def _build_link_xml_block(sb, link_data, index):
+    """
+    Write a <RevitLink> block describing the transform of a Revit Link file.
+    """
+    tf  = link_data[u'transform']
+    mat = transform_to_matrix4x4(tf)
+    ax, ay, az, ang = extract_rotation_deg(tf)
+    rx, ry, rz      = extract_euler_zyx_deg(tf)
+    o   = tf.Origin
+    tx_mm = o.X * FT_TO_MM
+    ty_mm = o.Y * FT_TO_MM
+    tz_mm = o.Z * FT_TO_MM
+
+    ltype = link_data.get(u'link_type', u'revit').upper()
+    sb.AppendLine(u'  <LinkedFile index="{}" name="{}" type="{}">'.format(index, link_data[u'name'], ltype))
+    sb.AppendLine(u'    <ElementId>{}</ElementId>'.format(link_data[u'element_id']))
+    sb.AppendLine(u'    <FilePath>{}</FilePath>'.format(link_data[u'path']))
+    sb.AppendLine(u'')
+    sb.AppendLine(u'    <!-- Translation (mm) -->')
+    sb.AppendLine(u'    <Translation unit="mm">')
+    sb.AppendLine(u'      <X>{:.4f}</X>'.format(tx_mm))
+    sb.AppendLine(u'      <Y>{:.4f}</Y>'.format(ty_mm))
+    sb.AppendLine(u'      <Z>{:.4f}</Z>'.format(tz_mm))
+    sb.AppendLine(u'    </Translation>')
+    sb.AppendLine(u'')
+    sb.AppendLine(u'    <!-- Rotation axis-angle (for Navisworks Units and Transform dialog) -->')
+    sb.AppendLine(u'    <Rotation>')
+    sb.AppendLine(u'      <Axis X="{:.8f}" Y="{:.8f}" Z="{:.8f}"/>'.format(ax, ay, az))
+    sb.AppendLine(u'      <AngleDegrees>{:.6f}</AngleDegrees>'.format(ang))
+    sb.AppendLine(u'    </Rotation>')
+    sb.AppendLine(u'')
+    sb.AppendLine(u'    <!-- Euler ZYX (roll/pitch/yaw) in degrees -->')
+    sb.AppendLine(u'    <EulerAnglesZYX roll="{:.6f}" pitch="{:.6f}" yaw="{:.6f}"/>'.format(rx, ry, rz))
+    sb.AppendLine(u'')
+    sb.AppendLine(u'    <!-- 4x4 row-major matrix (mm) -->')
+    sb.AppendLine(u'    <Matrix4x4 unit="mm" row_major="true">')
+    for i, row in enumerate(mat):
+        sb.AppendLine(u'      <Row index="{}">{:.10f} {:.10f} {:.10f} {:.10f}</Row>'.format(
+            i, row[0], row[1], row[2], row[3]))
+    sb.AppendLine(u'    </Matrix4x4>')
+    sb.AppendLine(u'  </LinkedFile>')
+
+
 def write_all_transforms_xml(entries, custom_folder=None):
     """
-    Ghi TAT CA entries vao MOT file XML duy nhat.
+    Write all selected entries (RcsEntry and/or LinkEntry) to one XML file.
 
     Args:
-        entries: list[RcsEntry] -- danh sach entries can xuat
-        custom_folder: duong dan thu muc tuy chon; None = auto
+        entries       : list[RcsEntry | LinkEntry]
+        custom_folder : output directory override; None = auto
 
     Returns:
-        (True,  output_path)   -- thanh cong
-        (False, error_message) -- that bai
+        (True,  output_path)   -- success
+        (False, error_message) -- failure
     """
     out_path = _get_combined_output_path(custom_folder)
     if not out_path:
         return False, u"Cannot determine output path."
 
+    # Separate into PointCloud entries and Link entries
+    pc_entries   = [e for e in entries if not getattr(e, 'is_link_file', False)]
+    lnk_entries  = [e for e in entries if     getattr(e, 'is_link_file', False)]
+
     sb = StringBuilder()
     sb.AppendLine(u'<?xml version="1.0" encoding="utf-8"?>')
     sb.AppendLine(u'<!-- Generated by Export Point Cloud Transform  @V2D -->')
-    sb.AppendLine(u'<!-- World-space coordinates extracted from Revit -->')
-    sb.AppendLine(u'<!-- Use Translation/meters to re-apply in ReCap / Navisworks -->')
-    sb.AppendLine(u'<PointCloudTransforms count="{}">'.format(len(entries)))
+    sb.AppendLine(u'<!-- World-space coordinates extracted from Revit (internal unit: feet, output: mm) -->')
     sb.AppendLine(u'')
+    sb.AppendLine(u'<!--')
+    sb.AppendLine(u'  HOW TO USE IN NAVISWORKS (per PointCloud entry):')
+    sb.AppendLine(u'    1. Append the .rcs file to your Navisworks scene.')
+    sb.AppendLine(u'    2. In Selection Tree, right-click file > File Units and Transform.')
+    sb.AppendLine(u'    3. Units = Millimeters.')
+    sb.AppendLine(u'    4. Origin X/Y/Z  <-- Translation unit=mm values.')
+    sb.AppendLine(u'    5. Rotation angle <-- AngleDegrees value.')
+    sb.AppendLine(u'       Axis X/Y/Z     <-- Axis X/Y/Z values.')
+    sb.AppendLine(u'    6. Scale = 1 / 1 / 1.  Click OK.')
+    sb.AppendLine(u'')
+    sb.AppendLine(u'  HOW TO USE IN RECAP (per PointCloud entry):')
+    sb.AppendLine(u'    1. Open project in ReCap Pro.')
+    sb.AppendLine(u'    2. Edit > Registration > select scan > Transform.')
+    sb.AppendLine(u'    3. Enter the 4x4 Matrix4x4 values (row-major, mm).')
+    sb.AppendLine(u'       OR apply Translation X/Y/Z (mm) + Rotation separately.')
+    sb.AppendLine(u'-->')
+    sb.AppendLine(u'')
+    sb.AppendLine(u'<PointCloudTransforms pc_count="{}" link_count="{}">'.format(
+        len(pc_entries), len(lnk_entries)))
 
-    for idx, entry in enumerate(entries):
-        _build_entry_xml_block(sb, entry, idx)
+    # ── Point Cloud blocks ──
+    if pc_entries:
         sb.AppendLine(u'')
+        sb.AppendLine(u'  <!-- === POINT CLOUD TRANSFORMS === -->')
+        for idx, entry in enumerate(pc_entries):
+            _build_entry_xml_block(sb, entry, idx)
+            sb.AppendLine(u'')
+
+    # ── Linked file blocks ──
+    if lnk_entries:
+        sb.AppendLine(u'')
+        sb.AppendLine(u'  <!-- === LINKED FILE TRANSFORMS (Revit / CAD) === -->')
+        sb.AppendLine(u'  <!-- Host-space positions of each linked .rvt / .dwg file. -->')
+        for idx, lentry in enumerate(lnk_entries):
+            # Build a dict as _build_link_xml_block expects
+            ldata = {
+                u'name':       lentry.display_name,
+                u'path':       lentry.rcs_path,
+                u'element_id': lentry.element_id,
+                u'transform':  lentry.world_transform,
+                u'link_type':  lentry.link_type,
+            }
+            _build_link_xml_block(sb, ldata, idx)
+            sb.AppendLine(u'')
 
     sb.AppendLine(u'</PointCloudTransforms>')
 
@@ -655,12 +898,12 @@ class ExportPCTransformDialog(Window):
     _CLR_LOCAL_BADGE = Color.FromRgb(0,   114, 178)
     _CLR_LINK_BADGE  = Color.FromRgb(34,  139,  34)
 
-    def __init__(self, rcs_entries):
+    def __init__(self, all_entries):
         """
         Args:
-            rcs_entries: list[RcsEntry] -- all collected PC entries
+            all_entries: list[RcsEntry | LinkEntry] -- combined PC + Link entries
         """
-        self._all_entries          = rcs_entries
+        self._all_entries          = all_entries
         self._check_items          = []
         self.ExportedPaths         = []
         self.Confirmed             = False
@@ -1073,24 +1316,32 @@ class ExportPCTransformDialog(Window):
         self._list_panel.Children.Clear()
         self._check_items = []
 
-        # Nhóm: local trước, linked sau để dễ phân biệt
-        local  = [e for e in self._all_entries if not e.is_linked]
-        linked = [e for e in self._all_entries if e.is_linked]
+        # Group: Local PC -> Linked PC (inside Revit links) -> Link Files
+        local_pc  = [e for e in self._all_entries
+                     if not getattr(e, 'is_link_file', False) and not e.is_linked]
+        linked_pc = [e for e in self._all_entries
+                     if not getattr(e, 'is_link_file', False) and e.is_linked]
+        link_files = [e for e in self._all_entries
+                      if getattr(e, 'is_link_file', False)]
 
-        if local:
-            self._add_separator(u"  -- Current Document (Local) --")
-            for e in local:
+        if local_pc:
+            self._add_separator(u"  -- Point Clouds (Local) --")
+            for e in local_pc:
                 self._add_entry_row(e)
 
-        if linked:
-            self._add_separator(u"  -- Linked Files --")
-            for e in linked:
+        if linked_pc:
+            self._add_separator(u"  -- Point Clouds (inside Linked Files) --")
+            for e in linked_pc:
                 self._add_entry_row(e)
 
-        if not local and not linked:
-            # Thông báo nếu không tìm thấy PC nào
+        if link_files:
+            self._add_separator(u"  -- Linked Files (Revit Model / CAD) --")
+            for e in link_files:
+                self._add_entry_row(e)
+
+        if not local_pc and not linked_pc and not link_files:
             empty = TextBlock()
-            empty.Text       = u"  (No Point Cloud found)"
+            empty.Text       = u"  (No Point Cloud or Linked File found)"
             empty.FontSize   = 11
             empty.Foreground = SolidColorBrush(self._CLR_TEXT_GRAY)
             empty.Margin     = Thickness(12, 16, 12, 16)
@@ -1147,12 +1398,24 @@ class ExportPCTransformDialog(Window):
         name_row = StackPanel()
         name_row.Orientation = Orientation.Horizontal
 
-        badge_clr = self._CLR_LINK_BADGE if entry.is_linked else self._CLR_LOCAL_BADGE
-        badge_txt = u"LINK" if entry.is_linked else u"LOCAL"
+        # Badge: RVT / CAD / LINK (pc inside link) / LOCAL
+        is_link_file = getattr(entry, 'is_link_file', False)
+        if is_link_file:
+            lt = getattr(entry, 'link_type', 'revit').upper()
+            badge_txt = lt                                # 'RVT' or 'CAD'
+            badge_clr = (Color.FromRgb(100, 60, 180)     # purple for RVT
+                         if lt == 'REVIT'
+                         else Color.FromRgb(180, 90, 0))  # orange for CAD
+        elif entry.is_linked:
+            badge_txt = u"PC-LINK"
+            badge_clr = self._CLR_LINK_BADGE
+        else:
+            badge_txt = u"PC-LOCAL"
+            badge_clr = self._CLR_LOCAL_BADGE
         badge = self._make_badge(badge_txt, badge_clr, Color.FromRgb(255, 255, 255))
         badge.Margin = Thickness(0, 0, 6, 0)
 
-        # Ten file hien thi chinh (filename hoac type name)
+        # File name label
         name_tb = TextBlock()
         name_tb.Text              = entry.display_name
         name_tb.FontWeight        = FontWeights.SemiBold
@@ -1209,16 +1472,16 @@ class ExportPCTransformDialog(Window):
             link_src.FontWeight = FontWeights.SemiBold
             sub_sp.Children.Add(link_src)
 
-        # Quick transform preview: offset (meters) + rotation angle
+        # Quick transform preview: offset (mm) + rotation angle
         tf = entry.world_transform
         o  = tf.Origin
-        tx_m = o.X * FT_TO_M
-        ty_m = o.Y * FT_TO_M
-        tz_m = o.Z * FT_TO_M
+        tx_mm = o.X * FT_TO_MM
+        ty_mm = o.Y * FT_TO_MM
+        tz_mm = o.Z * FT_TO_MM
         _, _, _, ang = extract_rotation_deg(tf)
         coord_tb = TextBlock()
-        coord_tb.Text       = u"  /> Offset (m): X={:.4f}  Y={:.4f}  Z={:.4f}   Rot={:.3f}deg".format(
-            tx_m, ty_m, tz_m, ang)
+        coord_tb.Text       = u"  /> Offset (mm): X={:.1f}  Y={:.1f}  Z={:.1f}   Rot={:.3f}deg".format(
+            tx_mm, ty_mm, tz_mm, ang)
         coord_tb.FontFamily = FontFamily(u"Consolas")
         coord_tb.FontSize   = 9
         coord_tb.Foreground = SolidColorBrush(Color.FromRgb(0, 100, 60))
@@ -1302,17 +1565,17 @@ class ExportPCTransformDialog(Window):
             self._preview_border.Visibility = Visibility.Collapsed
 
     def _show_preview(self, entry):
-        # Hiển thị thông tin transform tóm tắt của entry được chọn
+        # Show transform summary of selected entry
         tf = entry.world_transform
         o  = tf.Origin
-        tx_m = o.X * FT_TO_M
-        ty_m = o.Y * FT_TO_M
-        tz_m = o.Z * FT_TO_M
+        tx_mm = o.X * FT_TO_MM
+        ty_mm = o.Y * FT_TO_MM
+        tz_mm = o.Z * FT_TO_MM
         ax, ay, az, ang = extract_rotation_deg(tf)
 
         lines = []
         lines.append(u"[Preview] {}".format(entry.display_name))
-        lines.append(u"   Translation (m): X={:.6f}  Y={:.6f}  Z={:.6f}".format(tx_m, ty_m, tz_m))
+        lines.append(u"   Translation (mm): X={:.2f}  Y={:.2f}  Z={:.2f}".format(tx_mm, ty_mm, tz_mm))
         lines.append(u"   Rotation: {:.4f} deg  Axis=({:.4f}, {:.4f}, {:.4f})".format(ang, ax, ay, az))
         lines.append(u"   Output -> {}".format(
             entry.get_output_xml_path(self._custom_output_folder) or u"(path not available)"))
@@ -1393,19 +1656,23 @@ class ExportPCTransformDialog(Window):
 # ═════════════════════════════════════════════════════════════════════════════
 
 def main():
-    # Bước 1: Thu thập tất cả PC entries trong project
-    entries = collect_rcs_entries()
+    # Step 1: Collect PointCloud entries (local + inside Revit links)
+    rcs_entries  = collect_rcs_entries()
 
-    if not entries:
+    # Step 2: Collect Revit Link and CAD Link entries
+    link_entries = collect_link_entries()
+
+    all_entries = rcs_entries + link_entries
+
+    if not all_entries:
         TaskDialog.Show(
             u"Export Point Cloud Transform  -  @V2D",
-            u"No Point Cloud found in the current project\n"
-            u"or in any loaded Revit Link file."
+            u"No Point Cloud or Linked File found in the current project."
         )
         return
 
-    # Bước 2: Mở dialog để user chọn file và export
-    dialog = ExportPCTransformDialog(entries)
+    # Step 3: Show dialog for user to select and export
+    dialog = ExportPCTransformDialog(all_entries)
     dialog.ShowDialog()
 
     # Bước 3: Kiểm tra kết quả — nếu user nhấn Cancel thì Confirmed = False
