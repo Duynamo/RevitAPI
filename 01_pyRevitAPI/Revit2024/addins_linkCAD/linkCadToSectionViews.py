@@ -423,7 +423,7 @@ class MainForm(Form):
         self._lbl_vitaminD.Size = System.Drawing.Size(int(25 * width_ratio), int(13 * height_ratio))
         self._lbl_vitaminD.Name = "lbl_vitaminD"
         self._lbl_vitaminD.TabIndex = 7
-        self._lbl_vitaminD.Text = "@D"
+        self._lbl_vitaminD.Text = "@V2D"
 
         # MainForm
         self.BackColor = System.Drawing.SystemColors.Menu
