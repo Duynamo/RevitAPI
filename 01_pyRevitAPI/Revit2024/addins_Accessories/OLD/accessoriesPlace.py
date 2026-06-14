@@ -198,13 +198,9 @@ def connect_connectors(con1,con2):
     t=Transaction(doc,"connect")
     t.Start()
     try:
-        # Tự động tạo mặt bích (Flange/Union) tại vị trí nối
-        doc.Create.NewUnionFitting(con1, con2)
+        con1.ConnectTo(con2)
     except Exception as e:
-        try:
-            con1.ConnectTo(con2)
-        except Exception as ex:
-            data.append(ex)
+        data.append(e)
     finally:
         t.Commit()
     return 0
@@ -609,3 +605,4 @@ form = MainForm()
 form.TopMost = True
 Application.Run(form)
 OUT = data
+

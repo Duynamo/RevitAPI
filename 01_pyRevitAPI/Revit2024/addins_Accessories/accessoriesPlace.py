@@ -21,7 +21,7 @@ import Autodesk
 from Autodesk.Revit import * 
 from Autodesk.Revit.DB import XYZ,Transaction,FilteredElementCollector,BuiltInCategory,BuiltInParameter,Plane,SketchPlane,FamilySymbol,TransactionGroup
 from Autodesk.Revit.DB.Structure import StructuralType
-from Autodesk.Revit.UI.Selection import ISelectionFilter
+from Autodesk.Revit.UI.Selection import ISelectionFilter, ObjectType, ObjectSnapTypes
 from abc import *   
 #endregion
 doc = DocumentManager.Instance.CurrentDBDocument
@@ -198,9 +198,13 @@ def connect_connectors(con1,con2):
     t=Transaction(doc,"connect")
     t.Start()
     try:
-        con1.ConnectTo(con2)
+        # Tự động tạo mặt bích (Flange/Union) tại vị trí nối
+        doc.Create.NewUnionFitting(con1, con2)
     except Exception as e:
-        data.append(e)
+        try:
+            con1.ConnectTo(con2)
+        except Exception as ex:
+            data.append(ex)
     finally:
         t.Commit()
     return 0
@@ -592,17 +596,27 @@ class MainForm(Form):
 
     def Btn_pickPointClick(self, sender, e):
         global picked_p, connector
+        self.Hide()
         try:
-            connector = uidoc.Selection.PickPoint(Autodesk.Revit.UI.Selection.ObjectSnapTypes.Nearest, "connector")
-            picked_p  = connector
+            # Dung PickObject(PointOnElement) thay vi PickPoint de tranh loi
+            # "No Work Plane" khi lam viec trong view 3D.
+            # GlobalPoint tra ve toa do world-space cua diem duoc click.
+            ref = uidoc.Selection.PickObject(
+                ObjectType.PointOnElement,
+                u"Click on the pipe near the desired connector"
+            )
+            picked_p = ref.GlobalPoint
+            connector = picked_p
             self._btn_pickPoint.BackColor = self._COLOR_GREEN
             self._btn_pickPoint.Text = u"Point Selected"
         except Exception:
             pass  # user cancelled pick
+        finally:
+            self.Show()
+            self.TopMost = True
 
 #endregion
 form = MainForm()
 form.TopMost = True
 Application.Run(form)
 OUT = data
-

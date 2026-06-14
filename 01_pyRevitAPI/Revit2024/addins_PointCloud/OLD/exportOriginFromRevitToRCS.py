@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-""" 
-Cập nhật đơn vị đầu ra cho ma trận 4x4 từ mm sang m
-"""
 """
 Export Point Cloud Transform to RCS  -  IronPython Script for Revit (Dynamo)
 =============================================================================
@@ -526,12 +523,11 @@ def collect_link_entries():
 
 # Conversion factor: Revit internal unit = feet; output = millimeters (1 ft = 304.8 mm)
 FT_TO_MM = 304.8
-FT_TO_M = 0.3048
 
 
 def transform_to_matrix4x4(tf):
     """
-    Convert a Revit Transform to a 4x4 row-major matrix (translation in m).
+    Convert a Revit Transform to a 4x4 row-major matrix (translation in mm).
     BasisX/Y/Z are NORMALIZED to strip any scale factor embedded by Revit
     (linked transforms often carry a ~3.2808 scale == 1/FT_TO_MM * 1000).
     """
@@ -539,9 +535,9 @@ def transform_to_matrix4x4(tf):
     by = tf.BasisY.Normalize()
     bz = tf.BasisZ.Normalize()
     o  = tf.Origin
-    ox = o.X * FT_TO_M
-    oy = o.Y * FT_TO_M
-    oz = o.Z * FT_TO_M
+    ox = o.X * FT_TO_MM
+    oy = o.Y * FT_TO_MM
+    oz = o.Z * FT_TO_MM
     m = [
         [bx.X, by.X, bz.X, ox],
         [bx.Y, by.Y, bz.Y, oy],
@@ -723,9 +719,9 @@ def _build_entry_xml_block(sb, entry, index):
 
     # 4x4 matrix
     sb.AppendLine(u'')
-    sb.AppendLine(u'    <!-- 4x4 row-major matrix (m) -->')
-    sb.AppendLine(u'    <!-- CloudCompare: Ctrl + T > Transform Matrix - enter 16 values row by row -->')
-    sb.AppendLine(u'    <Matrix4x4 unit="m" row_major="true">')
+    sb.AppendLine(u'    <!-- 4x4 row-major matrix (mm) -->')
+    sb.AppendLine(u'    <!-- RECAP: Edit > Registration > Transform Matrix - enter 16 values row by row -->')
+    sb.AppendLine(u'    <Matrix4x4 unit="mm" row_major="true">')
     for i, row in enumerate(mat):
         sb.AppendLine(u'      <Row index="{}">{:.10f} {:.10f} {:.10f} {:.10f}</Row>'.format(
             i, row[0], row[1], row[2], row[3]))
@@ -780,8 +776,8 @@ def _build_link_xml_block(sb, link_data, index):
     sb.AppendLine(u'    <!-- Euler ZYX (roll/pitch/yaw) in degrees -->')
     sb.AppendLine(u'    <EulerAnglesZYX roll="{:.6f}" pitch="{:.6f}" yaw="{:.6f}"/>'.format(rx, ry, rz))
     sb.AppendLine(u'')
-    sb.AppendLine(u'    <!-- 4x4 row-major matrix (m) -->')
-    sb.AppendLine(u'    <Matrix4x4 unit="m" row_major="true">')
+    sb.AppendLine(u'    <!-- 4x4 row-major matrix (mm) -->')
+    sb.AppendLine(u'    <Matrix4x4 unit="mm" row_major="true">')
     for i, row in enumerate(mat):
         sb.AppendLine(u'      <Row index="{}">{:.10f} {:.10f} {:.10f} {:.10f}</Row>'.format(
             i, row[0], row[1], row[2], row[3]))

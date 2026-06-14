@@ -182,11 +182,12 @@ try:
                             error_log.append("Không thể cập nhật các ống kết nối với phụ kiện ID {}.".format(part.Id))
                     # TRƯỜNG HỢP 2: PHỤ KIỆN ĐỨNG RIÊNG LẺ -> DÙNG ỐNG ẢO
                     else:
+                        # Kiểm tra xem có đủ thông tin để tạo ống không
                         if not pipe_type_id_to_use or not level_id_to_use:
                             error_log.append("Không thể xử lý ID {}: Thiếu Pipe Type hoặc Level trong dự án.".format(part.Id))
                             continue
 
-                        # Phụ kiện đứng riêng lẻ, tìm một connector bất kỳ để bắt đầu
+                        # Tìm một connector bất kỳ trên phụ kiện để bắt đầu
                         conn_to_use = None
                         if part.MEPModel.ConnectorManager.Connectors.Size > 0:
                             conn_to_use = list(part.MEPModel.ConnectorManager.Connectors)[0]
@@ -195,47 +196,40 @@ try:
                             error_log.append("Lỗi xử lý ID {}: Phụ kiện không có connector.".format(part.Id))
                             continue
 
-                        # Lấy thông tin cần thiết từ connector
+                        # Lấy thông tin cần thiết từ connector để tạo ống ảo
                         fitting_diameter = conn_to_use.Radius * 2
                         start_point = conn_to_use.Origin
+                        
+                        # Xác định hướng của ống ảo (ngắn)
                         direction = XYZ.BasisX
                         if conn_to_use.CoordinateSystem and not conn_to_use.CoordinateSystem.BasisZ.IsZeroLength():
                             direction = conn_to_use.CoordinateSystem.BasisZ
-                        end_point = start_point + direction.Normalize() * 0.1 # Tạo ống ảo ngắn
+                        end_point = start_point + direction.Normalize() * 0.1 # Dài 0.1 feet
 
-                        # 1. Tạo ống ảo với Piping System của đối tượng gốc
+                        # Bước 1 & 2: Tạo một ống ảo (virtual pipe) và gán Piping System cho nó.
+                        # Ghi chú: Piping System được lấy từ đối tượng gốc (basePart) vì đó là mục tiêu của lệnh "Match".
+                        # Lệnh Pipe.Create() yêu cầu Piping System ngay khi tạo, nên 2 bước này được kết hợp.
                         virtual_pipe = Pipe.Create(doc, base_system_type_id, pipe_type_id_to_use, level_id_to_use, start_point, end_point)
                         
-                        # 2. Đặt đường kính ống ảo cho khớp với phụ kiện
+                        # Cấu hình đường kính cho ống ảo
                         pipe_diameter_param = virtual_pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM)
                         if pipe_diameter_param:
                             pipe_diameter_param.Set(fitting_diameter)
                         
-                        # Cập nhật lại mô hình để các thay đổi trên ống ảo có hiệu lực trước khi kết nối
-                        doc.Regenerate()
+                        doc.Regenerate() # Cần thiết để connector của ống ảo được tạo ra
 
-                        # Tìm connector của ống ảo tại điểm bắt đầu
+                        # Tìm connector của ống ảo tại điểm kết nối
                         pipe_conns_at_start = [c for c in virtual_pipe.ConnectorManager.Connectors if c.Origin.IsAlmostEqualTo(start_point)]
 
                         if pipe_conns_at_start:
                             pipe_conn = pipe_conns_at_start[0]
                             
-                            # *** KẾT NỐI PHỤ KIỆN VÀO ỐNG ẢO ***
+                            # Bước 3: Kết nối ống ảo đó với phụ kiện đích.
+                            # Khi kết nối, phụ kiện sẽ tự động nhận Piping System từ ống ảo.
                             conn_to_use.ConnectTo(pipe_conn)
-                            
-                            # Cập nhật mô hình lần nữa để hệ thống lan truyền
-                            doc.Regenerate() 
-                            
-                            # *** GÁN PIPING SYSTEM CỦA ỐNG GỐC SANG ỐNG ẢO ***
-                            # Điều này sẽ ép hệ thống lan truyền sang phụ kiện được kết nối.
-                            virtual_pipe_param = virtual_pipe.get_Parameter(param_bip)
-                            if virtual_pipe_param and not virtual_pipe_param.IsReadOnly:
-                                virtual_pipe_param.Set(base_system_type_id)
-                                updated_count += 1
-                                # Các bước tiếp theo (xóa ống ảo, kiểm tra lại) sẽ được thực hiện sau.
-                            else:
-                                error_log.append("Không thể gán hệ thống cho ống ảo của phụ kiện ID {}.".format(part.Id))
-
+                            updated_count += 1
+                            # Bước 4: Tạm thời dừng lại ở bước đó.
+                            # Theo yêu cầu, ống ảo sẽ được giữ lại trong mô hình để kiểm tra.
                         else:
                             error_log.append("Lỗi xử lý ID {}: Không tìm thấy connector của ống ảo.".format(part.Id))
 

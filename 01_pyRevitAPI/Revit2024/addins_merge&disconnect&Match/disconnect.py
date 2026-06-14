@@ -82,10 +82,15 @@ def find_connectors(element):
 def find_and_disconnect_nearest(element1, element2):
     """
     Tìm cặp connector gần nhất giữa hai đối tượng,
-    và ngắt kết nối nếu chúng đang được kết nối.
+    ngắt kết nối chúng và buộc Revit phải tách Piping System thành hai hệ thống độc lập.
     """
     connectors1 = find_connectors(element1)
     connectors2 = find_connectors(element2)
+
+    # Lấy hệ thống ban đầu từ element1 để tham chiếu.
+    original_system = None
+    if hasattr(element1, 'MEPSystem') and element1.MEPSystem is not None:
+        original_system = element1.MEPSystem
 
     if not connectors1 or not connectors2:
         return "Lỗi: Một hoặc cả hai đối tượng không có connector."
@@ -107,21 +112,39 @@ def find_and_disconnect_nearest(element1, element2):
         return "Không thể tìm thấy các connector gần nhất."
 
     # Kiểm tra xem chúng có được kết nối với nhau không
-    is_connected = False
-    for ref_conn in nearest_conn1.AllRefs:
-        if ref_conn.Owner.Id == nearest_conn2.Owner.Id:
-            is_connected = True
-            break
+    is_connected_to_each_other = False
+    if nearest_conn1.IsConnected and nearest_conn2.IsConnected:
+        for ref_conn in nearest_conn1.AllRefs:
+            # So sánh cả Owner ID và Connector ID để đảm bảo chính xác
+            if ref_conn.Owner.Id == nearest_conn2.Owner.Id and ref_conn.Id == nearest_conn2.Id:
+                is_connected_to_each_other = True
+                break
     
-    if is_connected:
+    if is_connected_to_each_other:
         TransactionManager.Instance.EnsureInTransaction(doc)
         try:
+            # Bước 1: Ngắt kết nối vật lý.
             nearest_conn1.DisconnectFrom(nearest_conn2)
+            
+            # Bước 2: Phá vỡ liên kết hệ thống logic.
+            # Chỉ dùng doc.Regenerate() là không đủ. Ta cần phải nói rõ cho Revit biết
+            # một phần của mạng lưới không còn thuộc về hệ thống cũ nữa.
+            if original_system is not None and hasattr(element2, 'MEPSystem') and element2.MEPSystem is not None and original_system.Id == element2.MEPSystem.Id:
+                # Sử dụng MEPSystem.Remove() để xóa một trong hai phần tử khỏi hệ thống.
+                # Revit sẽ tự động tạo một hệ thống mới cho nhánh bị "mồ côi" này.
+                # Đây là cách làm trực tiếp và đáng tin cậy nhất.
+                elements_to_remove = List[ElementId]()
+                elements_to_remove.Add(element2.Id)
+                original_system.Remove(elements_to_remove)
+
+            # Bước 3: Tái tạo lại mô hình để Revit cập nhật tất cả các thay đổi.
+            doc.Regenerate()
+            
             TransactionManager.Instance.TransactionTaskDone()
-            return "Đã ngắt kết nối thành công cặp connector gần nhất."
+            return "Đã ngắt kết nối và tách thành công hai hệ thống đường ống độc lập."
         except Exception as ex:
             TransactionManager.Instance.TransactionTaskDone()
-            return "Lỗi khi ngắt kết nối: " + str(ex)
+            return "Lỗi khi thực hiện thao tác: " + str(ex)
     else:
         return "Các connector gần nhất không được kết nối với nhau."
 
